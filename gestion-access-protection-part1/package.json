@@ -1,0 +1,12 @@
+{
+  "name": "gestion-access-protection-part1",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "app-dependencies",
+  "main": "index.js",
+  "scripts": {
+    "test": "run"
+  },
+  "author": "AMIdrissi",
+  "license": "ISC"
+}
