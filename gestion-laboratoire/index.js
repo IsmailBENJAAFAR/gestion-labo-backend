@@ -4,7 +4,7 @@ const server = express();
 const port = 3030;
 
 server.get("/", (req, res) => {
-  res.send("hello from gestion access part1");
+  res.send("hello from whatever shithole service this is");
 });
 
 server.listen(port, () => {
