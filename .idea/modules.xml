@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/gestion-securite-acces/gestion-securite-acces.iml" filepath="$PROJECT_DIR$/gestion-securite-acces/gestion-securite-acces.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/gestionLaboBackend.iml" filepath="$PROJECT_DIR$/.idea/gestionLaboBackend.iml" />
     </modules>
   </component>

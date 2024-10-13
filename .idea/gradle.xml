@@ -20,6 +20,14 @@
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/gestion-securite-acces" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/gestion-securite-acces" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/gestion-utilisateur" />
         <option name="modules">
           <set>
