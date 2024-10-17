@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use anyhow::Result;
-use sqlx::{postgres::PgPoolOptions, PgConnection, Pool, Postgres};
+use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 use tokio::sync::{Mutex, OnceCell};
 
 use super::dao::Dao;
@@ -34,7 +34,7 @@ impl ExamDao {
 }
 
 impl Dao<Exam> for ExamDao {
-    fn find(&self, id: i32) -> anyhow::Result<Exam> {
+    async fn find(&self, id: i32) -> anyhow::Result<Exam> {
         todo!()
     }
 
@@ -52,11 +52,11 @@ impl Dao<Exam> for ExamDao {
         Ok(res.rows_affected() == 1)
     }
 
-    fn remove(&self, id: i32) -> bool {
+    async fn remove(&self, id: i32) -> bool {
         false
     }
 
-    fn find_all(&self) -> anyhow::Result<Vec<Exam>> {
+    async fn find_all(&self) -> anyhow::Result<Vec<Exam>> {
         Ok(Vec::new())
     }
 }
