@@ -1,50 +1,33 @@
-mod models;
+mod controllers;
 mod dao;
+mod models;
+mod services;
 use anyhow::Result;
-use axum::{routing::get, Router};
-use dotenvy::dotenv;
-use sqlx::{
-    postgres::{PgPoolOptions, PgRow},
-    types::chrono,
-    Row,
+use axum::{
+    http::StatusCode,
+    response::IntoResponse,
+    routing::{get, post},
+    Router,
 };
+use controllers::exam_controller;
 use tokio::net::TcpListener;
-
-async fn hello() -> &'static str {
-    "This is the microservice for exams and results"
-}
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    dotenv()?;
-    let url = std::env::var("DATABASE_URL")?;
-    let pool = PgPoolOptions::new()
-        .max_connections(5)
-        .connect(&url)
-        .await?;
-
-    // let row = sqlx::query("INSERT INTO exam (nom, created_at) VALUES ($1, $2)")
-    //     .bind("Info")
-    //     .bind(Utc::now())
-    //     .execute(&pool)
-    //     .await?;
-    //
-    // let rows_affected = row.rows_affected();
-    // println!("Rows affected: {}", rows_affected);
-
-    // let rows = sqlx::query("SELECT * FROM exam").fetch_all(&pool).await?;
-    //
-    // for row in rows {
-    //     let id: i32 = row.try_get("id")?;
-    //     let nom: String = row.try_get("nom")?;
-    //     let created_at: DateTime<Utc> = row.try_get("created_at")?;
-    //
-    //     println!("id: {id}, nom: {nom}, created_at: {created_at:?}");
-    // }
-
-    let app = Router::new().route("/hello", get(hello));
+    let global_router = Router::new().fallback(handler_404);
+    let app = global_router.nest(
+        "/api",
+        Router::new()
+            .route("/exams", get(exam_controller::get_exams))
+            .route("/exam", post(exam_controller::create_exam))
+            .route("/exam/:id", get(exam_controller::get_exam)),
+    );
 
     let listener = TcpListener::bind("127.0.0.1:8080").await.unwrap();
     axum::serve(listener, app).await.unwrap();
     Ok(())
+}
+
+async fn handler_404() -> impl IntoResponse {
+    (StatusCode::NOT_FOUND, "no resource found.")
 }
