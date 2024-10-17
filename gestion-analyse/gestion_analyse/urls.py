@@ -1,5 +1,5 @@
 """
-URL configuration for mysite project.
+URL configuration for gestion_analyse project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.1/topics/http/urls/
@@ -15,8 +15,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 
+import my_api.urls
+
+# this simply forward all the requests to api/ to the urls file in the my_api folder
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('api/', include(my_api.urls)),
 ]
