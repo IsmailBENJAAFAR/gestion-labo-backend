@@ -1,4 +1,5 @@
-use ::chrono::{DateTime, Utc};
+mod models;
+mod dao;
 use anyhow::Result;
 use axum::{routing::get, Router};
 use dotenvy::dotenv;
@@ -8,13 +9,6 @@ use sqlx::{
     Row,
 };
 use tokio::net::TcpListener;
-
-struct Exam {
-    id: i32,
-    nom: String,
-    created_at: chrono::DateTime<chrono::Utc>,
-    fk_id_analyse: i32,
-}
 
 async fn hello() -> &'static str {
     "This is the microservice for exams and results"
@@ -38,19 +32,19 @@ async fn main() -> Result<()> {
     // let rows_affected = row.rows_affected();
     // println!("Rows affected: {}", rows_affected);
 
-    let rows = sqlx::query("SELECT * FROM exam").fetch_all(&pool).await?;
-
-    for row in rows {
-        let id: i32 = row.try_get("id")?;
-        let nom: String = row.try_get("nom")?;
-        let created_at: DateTime<Utc> = row.try_get("created_at")?;
-
-        println!("id: {id}, nom: {nom}, created_at: {created_at:?}");
-    }
+    // let rows = sqlx::query("SELECT * FROM exam").fetch_all(&pool).await?;
     //
-    // let app = Router::new().route("/hello", get(hello));
+    // for row in rows {
+    //     let id: i32 = row.try_get("id")?;
+    //     let nom: String = row.try_get("nom")?;
+    //     let created_at: DateTime<Utc> = row.try_get("created_at")?;
     //
-    // let listener = TcpListener::bind("127.0.0.1:8080").await.unwrap();
-    // axum::serve(listener, app).await.unwrap();
+    //     println!("id: {id}, nom: {nom}, created_at: {created_at:?}");
+    // }
+
+    let app = Router::new().route("/hello", get(hello));
+
+    let listener = TcpListener::bind("127.0.0.1:8080").await.unwrap();
+    axum::serve(listener, app).await.unwrap();
     Ok(())
 }
