@@ -7,3 +7,7 @@ edition = "2021"
 anyhow = "1.0.89"
 axum = "0.7.7"
 tokio = { version = "1.40.0", features = ["full"] }
+sqlx = { version = "0.8.2", features = [ "runtime-tokio", "tls-native-tls", "postgres", "chrono" ] }
+dotenvy = "0.15.7"
+chrono = { version = "0.4.38", features = ["serde"] }
+futures = "0.3.31"
