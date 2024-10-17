@@ -1,13 +1,23 @@
-use serde::{Deserialize, Serialize};
 use sqlx::postgres::PgRow;
 use sqlx::Row;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct Exam {
     id: i32,
     nom: String,
     created_at: chrono::DateTime<chrono::Utc>,
     fk_id_analyse: i32,
+}
+
+impl Exam {
+    pub fn new(nom: String, fk_id_analyse: i32) -> Exam {
+        Exam {
+            id: 0,
+            nom,
+            created_at: chrono::Utc::now(),
+            fk_id_analyse,
+        }
+    }
 }
 
 impl TryFrom<PgRow> for Exam {

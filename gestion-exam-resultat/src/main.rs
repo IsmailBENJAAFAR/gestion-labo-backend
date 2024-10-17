@@ -1,5 +1,6 @@
 mod controllers;
 mod dao;
+mod dto;
 mod models;
 mod services;
 use anyhow::Result;
