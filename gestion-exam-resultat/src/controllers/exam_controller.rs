@@ -10,7 +10,7 @@ pub async fn get_exam(Path(param): Path<i32>) -> String {
     format!("The path contained: {param}")
 }
 
-pub async fn create_exam(data: Json<Exam>) -> String {
+pub async fn create_exam(Json(data): Json<Exam>) -> String {
     println!("{data:?}");
     "Exam created".to_string()
 }
