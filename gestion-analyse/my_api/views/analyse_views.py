@@ -2,7 +2,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from my_api.models.Analyse import Analyse
-from my_api.serializers import AnalyseSerializer, LaboratoireSerializer
+from my_api.serializers import AnalyseSerializer
 
 # Routes will be functionally defined
 

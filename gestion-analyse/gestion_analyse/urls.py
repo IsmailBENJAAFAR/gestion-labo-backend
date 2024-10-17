@@ -21,5 +21,5 @@ import my_api.urls
 
 # this simply forward all the requests to api/ to the urls file in the my_api folder
 urlpatterns = [
-    path('api/', include(my_api.urls)),
+    path('Analyse/', include(my_api.urls)),
 ]
