@@ -1,7 +1,8 @@
+use serde::{Deserialize, Serialize};
 use sqlx::postgres::PgRow;
 use sqlx::Row;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Exam {
     pub id: i32,
     pub nom: String,

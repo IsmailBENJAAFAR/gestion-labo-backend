@@ -5,3 +5,8 @@ Content-Type: application/json
 	"nom": "Informatique",
 	"fk_id_analyse": 1
 }
+
+###
+###
+
+GET http://localhost:8080/api/exam
