@@ -3,10 +3,10 @@ use sqlx::Row;
 
 #[derive(Debug)]
 pub struct Exam {
-    id: i32,
-    nom: String,
-    created_at: chrono::DateTime<chrono::Utc>,
-    fk_id_analyse: i32,
+    pub id: i32,
+    pub nom: String,
+    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub fk_id_analyse: i32,
 }
 
 impl Exam {

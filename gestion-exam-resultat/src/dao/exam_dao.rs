@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use anyhow::Result;
 use sqlx::{postgres::PgPoolOptions, PgConnection, Pool, Postgres};
 use tokio::sync::{Mutex, OnceCell};
 
@@ -32,13 +33,23 @@ impl ExamDao {
     }
 }
 
-impl<Exam> Dao<Exam> for ExamDao {
+impl Dao<Exam> for ExamDao {
     fn find(&self, id: i32) -> anyhow::Result<Exam> {
         todo!()
     }
 
-    fn insert(&self, data: Exam) -> bool {
-        false
+    async fn insert(&self, data: Exam) -> Result<bool> {
+        let pool = get_connection().await;
+        let conn = pool.lock().await;
+        let res =
+            sqlx::query("INSERT INTO exam (nom, created_at, fk_id_analyse) VALUES ($1, $2, $3)")
+                .bind(data.nom.clone())
+                .bind(data.created_at)
+                .bind(data.fk_id_analyse)
+                .execute(&*conn)
+                .await?;
+
+        Ok(res.rows_affected() == 1)
     }
 
     fn remove(&self, id: i32) -> bool {

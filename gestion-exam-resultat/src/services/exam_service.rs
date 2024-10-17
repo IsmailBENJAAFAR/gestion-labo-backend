@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use anyhow::Result;
 use axum::{http::StatusCode, response::IntoResponse};
 use tokio::sync::OnceCell;
 
@@ -15,12 +16,12 @@ async fn get_exam_dao() -> Arc<ExamDao> {
         .clone()
 }
 
-async fn create_post(exam: ExamDto) -> impl IntoResponse {
+async fn create_post(exam: ExamDto) -> Result<impl IntoResponse> {
     let exam = Exam::new(exam.nom, exam.fk_id_analyse);
     let dao = get_exam_dao().await;
-    if dao.insert(exam) {
-        (StatusCode::CREATED, "Exam has been created")
+    if dao.insert(exam).await? {
+        Ok((StatusCode::CREATED, "Exam has been created"))
     } else {
-        (StatusCode::BAD_REQUEST, "Exam hasn't been created")
+        Ok((StatusCode::BAD_REQUEST, "Exam hasn't been created"))
     }
 }
