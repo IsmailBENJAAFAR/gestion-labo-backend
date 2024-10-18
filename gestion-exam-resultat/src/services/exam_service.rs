@@ -6,17 +6,13 @@ use crate::{dto::ExamDto, models::Exam};
 
 pub async fn create_exam(dao: &impl Dao<Exam>, exam: ExamDto) -> impl IntoResponse {
     let exam = Exam::new(exam.nom, exam.fk_id_analyse);
-    let res = match dao.insert(exam).await {
-        Ok(res) => res,
-        Err(e) => return (StatusCode::BAD_REQUEST, format!("error: {e:?}")),
-    };
-    if res {
-        (StatusCode::CREATED, "Exam has been created".to_string())
-    } else {
-        (
+    match dao.insert(exam).await {
+        Ok(true) => (StatusCode::CREATED, "Exam has been created".to_string()),
+        Ok(false) => (
             StatusCode::BAD_REQUEST,
             "Exam hasn't been created".to_string(),
-        )
+        ),
+        Err(e) => (StatusCode::BAD_REQUEST, format!("error: {e:?}")),
     }
 }
 
@@ -31,22 +27,18 @@ pub async fn get_exam(dao: &impl Dao<Exam>, id: i32) -> impl IntoResponse {
             )
         }
     };
-    let response = match serde_json::to_string(&exam) {
-        Ok(res) => res,
-        Err(e) => {
-            return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                [(header::CONTENT_TYPE, "application/json")],
-                format!("error: {e:?}"),
-            )
-        }
-    };
-
-    (
-        StatusCode::OK,
-        [(header::CONTENT_TYPE, "application/json")],
-        response,
-    )
+    match serde_json::to_string(&exam) {
+        Ok(response) => (
+            StatusCode::OK,
+            [(header::CONTENT_TYPE, "application/json")],
+            response,
+        ),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            [(header::CONTENT_TYPE, "application/json")],
+            format!("error: {e:?}"),
+        ),
+    }
 }
 
 pub async fn get_exams(dao: &impl Dao<Exam>) -> impl IntoResponse {
@@ -60,41 +52,30 @@ pub async fn get_exams(dao: &impl Dao<Exam>) -> impl IntoResponse {
             )
         }
     };
-    let response = match serde_json::to_string(&exams) {
-        Ok(res) => res,
-        Err(e) => {
-            return (
-                StatusCode::BAD_REQUEST,
-                [(header::CONTENT_TYPE, "application/json")],
-                format!("error: {e:?}"),
-            )
-        }
-    };
-
-    (
-        StatusCode::OK,
-        [(header::CONTENT_TYPE, "application/json")],
-        response,
-    )
+    match serde_json::to_string(&exams) {
+        Ok(response) => (
+            StatusCode::OK,
+            [(header::CONTENT_TYPE, "application/json")],
+            response,
+        ),
+        Err(e) => (
+            StatusCode::BAD_REQUEST,
+            [(header::CONTENT_TYPE, "application/json")],
+            format!("error: {e:?}"),
+        ),
+    }
 }
 
 pub async fn delete_exam(dao: &impl Dao<Exam>, id: i32) -> impl IntoResponse {
-    let res = match dao.remove(id).await {
-        Ok(res) => res,
-        Err(e) => {
-            return (
-                StatusCode::BAD_REQUEST,
-                format!("error: exam not found: {e:?}"),
-            )
-        }
-    };
-
-    if res {
-        (StatusCode::NO_CONTENT, "Exam has been deleted.".to_string())
-    } else {
-        (
+    match dao.remove(id).await {
+        Ok(true) => (StatusCode::NO_CONTENT, "Exam has been deleted.".to_string()),
+        Ok(false) => (
             StatusCode::BAD_REQUEST,
             "Exam has not been deleted.".to_string(),
-        )
+        ),
+        Err(e) => (
+            StatusCode::BAD_REQUEST,
+            format!("error: exam not found: {e:?}"),
+        ),
     }
 }
