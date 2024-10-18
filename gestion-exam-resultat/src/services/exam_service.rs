@@ -4,7 +4,7 @@ use axum::{http::StatusCode, response::IntoResponse};
 use crate::dao::Dao;
 use crate::{dto::ExamDto, models::Exam};
 
-pub async fn create_exam(dao: &impl Dao<Exam>, exam: ExamDto) -> impl IntoResponse {
+pub async fn create_exam(dao: &impl Dao<Exam>, exam: ExamDto) -> (StatusCode, std::string::String) {
     let exam = Exam::new(exam.nom, exam.fk_id_analyse);
     match dao.insert(exam).await {
         Ok(true) => (StatusCode::CREATED, "Exam has been created".to_string()),
@@ -43,7 +43,11 @@ pub async fn get_exam(dao: &impl Dao<Exam>, id: i32) -> impl IntoResponse {
 
 pub async fn get_exams(
     dao: &impl Dao<Exam>,
-) -> (StatusCode, [(HeaderName, &'static str); 1], std::string::String) {
+) -> (
+    StatusCode,
+    [(HeaderName, &'static str); 1],
+    std::string::String,
+) {
     let exams = match dao.find_all().await {
         Ok(exams) => exams,
         Err(e) => {

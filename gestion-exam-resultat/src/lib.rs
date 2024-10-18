@@ -9,7 +9,7 @@ mod test {
     use axum::http::StatusCode;
     use mockall::predicate::eq;
 
-    use crate::{dao::MockDao, models::Exam, services};
+    use crate::{dao::MockDao, dto::ExamDto, models::Exam, services};
 
     #[tokio::test]
     async fn test_exam_service() {
@@ -27,5 +27,12 @@ mod test {
         // Using the exams service with the MockDao object
         let (code, _, resp) = services::get_exams(&mock).await;
         assert_eq!((code, resp.as_str()), (StatusCode::OK, "[]"));
+
+        let exam_dto = ExamDto {
+            nom: String::from("Informatique"),
+            fk_id_analyse: 1,
+        };
+        let (code, _) = services::create_exam(&mock, exam_dto).await;
+        assert_eq!(code, StatusCode::CREATED);
     }
 }
