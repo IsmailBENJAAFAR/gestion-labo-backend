@@ -2,11 +2,18 @@ POST http://localhost:8080/api/exam
 Content-Type: application/json
 
 {
-	"nom": "Informatique",
-	"fk_id_analyse": 1
+	"nom": "Electrique",
+	"fk_id_analyse": 3
 }
 
 ###
-###
 
 GET http://localhost:8080/api/exams
+
+###
+
+GET http://localhost:8080/api/exam/1
+
+###
+
+DELETE http://localhost:8080/api/exam/2

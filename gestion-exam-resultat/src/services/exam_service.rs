@@ -19,6 +19,24 @@ pub async fn create_exam(dao: ExamDao, exam: ExamDto) -> impl IntoResponse {
     }
 }
 
+pub async fn get_exam(dao: ExamDao, id: i32) -> impl IntoResponse {
+    let exam = match dao.find(id).await {
+        Ok(exam) => exam,
+        Err(e) => {
+            return (
+                StatusCode::NOT_FOUND,
+                format!("error: exam not found: {e:?}"),
+            )
+        }
+    };
+    let response = match serde_json::to_string(&exam) {
+        Ok(res) => res,
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("error: {e:?}")),
+    };
+
+    (StatusCode::OK, response)
+}
+
 pub async fn get_exams(dao: ExamDao) -> impl IntoResponse {
     let exams = match dao.find_all().await {
         Ok(exams) => exams,
@@ -30,4 +48,25 @@ pub async fn get_exams(dao: ExamDao) -> impl IntoResponse {
     };
 
     (StatusCode::OK, response)
+}
+
+pub async fn delete_exam(dao: ExamDao, id: i32) -> impl IntoResponse {
+    let res = match dao.remove(id).await {
+        Ok(res) => res,
+        Err(e) => {
+            return (
+                StatusCode::BAD_REQUEST,
+                format!("error: exam not found: {e:?}"),
+            )
+        }
+    };
+
+    if res {
+        (StatusCode::NO_CONTENT, format!("Exam has been deleted."))
+    } else {
+        (
+            StatusCode::BAD_REQUEST,
+            format!("Exam has not been deleted."),
+        )
+    }
 }

@@ -8,7 +8,7 @@ use anyhow::Result;
 use axum::{
     http::StatusCode,
     response::IntoResponse,
-    routing::{get, post},
+    routing::{delete, get, post},
     Router,
 };
 use controllers::exam_controller;
@@ -33,7 +33,7 @@ async fn main() -> Result<()> {
         .await
         .unwrap();
 
-    let exam_dao = ExamDao::new(pool.clone());
+    let exam_dao = ExamDao::new(pool);
     let state = AppState { exam_dao };
 
     let app = global_router
@@ -42,7 +42,8 @@ async fn main() -> Result<()> {
             Router::new()
                 .route("/exams", get(exam_controller::get_exams))
                 .route("/exam", post(exam_controller::create_exam))
-                .route("/exam/:id", get(exam_controller::get_exam)),
+                .route("/exam/:id", get(exam_controller::get_exam))
+                .route("/exam/:id", delete(exam_controller::delete_exam)),
         )
         .with_state(state);
 

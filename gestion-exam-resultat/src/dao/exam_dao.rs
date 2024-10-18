@@ -17,7 +17,13 @@ impl ExamDao {
 
 impl Dao<Exam> for ExamDao {
     async fn find(&self, id: i32) -> Result<Exam> {
-        todo!()
+        let res = sqlx::query("SELECT * from exam WHERE id = $1")
+            .bind(id)
+            .fetch_one(&self.pool)
+            .await?;
+        let exam = Exam::try_from(res)?;
+
+        Ok(exam)
     }
 
     async fn insert(&self, data: Exam) -> Result<bool> {
@@ -32,8 +38,13 @@ impl Dao<Exam> for ExamDao {
         Ok(res.rows_affected() == 1)
     }
 
-    async fn remove(&self, id: i32) -> bool {
-        false
+    async fn remove(&self, id: i32) -> Result<bool> {
+        let res = sqlx::query("DELETE FROM exam WHERE id = $1")
+            .bind(id)
+            .execute(&self.pool)
+            .await?;
+
+        Ok(res.rows_affected() == 1)
     }
 
     async fn find_all(&self) -> Result<Vec<Exam>> {
