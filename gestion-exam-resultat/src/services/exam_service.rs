@@ -2,9 +2,9 @@ use axum::http::header;
 use axum::{http::StatusCode, response::IntoResponse};
 
 use crate::dao::Dao;
-use crate::{dao::ExamDao, dto::ExamDto, models::Exam};
+use crate::{dto::ExamDto, models::Exam};
 
-pub async fn create_exam(dao: ExamDao, exam: ExamDto) -> impl IntoResponse {
+pub async fn create_exam(dao: &impl Dao<Exam>, exam: ExamDto) -> impl IntoResponse {
     let exam = Exam::new(exam.nom, exam.fk_id_analyse);
     let res = match dao.insert(exam).await {
         Ok(res) => res,
@@ -20,7 +20,7 @@ pub async fn create_exam(dao: ExamDao, exam: ExamDto) -> impl IntoResponse {
     }
 }
 
-pub async fn get_exam(dao: ExamDao, id: i32) -> impl IntoResponse {
+pub async fn get_exam(dao: &impl Dao<Exam>, id: i32) -> impl IntoResponse {
     let exam = match dao.find(id).await {
         Ok(exam) => exam,
         Err(e) => {
@@ -49,7 +49,7 @@ pub async fn get_exam(dao: ExamDao, id: i32) -> impl IntoResponse {
     )
 }
 
-pub async fn get_exams(dao: ExamDao) -> impl IntoResponse {
+pub async fn get_exams(dao: &impl Dao<Exam>) -> impl IntoResponse {
     let exams = match dao.find_all().await {
         Ok(exams) => exams,
         Err(e) => {
@@ -78,7 +78,7 @@ pub async fn get_exams(dao: ExamDao) -> impl IntoResponse {
     )
 }
 
-pub async fn delete_exam(dao: ExamDao, id: i32) -> impl IntoResponse {
+pub async fn delete_exam(dao: &impl Dao<Exam>, id: i32) -> impl IntoResponse {
     let res = match dao.remove(id).await {
         Ok(res) => res,
         Err(e) => {
