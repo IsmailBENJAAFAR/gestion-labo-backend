@@ -1,3 +1,4 @@
+use axum::http::header;
 use axum::{http::StatusCode, response::IntoResponse};
 
 use crate::dao::Dao;
@@ -25,29 +26,56 @@ pub async fn get_exam(dao: ExamDao, id: i32) -> impl IntoResponse {
         Err(e) => {
             return (
                 StatusCode::NOT_FOUND,
+                [(header::CONTENT_TYPE, "application/json")],
                 format!("error: exam not found: {e:?}"),
             )
         }
     };
     let response = match serde_json::to_string(&exam) {
         Ok(res) => res,
-        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("error: {e:?}")),
+        Err(e) => {
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                [(header::CONTENT_TYPE, "application/json")],
+                format!("error: {e:?}"),
+            )
+        }
     };
 
-    (StatusCode::OK, response)
+    (
+        StatusCode::OK,
+        [(header::CONTENT_TYPE, "application/json")],
+        response,
+    )
 }
 
 pub async fn get_exams(dao: ExamDao) -> impl IntoResponse {
     let exams = match dao.find_all().await {
         Ok(exams) => exams,
-        Err(e) => return (StatusCode::BAD_REQUEST, format!("error: {e:?}")),
+        Err(e) => {
+            return (
+                StatusCode::BAD_REQUEST,
+                [(header::CONTENT_TYPE, "application/json")],
+                format!("error: {e:?}"),
+            )
+        }
     };
     let response = match serde_json::to_string(&exams) {
         Ok(res) => res,
-        Err(e) => return (StatusCode::BAD_REQUEST, format!("error: {e:?}")),
+        Err(e) => {
+            return (
+                StatusCode::BAD_REQUEST,
+                [(header::CONTENT_TYPE, "application/json")],
+                format!("error: {e:?}"),
+            )
+        }
     };
 
-    (StatusCode::OK, response)
+    (
+        StatusCode::OK,
+        [(header::CONTENT_TYPE, "application/json")],
+        response,
+    )
 }
 
 pub async fn delete_exam(dao: ExamDao, id: i32) -> impl IntoResponse {
