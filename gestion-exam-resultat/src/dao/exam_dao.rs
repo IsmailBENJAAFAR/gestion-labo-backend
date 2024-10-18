@@ -1,7 +1,7 @@
 use anyhow::Result;
 use sqlx::{Pool, Postgres};
 
-use super::dao::Dao;
+use super::dao_interface::Dao;
 use crate::models::Exam;
 
 #[derive(Clone)]
@@ -48,7 +48,6 @@ impl Dao<Exam> for ExamDao {
     }
 
     async fn find_all(&self) -> Result<Vec<Exam>> {
-        // let conn = pool.lock().await;
         let res = sqlx::query("SELECT * FROM exam")
             .fetch_all(&self.pool)
             .await?;

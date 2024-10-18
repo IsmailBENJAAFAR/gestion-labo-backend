@@ -1,4 +1,4 @@
-mod dao;
+mod dao_interface;
 mod exam_dao;
-pub use dao::Dao;
+pub use dao_interface::Dao;
 pub use exam_dao::ExamDao;

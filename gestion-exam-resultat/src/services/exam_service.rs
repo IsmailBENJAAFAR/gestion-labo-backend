@@ -90,11 +90,11 @@ pub async fn delete_exam(dao: ExamDao, id: i32) -> impl IntoResponse {
     };
 
     if res {
-        (StatusCode::NO_CONTENT, format!("Exam has been deleted."))
+        (StatusCode::NO_CONTENT, "Exam has been deleted.".to_string())
     } else {
         (
             StatusCode::BAD_REQUEST,
-            format!("Exam has not been deleted."),
+            "Exam has not been deleted.".to_string(),
         )
     }
 }
