@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import analyse_views
+from ..controllers import analyse_views
 
 urlpatterns = [
     path("",view=analyse_views.get_all,name="Analyse-view-list"),

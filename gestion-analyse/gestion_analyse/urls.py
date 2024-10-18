@@ -17,9 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
-import my_api.urls
+import my_api.routes.urls
 
 # this simply forward all the requests to api/ to the urls file in the my_api folder
 urlpatterns = [
-    path('api/analyse/', include(my_api.urls)),
+    path('api/analyse/', include(my_api.routes.urls)),
 ]
