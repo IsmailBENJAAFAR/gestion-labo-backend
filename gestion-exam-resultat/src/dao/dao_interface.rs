@@ -1,5 +1,6 @@
 use anyhow::Result;
 
+#[cfg_attr(test, mockall::automock)]
 pub trait Dao<T> {
     async fn insert(&self, data: T) -> Result<bool>;
     async fn remove(&self, id: i32) -> Result<bool>;

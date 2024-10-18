@@ -1,4 +1,4 @@
-use axum::http::header;
+use axum::http::{header, HeaderName};
 use axum::{http::StatusCode, response::IntoResponse};
 
 use crate::dao::Dao;
@@ -41,7 +41,9 @@ pub async fn get_exam(dao: &impl Dao<Exam>, id: i32) -> impl IntoResponse {
     }
 }
 
-pub async fn get_exams(dao: &impl Dao<Exam>) -> impl IntoResponse {
+pub async fn get_exams(
+    dao: &impl Dao<Exam>,
+) -> (StatusCode, [(HeaderName, &'static str); 1], std::string::String) {
     let exams = match dao.find_all().await {
         Ok(exams) => exams,
         Err(e) => {
