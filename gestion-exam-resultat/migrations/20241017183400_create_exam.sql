@@ -1,5 +1,5 @@
 -- Add migration script here
-DROP TABLE exam;
+DROP TABLE IF EXISTS exam;
 CREATE TABLE exam (
 	id SERIAL PRIMARY KEY,
 	nom VARCHAR (64) NOT NULL,

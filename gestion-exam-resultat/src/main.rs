@@ -39,10 +39,14 @@ async fn main() -> Result<()> {
         .nest(
             "/api",
             Router::new()
-                .route("/exams", get(exam_controller::get_exams))
-                .route("/exam", post(exam_controller::create_exam))
-                .route("/exam/:id", get(exam_controller::get_exam))
-                .route("/exam/:id", delete(exam_controller::delete_exam)),
+                .route(
+                    "/exam",
+                    get(exam_controller::get_exams).post(exam_controller::create_exam),
+                )
+                .route(
+                    "/exam/:id",
+                    get(exam_controller::get_exam).delete(exam_controller::delete_exam),
+                ),
         )
         .with_state(state);
 
