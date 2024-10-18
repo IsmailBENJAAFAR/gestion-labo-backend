@@ -26,12 +26,11 @@ struct AppState {
 async fn main() -> Result<()> {
     dotenv()?;
     let global_router = Router::new().fallback(handler_404);
-    let url = std::env::var("DATABASE_URL").unwrap();
+    let url = std::env::var("DATABASE_URL")?;
     let pool = PgPoolOptions::new()
         .max_connections(5)
         .connect(&url)
-        .await
-        .unwrap();
+        .await?;
 
     let exam_dao = ExamDao::new(pool);
     let state = AppState { exam_dao };
@@ -47,8 +46,8 @@ async fn main() -> Result<()> {
         )
         .with_state(state);
 
-    let listener = TcpListener::bind("127.0.0.1:8080").await.unwrap();
-    axum::serve(listener, app).await.unwrap();
+    let listener = TcpListener::bind("127.0.0.1:8080").await?;
+    axum::serve(listener, app).await?;
     Ok(())
 }
 
