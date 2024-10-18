@@ -1,8 +1,5 @@
-use std::sync::Arc;
-
 use anyhow::Result;
-use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
-use tokio::sync::OnceCell;
+use sqlx::{Pool, Postgres};
 
 use super::dao::Dao;
 use crate::models::Exam;
