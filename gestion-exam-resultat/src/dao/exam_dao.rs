@@ -7,29 +7,14 @@ use tokio::sync::OnceCell;
 use super::dao::Dao;
 use crate::models::Exam;
 
-static CONNECTION: OnceCell<Arc<Pool<Postgres>>> = OnceCell::const_new();
-
-async fn get_connection() -> Arc<Pool<Postgres>> {
-    CONNECTION
-        .get_or_init(|| async {
-            let url = std::env::var("DATABASE_URL").unwrap();
-            Arc::new(
-                PgPoolOptions::new()
-                    .max_connections(5)
-                    .connect(&url)
-                    .await
-                    .unwrap(),
-            )
-        })
-        .await
-        .clone()
+#[derive(Clone)]
+pub struct ExamDao {
+    pool: Pool<Postgres>,
 }
 
-pub struct ExamDao {}
-
 impl ExamDao {
-    pub fn new() -> ExamDao {
-        ExamDao {}
+    pub fn new(pool: Pool<Postgres>) -> ExamDao {
+        ExamDao { pool }
     }
 }
 
@@ -39,14 +24,12 @@ impl Dao<Exam> for ExamDao {
     }
 
     async fn insert(&self, data: Exam) -> Result<bool> {
-        let pool = get_connection().await;
-        // let conn = pool.lock().await;
         let res =
             sqlx::query("INSERT INTO exam (nom, created_at, fk_id_analyse) VALUES ($1, $2, $3)")
                 .bind(data.nom.clone())
                 .bind(data.created_at)
                 .bind(data.fk_id_analyse)
-                .execute(pool.as_ref())
+                .execute(&self.pool)
                 .await?;
 
         Ok(res.rows_affected() == 1)
@@ -59,7 +42,7 @@ impl Dao<Exam> for ExamDao {
     async fn find_all(&self) -> Result<Vec<Exam>> {
         // let conn = pool.lock().await;
         let res = sqlx::query("SELECT * FROM exam")
-            .fetch_all(get_connection().await.as_ref())
+            .fetch_all(&self.pool)
             .await?;
         let mut exams: Vec<Exam> = Vec::new();
         for entry in res {

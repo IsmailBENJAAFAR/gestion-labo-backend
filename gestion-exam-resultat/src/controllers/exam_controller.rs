@@ -1,16 +1,22 @@
-use anyhow::Result;
-use axum::{extract::Path, response::IntoResponse, Json};
+use axum::{
+    extract::{Path, State},
+    response::IntoResponse,
+    Json,
+};
 
-use crate::{dto::ExamDto, services};
+use crate::{dto::ExamDto, services, AppState};
 
-pub async fn get_exams() -> Result<impl IntoResponse> {
-    Ok(services::get_exams().await?)
+pub async fn get_exams(State(state): State<AppState>) -> impl IntoResponse {
+    services::get_exams(state.exam_dao).await
 }
 
 pub async fn get_exam(Path(param): Path<i32>) -> String {
     format!("The path contained: {param}")
 }
 
-pub async fn create_exam(Json(data): Json<ExamDto>) -> Result<impl IntoResponse> {
-    Ok(services::create_exam(data).await?)
+pub async fn create_exam(
+    State(state): State<AppState>,
+    Json(data): Json<ExamDto>,
+) -> impl IntoResponse {
+    services::create_exam(state.exam_dao, data).await
 }

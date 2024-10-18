@@ -1,33 +1,33 @@
-use std::sync::Arc;
-
-use anyhow::Result;
 use axum::{http::StatusCode, response::IntoResponse};
-use tokio::sync::OnceCell;
 
 use crate::dao::Dao;
 use crate::{dao::ExamDao, dto::ExamDto, models::Exam};
 
-static EXAM_DAO: OnceCell<Arc<ExamDao>> = OnceCell::const_new();
-
-pub async fn get_exam_dao() -> Arc<ExamDao> {
-    EXAM_DAO
-        .get_or_init(|| async { Arc::new(ExamDao::new()) })
-        .await
-        .clone()
-}
-
-pub async fn create_exam(exam: ExamDto) -> Result<impl IntoResponse> {
-    let dao = get_exam_dao().await;
+pub async fn create_exam(dao: ExamDao, exam: ExamDto) -> impl IntoResponse {
     let exam = Exam::new(exam.nom, exam.fk_id_analyse);
-    if dao.insert(exam).await? {
-        Ok((StatusCode::CREATED, "Exam has been created"))
+    let res = match dao.insert(exam).await {
+        Ok(res) => res,
+        Err(e) => return (StatusCode::BAD_REQUEST, format!("error: {e:?}")),
+    };
+    if res {
+        (StatusCode::CREATED, "Exam has been created".to_string())
     } else {
-        Ok((StatusCode::BAD_REQUEST, "Exam hasn't been created"))
+        (
+            StatusCode::BAD_REQUEST,
+            "Exam hasn't been created".to_string(),
+        )
     }
 }
 
-pub async fn get_exams() -> Result<impl IntoResponse> {
-    let dao = get_exam_dao().await;
-    let exams = dao.find_all().await?;
-    Ok(serde_json::to_string(&exams)?)
+pub async fn get_exams(dao: ExamDao) -> impl IntoResponse {
+    let exams = match dao.find_all().await {
+        Ok(exams) => exams,
+        Err(e) => return (StatusCode::BAD_REQUEST, format!("error: {e:?}")),
+    };
+    let response = match serde_json::to_string(&exams) {
+        Ok(res) => res,
+        Err(e) => return (StatusCode::BAD_REQUEST, format!("error: {e:?}")),
+    };
+
+    (StatusCode::OK, response)
 }
