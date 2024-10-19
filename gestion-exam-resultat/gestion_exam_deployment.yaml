@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: gestion-exam
-          image: registry.gitlab.com/webs2435142/new-proj/gestion-exam-resultat:proto-0.0.8
+          image: registry.gitlab.com/webs2435142/new-proj/gestion-exam-resultat:proto-0.0.9
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
