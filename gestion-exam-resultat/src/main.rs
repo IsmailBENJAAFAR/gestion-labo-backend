@@ -4,13 +4,8 @@ mod dto;
 mod models;
 mod services;
 
-use anyhow::Result;
-use axum::{
-    http::StatusCode,
-    response::IntoResponse,
-    routing::{delete, get, post},
-    Router,
-};
+use anyhow::{Context, Result};
+use axum::{extract::OriginalUri, http::StatusCode, response::IntoResponse, routing::get, Router};
 use controllers::exam_controller;
 use dao::ExamDao;
 use dotenvy::dotenv;
@@ -24,13 +19,17 @@ struct AppState {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    dotenv()?;
+    match dotenv() {
+        Ok(_) => eprintln!(".env file loaded successfully."),
+        Err(_) => eprintln!("Warning: .env file not found."),
+    };
     let global_router = Router::new().fallback(handler_404);
-    let url = std::env::var("DATABASE_URL")?;
+    let url = std::env::var("DATABASE_URL").context("Set DATABASE_URL for database")?;
     let pool = PgPoolOptions::new()
         .max_connections(5)
         .connect(&url)
-        .await?;
+        .await
+        .context("can't connect to database")?;
 
     let exam_dao = ExamDao::new(pool);
     let state = AppState { exam_dao };
@@ -50,11 +49,11 @@ async fn main() -> Result<()> {
         )
         .with_state(state);
 
-    let listener = TcpListener::bind("127.0.0.1:8080").await?;
+    let listener = TcpListener::bind("0.0.0.0:80").await?;
     axum::serve(listener, app).await?;
     Ok(())
 }
 
-async fn handler_404() -> impl IntoResponse {
-    (StatusCode::NOT_FOUND, "no resource found.")
+async fn handler_404(OriginalUri(uri): OriginalUri) -> impl IntoResponse {
+    (StatusCode::NOT_FOUND, format!("no resource found in {uri:?}"))
 }
