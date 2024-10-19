@@ -11,6 +11,7 @@ use dao::ExamDao;
 use dotenvy::dotenv;
 use sqlx::postgres::PgPoolOptions;
 use tokio::net::TcpListener;
+use tower_http::cors::CorsLayer;
 
 #[derive(Clone)]
 struct AppState {
@@ -24,7 +25,7 @@ async fn main() -> Result<()> {
         Err(_) => eprintln!("Warning: .env file not found."),
     };
     let global_router = Router::new().fallback(handler_404);
-    let url = std::env::var("DATABASE_URL").context("Set DATABASE_URL for database")?;
+    let url = std::env::var("DATABASE_URL").context("Please set DATABASE_URL for database")?;
     let pool = PgPoolOptions::new()
         .max_connections(5)
         .connect(&url)
@@ -47,6 +48,7 @@ async fn main() -> Result<()> {
                     get(exam_controller::get_exam).delete(exam_controller::delete_exam),
                 ),
         )
+        .layer(CorsLayer::permissive())
         .with_state(state);
 
     let listener = TcpListener::bind("0.0.0.0:80").await?;
@@ -55,5 +57,8 @@ async fn main() -> Result<()> {
 }
 
 async fn handler_404(OriginalUri(uri): OriginalUri) -> impl IntoResponse {
-    (StatusCode::NOT_FOUND, format!("no resource found in {uri:?}"))
+    (
+        StatusCode::NOT_FOUND,
+        format!("no resource found in {uri:?}"),
+    )
 }
