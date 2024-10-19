@@ -1,14 +1,14 @@
-name: Gestion Exam CI/CD
+name: Gestion Exam Resultat CI/CD
 
 on:
   push:
     branches: [ main ]
     paths:
-      - 'gestion-exam/**'
+      - 'gestion-exam-resultat/**'
   pull_request:
     branches: [ main ]
     paths:
-      - 'gestion-exam/**'
+      - 'gestion-exam-resultat/**'
 
 jobs:
   build:
@@ -24,12 +24,12 @@ jobs:
     
     - name: Build
       run: |
-        cd gestion-exam
-        cargo build --verbose
+        cd gestion-exam-resultat
+        cargo build --release --verbose
     
     - name: Run tests
       run: |
-        cd gestion-exam
+        cd gestion-exam-resultat
         cargo test --verbose
 
   deploy:
@@ -41,4 +41,4 @@ jobs:
     - name: Deploy to production
       run: |
         # Add deployment steps here
-        echo "Deploying gestion-exam to production"
+        echo "Deploying gestion-exam-resultat to production"
