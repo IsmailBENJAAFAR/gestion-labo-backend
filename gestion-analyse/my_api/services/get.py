@@ -19,15 +19,10 @@ def get_all(method: str):
             "response_data": analyse_serializer.data,
             "response_status": status.HTTP_200_OK,
         }
-    else:
-        return {
-            "response_data": {},
-            "response_status": status.HTTP_400_BAD_REQUEST,
-        }
 
 
 def get_by_id(method, id):
-    """_summary_
+    """- _summary_
         Get analyse by id
     Args:
         method (str): HTTP method used, usually passed from query.method when calling this function
@@ -48,5 +43,5 @@ def get_by_id(method, id):
         analyse_serializer = AnalyseSerializer(analyse)
         return {
             "response_data": analyse_serializer.data,
-            "response_status": status.HTTP_400_BAD_REQUEST,
+            "response_status": status.HTTP_200_OK,
         }

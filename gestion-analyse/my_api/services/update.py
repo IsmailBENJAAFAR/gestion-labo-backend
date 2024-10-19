@@ -1,10 +1,34 @@
+from my_api.models.Analyse import Analyse
 from my_api.serializers.serializer import AnalyseSerializer
 from rest_framework import status
 
 
-def update_analyse(method, data):
+def update_analyse(method, data, id):
+    """- _summary_
+        updates an Analyse using its id, the json response needs to be in this format :
+                {
+                    "id":id,
+                    "nom":nom,
+                    "description":description,
+                    "idFkLaboratoire":idFkLaboratoire
+                }
+    Args:
+        method (str): Http method from the request
+        data (dict(str:Any)): json data from the request
+        id (int): id from the url (this might be removed at some later update)
+
+    Returns:
+        _type_: (dict[str, Any] | None)
+    """
+    try:
+        analyse = Analyse.objects.get(id=id)
+    except:
+        return {
+            "response_data": {},
+            "response_status": status.HTTP_404_NOT_FOUND,
+        }
     if method == "PATCH":
-        analyse_serializer = AnalyseSerializer(data=data)
+        analyse_serializer = AnalyseSerializer(analyse, data=data)
         if analyse_serializer.is_valid():
             analyse_serializer.save()
             return {"response_data": {}, "response_status": status.HTTP_200_OK}

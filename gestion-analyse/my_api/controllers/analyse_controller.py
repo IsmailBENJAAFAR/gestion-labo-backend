@@ -12,13 +12,13 @@ from my_api.services.update import update_analyse
 @api_view(["GET"])
 def get_all(request):
     response = get.get_all(method=request.method)
-    return Response(response["response_status"])
+    return Response(response["response_data"], response["response_status"])
 
 
 @api_view(["GET"])
 def get_by_id(request, id):
     response = get.get_by_id(method=request.method, id=id)
-    return Response(response["response_status"])
+    return Response(response["response_data"], response["response_status"])
 
 
 @api_view(["POST"])
@@ -28,8 +28,8 @@ def create(request):
 
 
 @api_view(["POST"])
-def update(request):
-    response = update_analyse(method=request.method, data=request.data)
+def update(request, id):
+    response = update_analyse(method=request.method, data=request.data, id=id)
     return Response(response["response_status"])
 
 
