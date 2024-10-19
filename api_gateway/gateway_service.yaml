@@ -13,4 +13,3 @@ spec:
     targetPort: 443
   selector:
     app: api-gateway
-  sessionAffinity: None
