@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gestion-exam-deployment
+  labels:
+    app: gestion-exam
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gestion-exam
+  template:
+    metadata:
+      labels:
+        app: gestion-exam
+    spec:
+      containers:
+        - name: gestion-exam
+          image: gestion_exam:proto-0.0.8
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+          envFrom:
+            - secretRef:
+                name: proto-secrets
