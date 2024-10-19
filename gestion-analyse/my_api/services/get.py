@@ -3,7 +3,7 @@ from my_api.models.Analyse import Analyse
 from my_api.serializers.serializer import AnalyseSerializer
 
 
-def get_all(method: str):
+def get_all():
     """_summary_
         Gets all the analyses from the DB
     Args:
@@ -12,16 +12,15 @@ def get_all(method: str):
     Returns:
         _type_: (dict[str, Any] | None)
     """
-    if method == "GET":
-        analyses = Analyse.objects.all()
-        analyse_serializer = AnalyseSerializer(analyses, many=True)
-        return {
-            "response_data": analyse_serializer.data,
-            "response_status": status.HTTP_200_OK,
-        }
+    analyses = Analyse.objects.all()
+    analyse_serializer = AnalyseSerializer(analyses, many=True)
+    return {
+        "response_data": analyse_serializer.data,
+        "response_status": status.HTTP_200_OK,
+    }
 
 
-def get_by_id(method, id):
+def get_by_id(id):
     """- _summary_
         Get analyse by id
     Args:
@@ -38,10 +37,8 @@ def get_by_id(method, id):
             "response_data": {},
             "response_status": status.HTTP_404_NOT_FOUND,
         }
-
-    if method == "GET":
-        analyse_serializer = AnalyseSerializer(analyse)
-        return {
-            "response_data": analyse_serializer.data,
-            "response_status": status.HTTP_200_OK,
-        }
+    analyse_serializer = AnalyseSerializer(analyse)
+    return {
+        "response_data": analyse_serializer.data,
+        "response_status": status.HTTP_200_OK,
+    }
