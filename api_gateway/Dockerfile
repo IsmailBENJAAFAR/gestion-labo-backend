@@ -2,9 +2,7 @@ FROM debian:bullseye
 
 RUN apt-get update -y && apt-get upgrade -y
 
-RUN apt-get install -y nginx openssl vim
-
-RUN apt-get install -y curl
+RUN apt-get install -y nginx openssl curl
 
 RUN mkdir -p /etc/nginx/ssl /var/run/nginx
 
