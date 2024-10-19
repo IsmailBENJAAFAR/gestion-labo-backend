@@ -17,4 +17,6 @@ RUN openssl req -x509 \
 
 COPY conf/nginx.conf /etc/nginx/nginx.conf
 
+COPY ./dist /var/www/gestion_labo 
+
 CMD [ "nginx", "-g", "daemon off;" ]
