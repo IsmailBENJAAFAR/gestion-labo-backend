@@ -1,4 +1,4 @@
-FROM debian:bullseye
+FROM debian:bullseye-20241016
 
 RUN apt-get update -y && apt-get upgrade -y
 
@@ -11,7 +11,7 @@ RUN openssl req -x509 \
             -nodes \
             -newkey rsa:2048 \
             -subj "/CN=samidrissil.usms.ac.ma/" \
-            -keyout /etc/nginx/ssl/inception.key -out /etc/nginx/ssl/inception.crt
+            -keyout /etc/nginx/ssl/gestion_labo.key -out /etc/nginx/ssl/gestion_labo.crt
 
 COPY conf/nginx.conf /etc/nginx/nginx.conf
 
