@@ -16,7 +16,14 @@ pub async fn create_exam(dao: &impl Dao<Exam>, exam: ExamDto) -> (StatusCode, st
     }
 }
 
-pub async fn get_exam(dao: &impl Dao<Exam>, id: i32) -> impl IntoResponse {
+pub async fn get_exam(
+    dao: &impl Dao<Exam>,
+    id: i32,
+) -> (
+    StatusCode,
+    [(HeaderName, &'static str); 1],
+    std::string::String,
+) {
     let exam = match dao.find(id).await {
         Ok(exam) => exam,
         Err(e) => {
