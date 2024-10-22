@@ -5,7 +5,12 @@ mod services;
 
 #[cfg(test)]
 mod test {
-    use crate::{dao::MockDao, dto::ExamDto, models::Exam, services};
+    use crate::{
+        dao::{Dao, ExamDao, MockDao},
+        dto::ExamDto,
+        models::Exam,
+        services,
+    };
     use anyhow::{anyhow, Context, Result};
     use axum::http::StatusCode;
     use mockall::predicate::eq;
@@ -21,12 +26,14 @@ mod test {
     async fn test_exam_database() -> Result<()> {
         info!("Starting database container");
         const PORT: u16 = 5432;
+        const USER: &'static str = "user";
+        const PASSWORD: &'static str = "mypassword";
         let container = GenericImage::new("postgres", "17.0")
             .with_exposed_port(PORT.tcp())
             .with_wait_for(WaitFor::message_on_stderr("ready to accept connections"))
             .with_network("bridge")
-            .with_env_var("POSTGRES_USER", "user")
-            .with_env_var("POSTGRES_PASSWORD", "mysecretpassword")
+            .with_env_var("POSTGRES_USER", USER)
+            .with_env_var("POSTGRES_PASSWORD", PASSWORD)
             .start()
             .await
             .expect("Postgres database container didn't start.");
@@ -37,7 +44,7 @@ mod test {
         info!("host: {host}");
         info!("host_port: {host_port}");
 
-        let url = format!("postgres://user:mysecretpassword@{host}:{host_port}");
+        let url = format!("postgres://{USER}:{PASSWORD}@{host}:{host_port}");
         let pool = PgPoolOptions::new()
             .max_connections(5)
             .connect(&url)
@@ -52,6 +59,45 @@ mod test {
             .connect(&url_db)
             .await
             .context("can't connect to database")?;
+
+        let dao = ExamDao::new(pool);
+
+        let res = dao.find(1).await;
+        assert!(res.is_err());
+
+        let res = dao.insert(Exam::new(1, 2, 3)).await.context("insert")?;
+        assert!(res);
+
+        let res = dao.find(1).await?;
+        assert_eq!(
+            (
+                res.fk_num_dossier,
+                res.fk_id_epreuve,
+                res.fk_id_test_analyse
+            ),
+            (1, 2, 3)
+        );
+
+        let res = dao.find_all().await?;
+        assert_eq!(res.len(), 1);
+        let res = &res[0];
+        assert_eq!(
+            (
+                res.fk_num_dossier,
+                res.fk_id_epreuve,
+                res.fk_id_test_analyse
+            ),
+            (1, 2, 3)
+        );
+
+        let res = dao.remove(1).await?;
+        assert!(res);
+
+        let res = dao.find_all().await?;
+        assert_eq!(res.len(), 0);
+
+        let res = dao.find(1).await;
+        assert!(res.is_err());
 
         info!("Database and migration successful");
         Ok(())

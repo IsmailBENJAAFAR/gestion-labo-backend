@@ -28,10 +28,11 @@ impl Dao<Exam> for ExamDao {
 
     async fn insert(&self, data: Exam) -> Result<bool> {
         let res =
-            sqlx::query("INSERT INTO exam (fk_num_dossier, fk_id_epreuve, fk_id_test_analyse) VALUES ($1, $2, $3)")
+            sqlx::query("INSERT INTO exam (fk_num_dossier, fk_id_epreuve, fk_id_test_analyse, created_at) VALUES ($1, $2, $3, $4)")
                 .bind(data.fk_num_dossier)
                 .bind(data.fk_id_epreuve)
                 .bind(data.fk_id_test_analyse)
+                .bind(data.created_at)
                 .execute(&self.pool)
                 .await?;
 
