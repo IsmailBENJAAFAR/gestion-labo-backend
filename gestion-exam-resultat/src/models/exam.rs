@@ -34,7 +34,7 @@ impl TryFrom<PgRow> for Exam {
             fk_id_epreuve: row.try_get("fk_id_epreuve")?,
             fk_id_test_analyse: row.try_get("fk_id_test_analyse")?,
             created_at: row.try_get("created_at")?,
-            updated_at: row.try_get("updated_at")?, // Perhaps you'd need to call .into()
+            updated_at: row.try_get("updated_at")?,
         })
     }
 }
