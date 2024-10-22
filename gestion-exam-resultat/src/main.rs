@@ -59,6 +59,6 @@ async fn main() -> Result<()> {
 async fn handler_404(OriginalUri(uri): OriginalUri) -> impl IntoResponse {
     (
         StatusCode::NOT_FOUND,
-        format!("no resource found hello in {uri:?}"),
+        format!("no resource found in {uri:?}"),
     )
 }
