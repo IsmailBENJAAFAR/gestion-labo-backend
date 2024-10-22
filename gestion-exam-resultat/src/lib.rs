@@ -14,7 +14,7 @@ mod test {
     #[tokio::test]
     async fn test_exam_service() {
         let mut mock: MockDao<Exam> = MockDao::new();
-        let exam = Exam::new("Informatique".to_string(), 1);
+        let exam = Exam::new(1, 1, 1);
 
         // Mocking the DAO
         mock.expect_find_all().times(1).returning(|| Ok(vec![]));
@@ -33,10 +33,7 @@ mod test {
         let (code, _, data) = services::get_exams(&mock).await;
         assert_eq!((code, data.as_str()), (StatusCode::OK, "[]"));
 
-        let exam_dto = ExamDto {
-            nom: String::from("Informatique"),
-            fk_id_analyse: 1,
-        };
+        let exam_dto = ExamDto::new(1, 1, 1);
         let (code, _) = services::create_exam(&mock, exam_dto).await;
         assert_eq!(code, StatusCode::CREATED);
 
