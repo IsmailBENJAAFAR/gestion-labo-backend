@@ -5,11 +5,57 @@ mod services;
 
 #[cfg(test)]
 mod test {
-    use anyhow::anyhow;
+    use crate::{dao::MockDao, dto::ExamDto, models::Exam, services};
+    use anyhow::{anyhow, Context, Result};
     use axum::http::StatusCode;
     use mockall::predicate::eq;
+    use sqlx::postgres::PgPoolOptions;
+    use testcontainers::{
+        core::{IntoContainerPort, WaitFor},
+        runners::AsyncRunner,
+        GenericImage, ImageExt,
+    };
+    use tracing::info;
 
-    use crate::{dao::MockDao, dto::ExamDto, models::Exam, services};
+    #[tokio::test]
+    async fn test_exam_database() -> Result<()> {
+        info!("Starting database container");
+        const PORT: u16 = 5432;
+        let container = GenericImage::new("postgres", "17.0")
+            .with_exposed_port(PORT.tcp())
+            .with_wait_for(WaitFor::message_on_stderr("ready to accept connections"))
+            .with_network("bridge")
+            .with_env_var("POSTGRES_USER", "user")
+            .with_env_var("POSTGRES_PASSWORD", "mysecretpassword")
+            .start()
+            .await
+            .expect("Postgres database container didn't start.");
+
+        info!("Database container started");
+        let host = container.get_host().await?;
+        let host_port = container.get_host_port_ipv4(PORT).await?;
+        info!("host: {host}");
+        info!("host_port: {host_port}");
+
+        let url = format!("postgres://user:mysecretpassword@{host}:{host_port}");
+        let pool = PgPoolOptions::new()
+            .max_connections(5)
+            .connect(&url)
+            .await
+            .context("can't connect to database")?;
+        sqlx::migrate!("./migrations/").run(&pool).await?;
+
+        let url_db = format!("{url}/user");
+
+        let pool = PgPoolOptions::new()
+            .max_connections(5)
+            .connect(&url_db)
+            .await
+            .context("can't connect to database")?;
+
+        info!("Database and migration successful");
+        Ok(())
+    }
 
     #[tokio::test]
     async fn test_exam_service() {

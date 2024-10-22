@@ -5,5 +5,5 @@ CREATE TABLE exam (
 	fk_id_epreuve INTEGER,
 	fk_id_test_analyse INTEGER,
 	created_at TIMESTAMPTZ NOT NULL,
-	updated_at TIMESTAMPTZ,
+	updated_at TIMESTAMPTZ
 );
