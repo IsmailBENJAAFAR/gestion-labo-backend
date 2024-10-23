@@ -1,5 +1,5 @@
-mod dao;
-mod exam;
+pub mod dao;
+pub mod exam;
 
 #[cfg(test)]
 mod test {
