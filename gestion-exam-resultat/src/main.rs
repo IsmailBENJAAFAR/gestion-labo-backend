@@ -1,8 +1,16 @@
 mod dao;
 mod exam;
 
+use std::sync::Arc;
+
 use anyhow::{Context, Result};
-use axum::{extract::{FromRef, OriginalUri}, http::StatusCode, response::IntoResponse, routing::get, Router};
+use axum::{
+    extract::{FromRef, OriginalUri},
+    http::StatusCode,
+    response::IntoResponse,
+    routing::get,
+    Router,
+};
 use dotenvy::dotenv;
 use exam::dao::ExamDao;
 use sqlx::postgres::PgPoolOptions;
@@ -11,12 +19,12 @@ use tower_http::cors::CorsLayer;
 
 #[derive(Clone)]
 struct AppState {
-    exam_dao: ExamDao,
+    exam_service: Arc<exam::service::Service>,
 }
 
-impl FromRef<AppState> for ExamDao {
+impl FromRef<AppState> for Arc<exam::service::Service> {
     fn from_ref(input: &AppState) -> Self {
-        input.exam_dao.clone()
+        input.exam_service.clone()
     }
 }
 
@@ -35,7 +43,8 @@ async fn main() -> Result<()> {
         .context("can't connect to database")?;
 
     let exam_dao = ExamDao::new(pool);
-    let state = AppState { exam_dao };
+    let exam_service = Arc::new(exam::service::Service::new(Arc::new(exam_dao)));
+    let state = AppState { exam_service };
 
     let app = global_router
         .nest(

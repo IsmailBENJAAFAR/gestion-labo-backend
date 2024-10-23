@@ -3,6 +3,8 @@ mod exam;
 
 #[cfg(test)]
 mod test {
+    use std::sync::Arc;
+
     use anyhow::{anyhow, Context, Result};
     use axum::http::StatusCode;
     use mockall::predicate::eq;
@@ -118,21 +120,22 @@ mod test {
             .with(eq(2))
             .return_once(|_f| Err(anyhow!("error")));
 
+        let service = service::Service::new(Arc::new(mock));
         // Using the exams service with the MockDao object
-        let (code, _, data) = service::get_exams(&mock).await;
+        let (code, _, data) = service.get_exams().await;
         assert_eq!((code, data.as_str()), (StatusCode::OK, "[]"));
 
         let exam_dto = ExamDto::new(1, 1, 1);
-        let (code, _) = service::create_exam(&mock, exam_dto).await;
+        let (code, _) = service.create_exam(exam_dto).await;
         assert_eq!(code, StatusCode::CREATED);
 
-        let (code, _, data) = service::get_exams(&mock).await;
+        let (code, _, data) = service.get_exams().await;
         assert_eq!(
             (code, data),
             (StatusCode::OK, serde_json::to_string(&[exam]).unwrap())
         );
 
-        let (code, _, _) = service::get_exam(&mock, 2).await;
+        let (code, _, _) = service.get_exam(2).await;
         assert_eq!(StatusCode::NOT_FOUND, code);
     }
 }
