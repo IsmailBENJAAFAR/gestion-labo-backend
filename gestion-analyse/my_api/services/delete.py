@@ -2,7 +2,7 @@ from my_api.models.Analyse import Analyse
 from rest_framework import status
 
 
-def delete_analyse(id):
+def delete_analyse(id: int) -> dict[str, any]:
     try:
         analyse = Analyse.objects.get(id=id)
     except:

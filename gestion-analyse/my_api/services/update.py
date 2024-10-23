@@ -1,5 +1,5 @@
 from my_api.models.Analyse import Analyse
-from my_api.serializers.serializer import AnalyseSerializer
+from my_api.serializers.serializers import UpdateAnalyseSerializer
 from rest_framework import status
 
 
@@ -27,7 +27,7 @@ def update_analyse(data: dict[str:any], id: str) -> dict[str, any]:
             "response_data": {},
             "response_status": status.HTTP_404_NOT_FOUND,
         }
-    analyse_serializer = AnalyseSerializer(analyse, data=data)
+    analyse_serializer = UpdateAnalyseSerializer(analyse, data=data)
     if analyse_serializer.is_valid():
         analyse_serializer.save()
         return {"response_data": {}, "response_status": status.HTTP_200_OK}

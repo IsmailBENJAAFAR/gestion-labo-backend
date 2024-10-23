@@ -9,24 +9,24 @@ from rest_framework.views import APIView
 
 
 class AnalyseGeneral(APIView):
-    def get(self, request, format=None):
+    def get(self, request):
         response = get.get_all()
         return Response(response["response_data"], response["response_status"])
 
-    def post(self, request, format=None):
+    def post(self, request):
         response = create_analyse(data=request.data)
         return Response(response["response_status"])
 
 
 class AnalyseById(APIView):
-    def get(self, request, id, format=None):
+    def get(self, request, id):
         response = get.get_by_id(id=id)
         return Response(response["response_data"], response["response_status"])
 
-    def patch(self, request, id, format=None):
+    def patch(self, request, id):
         response = update_analyse(data=request.data, id=id)
         return Response(response["response_status"])
 
-    def delete(self, request, id, format=None):
+    def delete(self, request, id):
         response = delete_analyse(id=id)
         return Response(response["response_status"])
