@@ -5,7 +5,11 @@ use crate::dao::Dao;
 use crate::{dto::ExamDto, models::Exam};
 
 pub async fn create_exam(dao: &impl Dao<Exam>, exam: ExamDto) -> (StatusCode, std::string::String) {
-    let exam = Exam::new(exam.nom, exam.fk_id_analyse);
+    let exam = Exam::new(
+        exam.fk_num_dossier,
+        exam.fk_id_epreuve,
+        exam.fk_id_test_analyse,
+    );
     match dao.insert(exam).await {
         Ok(true) => (StatusCode::CREATED, "Exam has been created".to_string()),
         Ok(false) => (
