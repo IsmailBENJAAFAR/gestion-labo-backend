@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -78,10 +79,11 @@ WSGI_APPLICATION = "gestion_analyse.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "OPTIONS": {
-            "service": "my_service",
-        },
-        "PASSWORD": "pwd",  # TODO: This should not be like this
+        "NAME": "postgres",
+        "USER": "ami",
+        "PASSWORD": "pwd",
+        "HOST": "localhost",
+        "PORT": 5432,
     }
 }
 
