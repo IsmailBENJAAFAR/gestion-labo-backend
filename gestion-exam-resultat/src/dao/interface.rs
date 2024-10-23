@@ -1,7 +1,9 @@
 use anyhow::Result;
+use axum::async_trait;
 
 #[cfg_attr(test, mockall::automock)]
-pub trait Dao<T> {
+#[async_trait]
+pub trait Dao<T: Sync + Send> {
     async fn insert(&self, data: T) -> Result<bool>;
     async fn remove(&self, id: i32) -> Result<bool>;
     async fn find(&self, id: i32) -> Result<T>;

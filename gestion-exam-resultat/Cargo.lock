@@ -716,6 +716,7 @@ name = "gestion-exam-resultat"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "async-trait",
  "axum",
  "axum-macros",
  "chrono",

@@ -1,16 +1,10 @@
-mod dao;
-mod dto;
-mod models;
-mod services;
+pub mod dao;
+pub mod exam;
 
 #[cfg(test)]
 mod test {
-    use crate::{
-        dao::{Dao, ExamDao, MockDao},
-        dto::ExamDto,
-        models::Exam,
-        services,
-    };
+    use std::sync::Arc;
+
     use anyhow::{anyhow, Context, Result};
     use axum::http::StatusCode;
     use mockall::predicate::eq;
@@ -22,12 +16,18 @@ mod test {
     };
     use tracing::info;
 
+    use crate::{
+        dao::interface::{Dao, MockDao},
+        exam::{dao::ExamDao, dto::ExamDto, model::Exam, service},
+    };
+
     #[tokio::test]
     async fn test_exam_database() -> Result<()> {
         info!("Starting database container");
         const PORT: u16 = 5432;
         const USER: &'static str = "user";
         const PASSWORD: &'static str = "mypassword";
+
         let container = GenericImage::new("postgres", "17.0")
             .with_exposed_port(PORT.tcp())
             .with_wait_for(WaitFor::message_on_stderr("ready to accept connections"))
@@ -37,10 +37,11 @@ mod test {
             .start()
             .await
             .expect("Postgres database container didn't start.");
-
         info!("Database container started");
+
         let host = container.get_host().await?;
         let host_port = container.get_host_port_ipv4(PORT).await?;
+
         info!("host: {host}");
         info!("host_port: {host_port}");
 
@@ -51,6 +52,8 @@ mod test {
             .await
             .context("can't connect to database")?;
         sqlx::migrate!("./migrations/").run(&pool).await?;
+
+        info!("Database migration successful");
 
         let url_db = format!("{url}/user");
 
@@ -99,7 +102,6 @@ mod test {
         let res = dao.find(1).await;
         assert!(res.is_err());
 
-        info!("Database and migration successful");
         Ok(())
     }
 
@@ -121,21 +123,22 @@ mod test {
             .with(eq(2))
             .return_once(|_f| Err(anyhow!("error")));
 
+        let service = service::Service::new(Arc::new(mock));
         // Using the exams service with the MockDao object
-        let (code, _, data) = services::get_exams(&mock).await;
+        let (code, _, data) = service.get_exams().await;
         assert_eq!((code, data.as_str()), (StatusCode::OK, "[]"));
 
         let exam_dto = ExamDto::new(1, 1, 1);
-        let (code, _) = services::create_exam(&mock, exam_dto).await;
+        let (code, _) = service.create_exam(exam_dto).await;
         assert_eq!(code, StatusCode::CREATED);
 
-        let (code, _, data) = services::get_exams(&mock).await;
+        let (code, _, data) = service.get_exams().await;
         assert_eq!(
             (code, data),
             (StatusCode::OK, serde_json::to_string(&[exam]).unwrap())
         );
 
-        let (code, _, _) = services::get_exam(&mock, 2).await;
+        let (code, _, _) = service.get_exam(2).await;
         assert_eq!(StatusCode::NOT_FOUND, code);
     }
 }

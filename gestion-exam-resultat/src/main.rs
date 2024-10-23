@@ -1,21 +1,31 @@
-mod controllers;
 mod dao;
-mod dto;
-mod models;
-mod services;
+mod exam;
+
+use std::sync::Arc;
 
 use anyhow::{Context, Result};
-use axum::{extract::OriginalUri, http::StatusCode, response::IntoResponse, routing::get, Router};
-use controllers::exam_controller;
-use dao::ExamDao;
+use axum::{
+    extract::{FromRef, OriginalUri},
+    http::StatusCode,
+    response::IntoResponse,
+    routing::get,
+    Router,
+};
 use dotenvy::dotenv;
+use exam::dao::ExamDao;
 use sqlx::postgres::PgPoolOptions;
 use tokio::net::TcpListener;
 use tower_http::cors::CorsLayer;
 
 #[derive(Clone)]
 struct AppState {
-    exam_dao: ExamDao,
+    exam_service: Arc<exam::service::Service>,
+}
+
+impl FromRef<AppState> for Arc<exam::service::Service> {
+    fn from_ref(input: &AppState) -> Self {
+        input.exam_service.clone()
+    }
 }
 
 #[tokio::main]
@@ -33,7 +43,8 @@ async fn main() -> Result<()> {
         .context("can't connect to database")?;
 
     let exam_dao = ExamDao::new(pool);
-    let state = AppState { exam_dao };
+    let exam_service = Arc::new(exam::service::Service::new(Arc::new(exam_dao)));
+    let state = AppState { exam_service };
 
     let app = global_router
         .nest(
@@ -41,11 +52,11 @@ async fn main() -> Result<()> {
             Router::new()
                 .route(
                     "/exam",
-                    get(exam_controller::get_exams).post(exam_controller::create_exam),
+                    get(exam::controller::get_exams).post(exam::controller::create_exam),
                 )
                 .route(
                     "/exam/:id",
-                    get(exam_controller::get_exam).delete(exam_controller::delete_exam),
+                    get(exam::controller::get_exam).delete(exam::controller::delete_exam),
                 ),
         )
         .layer(CorsLayer::permissive())
