@@ -1,16 +1,8 @@
 mod dao;
-mod dto;
-mod models;
-mod services;
+mod exam;
 
 #[cfg(test)]
 mod test {
-    use crate::{
-        dao::{Dao, ExamDao, MockDao},
-        dto::ExamDto,
-        models::Exam,
-        services,
-    };
     use anyhow::{anyhow, Context, Result};
     use axum::http::StatusCode;
     use mockall::predicate::eq;
@@ -21,6 +13,11 @@ mod test {
         GenericImage, ImageExt,
     };
     use tracing::info;
+
+    use crate::{
+        dao::{interface::Dao, MockDao},
+        exam::{dao::ExamDao, dto::ExamDto, model::Exam, service},
+    };
 
     #[tokio::test]
     async fn test_exam_database() -> Result<()> {
@@ -122,20 +119,20 @@ mod test {
             .return_once(|_f| Err(anyhow!("error")));
 
         // Using the exams service with the MockDao object
-        let (code, _, data) = services::get_exams(&mock).await;
+        let (code, _, data) = service::get_exams(&mock).await;
         assert_eq!((code, data.as_str()), (StatusCode::OK, "[]"));
 
         let exam_dto = ExamDto::new(1, 1, 1);
-        let (code, _) = services::create_exam(&mock, exam_dto).await;
+        let (code, _) = service::create_exam(&mock, exam_dto).await;
         assert_eq!(code, StatusCode::CREATED);
 
-        let (code, _, data) = services::get_exams(&mock).await;
+        let (code, _, data) = service::get_exams(&mock).await;
         assert_eq!(
             (code, data),
             (StatusCode::OK, serde_json::to_string(&[exam]).unwrap())
         );
 
-        let (code, _, _) = services::get_exam(&mock, 2).await;
+        let (code, _, _) = service::get_exam(&mock, 2).await;
         assert_eq!(StatusCode::NOT_FOUND, code);
     }
 }

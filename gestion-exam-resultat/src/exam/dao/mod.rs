@@ -1,8 +1,7 @@
 use anyhow::Result;
 use sqlx::{Pool, Postgres};
 
-use super::dao_interface::Dao;
-use crate::models::Exam;
+use crate::{dao::interface::Dao, exam::model::Exam};
 
 #[derive(Clone)]
 pub struct ExamDao {

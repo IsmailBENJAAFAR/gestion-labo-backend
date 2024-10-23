@@ -1,8 +1,10 @@
 use axum::http::{header, HeaderName};
 use axum::{http::StatusCode, response::IntoResponse};
 
-use crate::dao::Dao;
-use crate::{dto::ExamDto, models::Exam};
+use crate::dao::interface::Dao;
+
+use super::dto::ExamDto;
+use super::model::Exam;
 
 pub async fn create_exam(dao: &impl Dao<Exam>, exam: ExamDto) -> (StatusCode, std::string::String) {
     let exam = Exam::new(
