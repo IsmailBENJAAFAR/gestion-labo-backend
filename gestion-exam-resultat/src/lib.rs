@@ -17,7 +17,7 @@ mod test {
     use tracing::info;
 
     use crate::{
-        dao::{interface::Dao, MockDao},
+        dao::interface::{Dao, MockDao},
         exam::{dao::ExamDao, dto::ExamDto, model::Exam, service},
     };
 
