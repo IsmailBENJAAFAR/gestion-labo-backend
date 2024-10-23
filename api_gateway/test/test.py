@@ -25,11 +25,12 @@ def test_caddy():
     print("Running caddy_test container")
     with DockerContainer("caddy_test").with_exposed_ports(80) as container:
         wait_for_logs(container, "server running")
-        host = f"http://{container.get_container_host_ip()}"
+        host = container.get_container_host_ip()
         port = container.get_exposed_port(80)
+        url = f"http://{host}:{port}"
 
-        print("Making request to caddy_test container")
-        response = requests.get(f"{host}:{port}")
+        print(f"Making request to caddy_test container at {url}")
+        response = requests.get(url)
         assert response.status_code == 200
         assert response.content.decode('utf-8') == caddy_test_message
 
