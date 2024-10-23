@@ -27,6 +27,7 @@ mod test {
         const PORT: u16 = 5432;
         const USER: &'static str = "user";
         const PASSWORD: &'static str = "mypassword";
+
         let container = GenericImage::new("postgres", "17.0")
             .with_exposed_port(PORT.tcp())
             .with_wait_for(WaitFor::message_on_stderr("ready to accept connections"))
@@ -36,10 +37,11 @@ mod test {
             .start()
             .await
             .expect("Postgres database container didn't start.");
-
         info!("Database container started");
+
         let host = container.get_host().await?;
         let host_port = container.get_host_port_ipv4(PORT).await?;
+
         info!("host: {host}");
         info!("host_port: {host_port}");
 
@@ -50,6 +52,8 @@ mod test {
             .await
             .context("can't connect to database")?;
         sqlx::migrate!("./migrations/").run(&pool).await?;
+
+        info!("Database migration successful");
 
         let url_db = format!("{url}/user");
 
@@ -98,7 +102,6 @@ mod test {
         let res = dao.find(1).await;
         assert!(res.is_err());
 
-        info!("Database and migration successful");
         Ok(())
     }
 
