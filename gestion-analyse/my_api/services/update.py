@@ -3,9 +3,10 @@ from my_api.serializers.serializer import AnalyseSerializer
 from rest_framework import status
 
 
-def update_analyse(data, id):
-    """- _summary_
-        updates an Analyse using its id, the json response needs to be in this format :
+def update_analyse(data: dict[str:any], id: str) -> dict[str, any]:
+    """
+    Summary:
+    Updates an Analyse using its id, the json response needs to be in this format :
                 {
                     "id":id,
                     "nom":nom,
@@ -14,11 +15,10 @@ def update_analyse(data, id):
                 }
     Args:
         method (str): Http method from the request
-        data (dict(str:Any)): json data from the request
+        data (dict[str:any]): json data from the request
         id (int): id from the url (this might be removed at some later update)
 
-    Returns:
-        _type_: (dict[str, Any] | None)
+    Returns: (dict[str, any] | None)
     """
     try:
         analyse = Analyse.objects.get(id=id)
