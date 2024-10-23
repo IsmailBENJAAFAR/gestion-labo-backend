@@ -2,11 +2,11 @@ name: Gestion Exam Resultat CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "master" ]
     paths:
       - 'gestion-exam-resultat/**'
   pull_request:
-    branches: [ main ]
+    branches: [ "master" ]
     paths:
       - 'gestion-exam-resultat/**'
 
