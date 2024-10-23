@@ -1,4 +1,5 @@
 use anyhow::Result;
+use axum::async_trait;
 use sqlx::{Pool, Postgres};
 
 use crate::{dao::interface::Dao, exam::model::Exam};
@@ -14,6 +15,7 @@ impl ExamDao {
     }
 }
 
+#[async_trait]
 impl Dao<Exam> for ExamDao {
     async fn find(&self, id: i32) -> Result<Exam> {
         let res = sqlx::query("SELECT * from exam WHERE id = $1")

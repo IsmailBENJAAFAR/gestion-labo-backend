@@ -6,6 +6,10 @@ use crate::dao::interface::Dao;
 use super::dto::ExamDto;
 use super::model::Exam;
 
+struct Service {
+    dao: Box<dyn Dao<Exam>>,
+}
+
 pub async fn create_exam(dao: &impl Dao<Exam>, exam: ExamDto) -> (StatusCode, std::string::String) {
     let exam = Exam::new(
         exam.fk_num_dossier,
