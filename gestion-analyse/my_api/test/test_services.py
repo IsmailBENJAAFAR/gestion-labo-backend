@@ -39,14 +39,33 @@ class TestServices(TestCase):
         )
         self.assertEqual(create.get("response_status"), status.HTTP_200_OK)
 
+        # test creating bad data
+        print("Testing database bad data creation\n")
+        bad_create = create_analyse(
+            data={
+                "nom": "new idea",
+                "description": "new idea of how to prepare a cake",
+            }
+        )
+        self.assertEqual(bad_create.get("response_status"), status.HTTP_400_BAD_REQUEST)
+
         # test fetching data : getAll
         print("\nTesting data fetching from database: -> All\n")
-        self.assertEqual(len(get_all().get("response_data")), 1)
+        all = get_all()
+        self.assertEqual(len(all.get("response_data")), 1)
+
+        # test fetching data with non existant id: getById ->
+        print("\nTesting data fetching from database: -> by Id\n")
+        analyse_by_id = get_by_id(id=1)
+        self.assertTrue(
+            analyse_by_id.get("response_data"),
+        )
 
         # test fetching data : getById
-        print("\nTesting data fetching from database: -> by Id\n")
-        self.assertTrue(
-            get_by_id(id=1).get("response_data"),
+        print("\nTesting data fetching from database with bad id: -> by Id\n")
+        analyse_by_id_bad = get_by_id(id=100000)
+        self.assertEqual(
+            analyse_by_id_bad.get("response_status"), status.HTTP_404_NOT_FOUND
         )
 
         # test updating data
@@ -65,8 +84,8 @@ class TestServices(TestCase):
         )
 
         # test partial update
-        print("\nTesting data updating in the database\n")
-        update = update_analyse(
+        print("\nTesting data partial updating in the database\n")
+        update_partial = update_analyse(
             data={
                 "nom": "No idea",
                 "description": "I really hate the fact that I spent 5 hours on less than 100 lines of code ._.)",
@@ -74,11 +93,31 @@ class TestServices(TestCase):
             id=1,
         )
         self.assertEqual(
-            update.get("response_status"),
+            update_partial.get("response_status"),
             status.HTTP_200_OK,
+        )
+
+        # test updating data bad id
+        print("\nTesting data updating in the database with bad id\n")
+        update_bad = update_analyse(
+            data={
+                "nom": "new idea",
+                "description": "I really hate the fact that I spent 5 hours on less than 100 lines of code ._.)",
+                "idFkLaboratoire": 1,
+            },
+            id=100000000000,
+        )
+        self.assertEqual(
+            update_bad.get("response_status"),
+            status.HTTP_404_NOT_FOUND,
         )
 
         # test delete data
         print("\nTesting data deletion from the database\n")
         delete = delete_analyse(id=1)
         self.assertEqual(delete.get("response_status"), status.HTTP_200_OK)
+
+        # test delete data
+        print("\nTesting data deletion from the database with bad id\n")
+        delete_bad = delete_analyse(id=100000000)
+        self.assertEqual(delete_bad.get("response_status"), status.HTTP_404_NOT_FOUND)
