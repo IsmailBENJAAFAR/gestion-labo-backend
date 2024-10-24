@@ -3,15 +3,9 @@ from my_api.models.Analyse import Analyse
 from my_api.serializers.serializers import AnalyseGenericSerializer
 
 
-def get_all()-> dict[str, any]:
+def get_all() -> dict[str, any]:
     """
-        Gets all the analyses from the DB
-        
-    Args:
-        method (str): HTTP method used, usually passed from query.method when calling this function
-
-    Returns:
-        _type_: (dict[str, Any] | None)
+    Gets all the analyses from the DB
     """
     analyses = Analyse.objects.all()
     analyse_serializer = AnalyseGenericSerializer(analyses, many=True)
@@ -21,16 +15,9 @@ def get_all()-> dict[str, any]:
     }
 
 
-def get_by_id(id:int)-> dict[str, any]:
+def get_by_id(id: int) -> dict[str, any]:
     """
-        Get analyse by id
-        
-    Args:
-        method (str): HTTP method used, usually passed from query.method when calling this function
-        id (int): the analyse id
-
-    Returns:
-        _type_: (dict[str, Any] | None)
+    Get analyse by id
     """
     try:
         analyse = Analyse.objects.get(id=id)

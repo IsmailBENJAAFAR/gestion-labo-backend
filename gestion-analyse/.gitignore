@@ -9,3 +9,5 @@ venv/
 **/__pycache__
 **/*.py[cod]
 notes.md
+.env
+x.*

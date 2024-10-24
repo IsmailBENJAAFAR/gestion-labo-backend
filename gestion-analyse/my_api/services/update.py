@@ -6,19 +6,7 @@ from rest_framework import status
 def update_analyse(data: dict[str:any], id: str) -> dict[str, any]:
     """
     Summary:
-    Updates an Analyse using its id, the json response needs to be in this format :
-                {
-                    "id":id,
-                    "nom":nom,
-                    "description":description,
-                    "idFkLaboratoire":idFkLaboratoire
-                }
-    Args:
-        method (str): Http method from the request
-        data (dict[str:any]): json data from the request
-        id (int): id from the url (this might be removed at some later update)
-
-    Returns: (dict[str, any] | None)
+    Updates an Analyse, takes the old data and an id as input :
     """
     try:
         analyse = Analyse.objects.get(id=id)

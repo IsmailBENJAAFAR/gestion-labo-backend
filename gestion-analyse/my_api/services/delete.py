@@ -9,4 +9,4 @@ def delete_analyse(id: int) -> dict[str, any]:
         return {"response_data": {}, "response_status": status.HTTP_404_NOT_FOUND}
 
     analyse.delete()
-    return {"response_data": {}, "response_status": status.HTTP_200_OK}
+    return {"response_data": {}, "response_status": status.HTTP_204_NO_CONTENT}
