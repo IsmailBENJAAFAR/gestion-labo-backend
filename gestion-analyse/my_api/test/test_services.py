@@ -10,6 +10,7 @@ from my_api.services.create import create_analyse
 from my_api.services.get import *
 from my_api.services.update import update_analyse
 from gestion_analyse import settings
+from decouple import config
 
 
 class TestServices(TestCase):
@@ -17,16 +18,15 @@ class TestServices(TestCase):
     # allow_database_queries = True
     postgres = (
         DockerContainer("postgres:16")
-        .with_env("POSTGRES_USER", "ami")
-        .with_env("POSTGRES_PASSWORD", "pwd")
-        .with_exposed_ports(5432)
+        .with_env("POSTGRES_USER", config("DATABASE_USER"))
+        .with_env("POSTGRES_PASSWORD", config("DATABASE_PASSWORD"))
+        .with_exposed_ports(config("PORT"))
         .start()
     )
-    # newDatabase["idkanymore"] = postgres.get_exposed_port(5432)
-    settings.DATABASES["testxx"]["PORT"] = postgres.get_exposed_port(5432)
+    settings.DATABASES["testxx"]["PORT"] = postgres.get_exposed_port(config("PORT"))
     print(settings.DATABASES["testxx"])
     wait_for_logs(postgres, "ready to accept connections")
-    print("Starting Container at port 5432")
+    print("Starting Container")
 
     management.call_command("makemigrations", "my_api")
     management.call_command("migrate", "my_api", "--database=testxx")
