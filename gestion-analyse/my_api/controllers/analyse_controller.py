@@ -5,7 +5,6 @@ from my_api.services.delete import delete_analyse
 from my_api.services.update import update_analyse
 from rest_framework.views import APIView
 
-# This is more of a django limitation if I wanna keep the api routing the same across microservices
 
 
 class AnalyseGeneral(APIView):

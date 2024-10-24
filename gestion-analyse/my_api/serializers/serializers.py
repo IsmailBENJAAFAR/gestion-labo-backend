@@ -14,7 +14,6 @@ class UpdateAnalyseSerializer(serializers.Serializer):
     idFkLaboratoire = serializers.IntegerField(required=False)
 
     def update(self, instance: Analyse, validated_data: dict[str:any]):
-        # instance.nom = validated_data
         for e in validated_data:
             if e == "nom":
                 instance.nom = validated_data.get("nom")
