@@ -6,7 +6,7 @@ on:
     paths:
       - 'api_gateway/**'
   pull_request:
-    branches-ignore: [ "master" ]
+    branches: [ "master" ]
     paths:
       - 'api_gateway/**'
 
