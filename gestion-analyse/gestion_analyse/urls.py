@@ -19,7 +19,7 @@ from django.contrib import admin
 from django.urls import include, path
 
 import my_api.routes.urls
-    
+
 urlpatterns = [
     path("api/analyse/", include(my_api.routes.urls)),
 ]

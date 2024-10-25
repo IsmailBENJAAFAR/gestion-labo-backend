@@ -16,7 +16,7 @@ class AnalyseDBRouter:
         else:
             return "default"
 
-    def allow_migrate(self, db, app_label, model_name=Analyse, **hints) -> str:
+    def allow_migrate(self, db, app_label, model_name=Analyse, **hints) -> bool:
         if settings.DATABASES["testxx"]["PORT"] != 0:
             return db == "testxx"
         else:
