@@ -10,6 +10,3 @@ class Analyse(BaseModel):
 
     def __str__(self):
         return self.nom
-
-
-Analyse.objects.using("testxx")

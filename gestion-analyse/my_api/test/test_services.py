@@ -15,15 +15,16 @@ from decouple import config
 
 class TestServices(TestCase):
     databases = ["testxx"]
-    # allow_database_queries = True
     postgres = (
         DockerContainer("postgres:16")
-        .with_env("POSTGRES_USER", config("DATABASE_USER"))
-        .with_env("POSTGRES_PASSWORD", config("DATABASE_PASSWORD"))
-        .with_exposed_ports(config("PORT"))
+        .with_env("POSTGRES_USER", config("TEST_DATABASE_USER"))
+        .with_env("POSTGRES_PASSWORD", config("TEST_DATABASE_PASSWORD"))
+        .with_exposed_ports(config("TEST_PORT"))
         .start()
     )
-    settings.DATABASES["testxx"]["PORT"] = postgres.get_exposed_port(config("PORT"))
+    settings.DATABASES["testxx"]["PORT"] = postgres.get_exposed_port(
+        config("TEST_PORT")
+    )
     print(settings.DATABASES["testxx"])
     wait_for_logs(postgres, "ready to accept connections")
     print("Starting Container")
@@ -58,8 +59,8 @@ class TestServices(TestCase):
         self.assertEqual(len(all.get("response_data")), 1)
 
         print("\nTesting data fetching from database: -> by Id\n")
-        analyse_by_id = get_by_id(id=1)
-        self.assertTrue(
+        analyse_by_id = get_by_id(id=100000)
+        self.assertFalse(
             analyse_by_id.get("response_data"),
         )
 
@@ -79,12 +80,14 @@ class TestServices(TestCase):
             id=1,
         )
         self.assertEqual(
-            update.get("response_status"),
-            status.HTTP_200_OK,
-        )
-        self.assertEqual(
-            get_by_id(id=1).get("response_data")["description"],
-            "I really hate the fact that I spent 5 hours on less than 100 lines of code ._.)",
+            (
+                update.get("response_data")["description"],
+                update.get("response_status"),
+            ),
+            (
+                "I really hate the fact that I spent 5 hours on less than 100 lines of code ._.)",
+                status.HTTP_200_OK,
+            ),
         )
 
         print("\nTesting data partial updating in the database\n")
@@ -96,15 +99,16 @@ class TestServices(TestCase):
             id=1,
         )
         self.assertEqual(
-            update.get("response_status"),
-            status.HTTP_200_OK,
-        )
-        self.assertEqual(
             (
-                get_by_id(id=1).get("response_data")["nom"],
-                get_by_id(id=1).get("response_data")["description"],
+                update.get("response_data")["nom"],
+                update.get("response_data")["description"],
+                update.get("response_status"),
             ),
-            ("No idea", "blank"),
+            (
+                "No idea",
+                "blank",
+                status.HTTP_200_OK,
+            ),
         )
 
         print("\nTesting data updating in the database with bad id\n")

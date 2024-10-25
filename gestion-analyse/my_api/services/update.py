@@ -1,5 +1,8 @@
 from my_api.models.Analyse import Analyse
-from my_api.serializers.serializers import UpdateAnalyseSerializer
+from my_api.serializers.serializers import (
+    AnalyseGenericSerializer,
+    UpdateAnalyseSerializer,
+)
 from rest_framework import status
 
 
@@ -18,6 +21,10 @@ def update_analyse(data: dict[str:any], id: str) -> dict[str, any]:
     analyse_serializer = UpdateAnalyseSerializer(analyse, data=data)
     if analyse_serializer.is_valid():
         analyse_serializer.save()
-        return {"response_data": {}, "response_status": status.HTTP_200_OK}
+        analyse_serializer_get = AnalyseGenericSerializer(Analyse.objects.get(id=id))
+        return {
+            "response_data": analyse_serializer_get.data,
+            "response_status": status.HTTP_200_OK,
+        }
     else:
         return {"response_data": {}, "response_status": status.HTTP_400_BAD_REQUEST}

@@ -83,29 +83,21 @@ DATABASE_ROUTERS = ["my_api.routers.db_routers.AnalyseDBRouter"]
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("DATABASE_NAME"),
-        "USER": config("DATABASE_USER"),
-        "PASSWORD": config("DATABASE_PASSWORD"),
-        "HOST": config("DATABASE_HOST"),
-        "PORT": 0,
+        "NAME": config("PROD_DATABASE_NAME"),
+        "USER": config("PROD_DATABASE_USER"),
+        "PASSWORD": config("PROD_DATABASE_PASSWORD"),
+        "HOST": config("PROD_DATABASE_HOST"),
+        "PORT": 9999,
     },
-    # "notdefault": {
-    #     "ENGINE": "django.db.backends.postgresql",
-    #     "NAME": config("PROD_DATABASE_NAME"),
-    #     "USER": config("PROD_DATABASE_USER"),
-    #     "PASSWORD": config("PROD_DATABASE_PASSWORD"),
-    #     "HOST": config("PROD_DATABASE_HOST"),
-    #     "PORT": 0,
-    # },
     "testxx": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("DATABASE_NAME"),
-        "USER": config("DATABASE_USER"),
-        "PASSWORD": config("DATABASE_PASSWORD"),
+        "NAME": config("TEST_DATABASE_NAME"),
+        "USER": config("TEST_DATABASE_USER"),
+        "PASSWORD": config("TEST_DATABASE_PASSWORD"),
         "TEST": {
             "DEPENDENCIES": [],
         },
-        "HOST": config("DATABASE_HOST"),
+        "HOST": config("TEST_DATABASE_HOST"),
         "PORT": 0,
     },
 }

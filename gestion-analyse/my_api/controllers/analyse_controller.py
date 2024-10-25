@@ -1,15 +1,14 @@
 from rest_framework.response import Response
 from my_api.services.create import create_analyse
-from my_api.services import get
+from my_api.services.get import *
 from my_api.services.delete import delete_analyse
 from my_api.services.update import update_analyse
 from rest_framework.views import APIView
 
 
-
 class AnalyseGeneral(APIView):
     def get(self, request):
-        response = get.get_all()
+        response = get_all()
         return Response(response["response_data"], response["response_status"])
 
     def post(self, request):
@@ -19,7 +18,7 @@ class AnalyseGeneral(APIView):
 
 class AnalyseById(APIView):
     def get(self, request, id):
-        response = get.get_by_id(id=id)
+        response = get_by_id(id=id)
         return Response(response["response_data"], response["response_status"])
 
     def patch(self, request, id):
