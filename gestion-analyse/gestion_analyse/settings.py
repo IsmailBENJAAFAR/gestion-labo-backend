@@ -87,7 +87,7 @@ DATABASES = {
         "USER": config("PROD_DATABASE_USER"),
         "PASSWORD": config("PROD_DATABASE_PASSWORD"),
         "HOST": config("PROD_DATABASE_HOST"),
-        "PORT": 9999,
+        "PORT": config("PROD_PORT"),
     },
     "testxx": {
         "ENGINE": "django.db.backends.postgresql",
