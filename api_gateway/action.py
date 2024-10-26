@@ -4,6 +4,8 @@ from pathlib import Path
 from git import Repo
 from docker import DockerClient
 
+image_name = "gateway"
+
 def clone_frontend_repository(user: str, token: str):
     frontend_url = f"https://{user}:{token}@github.com/soufianeamini/gestion-labo-frontend.git"
     Repo.clone_from(frontend_url, "frontend")
@@ -22,14 +24,12 @@ def build_dist():
     change_dir("..")
     
 def build_docker_image(registry: str, version: str):
-    image_name = "gateway"
     tag = f"{registry}/{image_name}:{version}"
     client = DockerClient()
     print(f"Building image with tag: {tag}")
     client.images.build(path="./", tag=tag)
 
 def push_image_to_registry(tag:str, registry: str, registry_user: str, registry_token: str):
-    image_name = "gateway"
     client = DockerClient()
     client.login(username=registry_user, password=registry_token, registry=registry)
     res = client.images.push(f"{registry}/{image_name}", tag=tag)
