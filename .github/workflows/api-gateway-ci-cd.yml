@@ -40,6 +40,7 @@ jobs:
         CONTAINER_REGISTRY: ${{secrets.CONTAINER_REGISTRY}}
         CONTAINER_REGISTRY_USER: ${{secrets.CONTAINER_REGISTRY_USER}}
         CONTAINER_REGISTRY_TOKEN: ${{secrets.CONTAINER_REGISTRY_TOKEN}}
+      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
       run: |
           cd api_gateway
           python action.py  --token "$FRONTEND_ACCESS_TOKEN" --user "$FRONTEND_ACCESS_USER" --registry "$CONTAINER_REGISTRY" \
