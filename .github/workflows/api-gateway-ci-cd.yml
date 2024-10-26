@@ -20,11 +20,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
     - name: Set up Python 3.10
       uses: actions/setup-python@v3
       with:
@@ -49,6 +44,7 @@ jobs:
         CONTAINER_REGISTRY_USER: ${{secrets.CONTAINER_REGISTRY_USER}}
         CONTAINER_REGISTRY_TOKEN: ${{secrets.CONTAINER_REGISTRY_TOKEN}}
       run: |
+          sudo apt-get install -y nodejs npm
           python action.py  --token "$FRONTEND_ACCESS_TOKEN" --user "$FRONTEND_ACCESS_USER" --registry "$CONTAINER_REGISTRY" \
           --registry-user "$CONTAINER_REGISTRY_USER" --registry-token "$CONTAINER_REGISTRY_TOKEN"
 
