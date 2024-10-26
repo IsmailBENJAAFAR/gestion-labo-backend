@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: registry.gitlab.com/webs2435142/new-proj/gateway:0.0.1
+          image: registry.gitlab.com/webs2435142/new-proj/gateway:0.0.2
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 443
