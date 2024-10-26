@@ -23,6 +23,7 @@ jobs:
 
     - name: Install dependencies
       run: |
+        sudo apt-get install -y nodejs npm
         cd api_gateway
         python -m pip install --upgrade pip
         pip install -r requirements.txt
@@ -40,7 +41,7 @@ jobs:
         CONTAINER_REGISTRY_USER: ${{secrets.CONTAINER_REGISTRY_USER}}
         CONTAINER_REGISTRY_TOKEN: ${{secrets.CONTAINER_REGISTRY_TOKEN}}
       run: |
-          sudo apt-get install -y nodejs npm
+          cd api_gateway
           python action.py  --token "$FRONTEND_ACCESS_TOKEN" --user "$FRONTEND_ACCESS_USER" --registry "$CONTAINER_REGISTRY" \
           --registry-user "$CONTAINER_REGISTRY_USER" --registry-token "$CONTAINER_REGISTRY_TOKEN"
 
