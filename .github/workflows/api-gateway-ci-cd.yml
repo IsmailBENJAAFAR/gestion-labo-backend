@@ -25,13 +25,6 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-      # Should clone frontend and build the frontend files and then store them.
-      # We'll figure out updating the frontend without caddy later
-    - name: Clone frontend github repo
-
-    steps:
-    - uses: actions/checkout@v4
-
     - name: Set up Python 3.10
       uses: actions/setup-python@v3
       with:
@@ -47,3 +40,15 @@ jobs:
       run: |
           cd api_gateway/test
           python test.py
+
+    - name: Build and push docker image
+      env:
+        FRONTEND_ACCESS_TOKEN: ${{secrets.FRONTEND_ACCESS_TOKEN}}
+        FRONTEND_ACCESS_USER: ${{secrets.FRONTEND_ACCESS_USER}}
+        CONTAINER_REGISTRY: ${{secrets.CONTAINER_REGISTRY}}
+        CONTAINER_REGISTRY_USER: ${{secrets.CONTAINER_REGISTRY_USER}}
+        CONTAINER_REGISTRY_TOKEN: ${{secrets.CONTAINER_REGISTRY_TOKEN}}
+      run: |
+          python action.py  --token "$FRONTEND_ACCESS_TOKEN" --user "$FRONTEND_ACCESS_USER" --registry "$CONTAINER_REGISTRY" \
+          --registry-user "$CONTAINER_REGISTRY_USER" --registry-token "$CONTAINER_REGISTRY_TOKEN"
+
