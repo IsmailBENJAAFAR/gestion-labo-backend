@@ -14,6 +14,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+      # Should clone frontend and build the frontend files and then store them.
+      # We'll figure out updating the frontend without caddy later
+    - name: Clone frontend github repo
+
     steps:
     - uses: actions/checkout@v4
 

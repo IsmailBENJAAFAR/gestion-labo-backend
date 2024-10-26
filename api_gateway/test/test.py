@@ -12,7 +12,7 @@ def generate_caddy_file():
 
 def generate_dockerfile():
     with open("../Dockerfile") as dockerfile:
-        text = dockerfile.read()
+        text = dockerfile.read().replace("COPY ./dist/* /var/www/html/\n", "")
         with open("./Dockerfile", "w") as dockerfile_test:
             dockerfile_test.write(text)
             print("Dockerfile written")
