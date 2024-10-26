@@ -44,11 +44,11 @@ def get_args() -> tuple[str, str, str, str, str]:
     parser.add_argument("--registry-token")
     args = parser.parse_args()
 
-    assert args.user is not None, "Please specify --user for access to the frontend repo"
-    assert args.token is not None, "Please specify --token for access to the frontend repo"
-    assert args.registry is not None, "Please specify --registry"
-    assert args.registry_user is not None, "Please specify --registry-user"
-    assert args.registry_token is not None, "Please specify --registry-token"
+    assert args.user is not None and len(args.user), "Please specify --user for access to the frontend repo"
+    assert args.token is not None and len(args.token), "Please specify --token for access to the frontend repo"
+    assert args.registry is not None and len(args.registry), "Please specify --registry"
+    assert args.registry_user is not None and len(args.registry_user), "Please specify --registry-user"
+    assert args.registry_token is not None and len(args.registry_token), "Please specify --registry-token"
 
     return args.user, args.token, args.registry, args.registry_user, args.registry_token
 
