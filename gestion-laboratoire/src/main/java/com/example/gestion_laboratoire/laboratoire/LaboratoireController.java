@@ -4,8 +4,10 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,27 +25,28 @@ public class LaboratoireController {
 
     @GetMapping(path = "/")
     public List<Laboratoire> getAll() {
-
+        return laboratoireService.getLaboratoires();
     }
 
-    @GetMapping(path = "/")
-    public Laboratoire getById() {
-
+    @GetMapping(path = "{laboId}")
+    public Laboratoire getById(@PathVariable(name = "laboId") Long id) {
+        return laboratoireService.getLaboratoiresByIdLong(id);
     }
 
     @PostMapping
-    public void create() {
-
+    public void create(@RequestBody Laboratoire laboratoire) {
+        laboratoireService.createLaboratoire(laboratoire);
     }
 
-    @PutMapping
-    public void update() {
-
+    @PutMapping(path = "{laboId}")
+    public void update(@PathVariable(name = "laboId") Long id,
+            @RequestBody Laboratoire laboratoire) {
+        laboratoireService.updateLaboratoire(id, laboratoire);
     }
 
-    @DeleteMapping
-    public void delete(){
-        
+    @DeleteMapping(path = "{laboId}")
+    public void delete(@PathVariable(name = "laboId") Long id) {
+        laboratoireService.deleteLaboratoire(id);
     }
 
 }

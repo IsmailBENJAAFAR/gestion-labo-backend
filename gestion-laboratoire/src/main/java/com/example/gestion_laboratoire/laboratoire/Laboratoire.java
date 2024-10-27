@@ -2,13 +2,27 @@ package com.example.gestion_laboratoire.laboratoire;
 
 import java.util.Date;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+
+@Entity
+@Table
 public class Laboratoire {
-    private long id;
+    @Id
+    @SequenceGenerator(name = "laboratoire_sequence", sequenceName = "laboratoire_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "laboratoire_sequence")
+    private Long id;
     private String nom;
     private String logo;
     private String nrc;
-    private boolean active;
-    private Date dateActivation; // TODO: either Date or LocalDate, gotta decide 
+    @Column(columnDefinition = "boolean default false")
+    private Boolean active = false;
+    private Date dateActivation; // TODO: either Date or LocalDate, gotta decide
 
     public Laboratoire() {
         super();
