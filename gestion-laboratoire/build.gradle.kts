@@ -51,6 +51,8 @@ dependencies {
 	testImplementation("org.testcontainers:postgresql")
 	testImplementation("org.testcontainers:rabbitmq")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	implementation("com.cloudinary:cloudinary-http5:2.0.0")
+	implementation("io.github.cdimascio:dotenv-java:3.0.0")
 }
 
 tasks.withType<Test> {

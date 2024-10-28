@@ -1,4 +1,4 @@
-package com.example.gestion_laboratoire.laboratoire;
+package com.example.gestion_laboratoire.controllers;
 
 import java.util.List;
 
@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.example.gestion_laboratoire.Models.Laboratoire;
+import com.example.gestion_laboratoire.services.LaboratoireService;
 
 @RestController
 // this is kinda like setting the root URL, and then you can set the branch
@@ -29,12 +32,13 @@ public class LaboratoireController {
     }
 
     @GetMapping(path = "{laboId}")
-    public Laboratoire getById(@PathVariable(name = "laboId") Long id) {
+    public Laboratoire getById(@PathVariable(name = "laboId") Long id) throws Exception {
         return laboratoireService.getLaboratoiresByIdLong(id);
     }
 
-    @PostMapping
+    @PostMapping(path = "/")
     public void create(@RequestBody Laboratoire laboratoire) {
+        System.err.println(laboratoire);
         laboratoireService.createLaboratoire(laboratoire);
     }
 
