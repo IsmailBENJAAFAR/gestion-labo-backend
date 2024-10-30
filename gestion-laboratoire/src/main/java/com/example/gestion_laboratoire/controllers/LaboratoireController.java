@@ -37,20 +37,20 @@ public class LaboratoireController {
     }
 
     @PostMapping(path = "/")
-    public void create(@RequestBody Laboratoire laboratoire) {
+    public String create(@RequestBody Laboratoire laboratoire) {
         System.err.println(laboratoire);
-        laboratoireService.createLaboratoire(laboratoire);
+        return laboratoireService.createLaboratoire(laboratoire);
     }
 
     @PutMapping(path = "{laboId}")
-    public void update(@PathVariable(name = "laboId") Long id,
+    public String update(@PathVariable(name = "laboId") Long id,
             @RequestBody Laboratoire laboratoire) {
-        laboratoireService.updateLaboratoire(id, laboratoire);
+        return laboratoireService.updateLaboratoire(id, laboratoire);
     }
 
     @DeleteMapping(path = "{laboId}")
-    public void delete(@PathVariable(name = "laboId") Long id) {
-        laboratoireService.deleteLaboratoire(id);
+    public String delete(@PathVariable(name = "laboId") Long id) {
+        return laboratoireService.deleteLaboratoire(id);
     }
 
 }

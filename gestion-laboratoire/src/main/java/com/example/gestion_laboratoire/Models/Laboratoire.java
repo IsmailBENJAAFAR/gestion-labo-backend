@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,7 +29,7 @@ public class Laboratoire {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "laboratoire_sequence")
     private Long id;
     private String nom;
-    // private String logo;
+    private String logo;
     private String nrc;
     private Boolean active = false;
     private Date dateActivation;
@@ -36,11 +37,13 @@ public class Laboratoire {
     private Date CreatedAt;
     @UpdateTimestamp
     private Date updatedAt;
+    @Transient
+    private byte[] imageFile;
 
-    public Laboratoire(String nom, /* String logo, */ String nrc, boolean active, Date dateActivation) {
+    public Laboratoire(String nom, String logo, String nrc, boolean active, Date dateActivation) {
         super();
         this.nom = nom;
-        // this.logo = logo;
+        this.logo = logo;
         this.nrc = nrc;
         this.active = active;
         this.dateActivation = dateActivation;

@@ -8,14 +8,20 @@ import io.github.cdimascio.dotenv.Dotenv;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Base64;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public class CloudinaryService {
 
     private Dotenv dotenv = Dotenv.load();
-    private Cloudinary cloudinary = new Cloudinary(dotenv.get("CLOUDINARY_URL"));
+    private final Cloudinary cloudinary = new Cloudinary(dotenv.get("CLOUDINARY_URL"));
     private String folder = "logos";
 
-    public String uploadImage(String imageName) {
+    @SuppressWarnings("rawtypes")
+    public String uploadImage(String imageName, byte[] imageBytes) {
+        imageName = Base64.getEncoder().withoutPadding().encodeToString(imageName.getBytes());
         Map params1 = ObjectUtils.asMap(
                 "folder", folder,
                 "use_filename", true,
@@ -25,27 +31,18 @@ public class CloudinaryService {
                 "overwrite", true);
 
         try {
-            Map response = cloudinary.uploader().upload(
-                    IBC.extractBytes("/home/amidrissi/Pictures/AMI.jpeg"),
+            Map response = cloudinary.uploader().upload(imageBytes,
                     params1);
-            // optimizeImage(imageName, "logos");
             return (String) response.get("url");
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "Failed to upload image";
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return "Failed to upload image : " + e.getMessage();
         }
     }
 
-    // TODO: Make use of the optimization in the backend maybe ?
-    // @SuppressWarnings("rawtypes")
-    // private static void optimizeImage(String imageName, String folder) {
-    // System.out.println(
-    // cloudinary.url().transformation(new Transformation().quality("auto"))
-    // .imageTag(folder + "/" + imageName).toString());
-    // }
-
     @SuppressWarnings("unchecked")
     public String deleteImage(String imageName) {
+        imageName = Base64.getEncoder().withoutPadding().encodeToString(imageName.getBytes());
         try {
             ApiResponse apiResponse = cloudinary.api().deleteResources(Arrays.asList(folder + "/" + imageName),
                     ObjectUtils.asMap("type", "upload", "resource_type", "image"));
@@ -60,15 +57,8 @@ public class CloudinaryService {
 
         } catch (Exception exception) {
             System.out.println(exception.getMessage());
-            return "Failed to delete image";
+            return "Failed to delete image : " + exception.getMessage();
         }
     }
 
-    public static void main(String[] args) throws IOException {
-
-        CloudinaryService c = new CloudinaryService();
-
-        // System.out.println(c.uploadImage("kubo_1"));
-        System.out.println(c.deleteImage("kubo_1"));
-    }
 }
