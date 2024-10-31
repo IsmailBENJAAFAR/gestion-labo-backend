@@ -4,11 +4,10 @@ import com.cloudinary.*;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.utils.ObjectUtils;
 import io.github.cdimascio.dotenv.Dotenv;
-
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Base64;
+import java.io.IOException;
 
 import org.springframework.stereotype.Service;
 
@@ -34,9 +33,9 @@ public class CloudinaryService {
             Map response = cloudinary.uploader().upload(imageBytes,
                     params1);
             return (String) response.get("url");
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.out.println(e.getMessage());
-            return "Failed to upload image : " + e.getMessage();
+            return "Failed to upload image";
         }
     }
 

@@ -1,4 +1,4 @@
-package com.example.gestion_laboratoire.Models;
+package com.example.gestion_laboratoire.models;
 
 import java.util.Date;
 
