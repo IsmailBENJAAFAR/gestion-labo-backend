@@ -18,7 +18,7 @@ public class CloudinaryService {
     private Dotenv dotenv = Dotenv.load();
     private final Cloudinary cloudinary = new Cloudinary(dotenv.get("CLOUDINARY_URL"));
     private String folder = "logos";
-    private final long maxImageSize = 770000; // equivilant to 750kb
+    private final long maxImageSize = 770000; // equivilant to 770kb, just to allow some flexibility
 
     private boolean isTooBig(byte[] imageBytes) {
         return imageBytes.length > maxImageSize;

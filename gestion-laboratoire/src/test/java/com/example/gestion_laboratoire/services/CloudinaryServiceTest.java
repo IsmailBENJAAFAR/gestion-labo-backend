@@ -6,12 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.io.IOException;
 import java.util.Map;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.example.gestion_laboratoire.test_utils.IBC;
+import com.example.gestion_laboratoire.test_utils.ImageToBytesConverter;
 
 @SpringBootTest(classes = CloudinaryService.class)
 public class CloudinaryServiceTest {
@@ -19,14 +18,14 @@ public class CloudinaryServiceTest {
     @Autowired
     private CloudinaryService cloudinaryService;
 
-    private String image1Path = "/home/amidrissi/Pictures/AMI.jpeg";
+    private String image1Path = "cloudinary_test_images/AMI.png";
 
     @Test
     void testCloudinaryUploadAndDeleteService() throws IOException {
 
         // Testing image upload
         Map<String, Object> imageInfo = cloudinaryService
-                .uploadImage(IBC.extractBytes(image1Path));
+                .uploadImage(ImageToBytesConverter.extractBytes(image1Path));
         assertNotNull(imageInfo.get("url"), "the image actually saved");
 
         // Testing image deletion
@@ -38,9 +37,9 @@ public class CloudinaryServiceTest {
     void testImageIsTooBigConstraintInCloudinaryService() throws IOException {
 
         // Testing when the image is bigger than 750kb
-        String tooBigImage = "/home/amidrissi/Documents/wall.jpg";
+        String tooBigImage = "cloudinary_test_images/car.jpg";
         Map<String, Object> imageInfo = cloudinaryService
-                .uploadImage(IBC.extractBytes(tooBigImage));
+                .uploadImage(ImageToBytesConverter.extractBytes(tooBigImage));
         assertEquals("Failed to upload image : Image should be less than 750kb", imageInfo.get("error"));
 
     }
