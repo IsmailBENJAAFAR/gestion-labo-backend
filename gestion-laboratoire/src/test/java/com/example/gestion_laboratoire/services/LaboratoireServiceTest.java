@@ -27,6 +27,8 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import com.example.gestion_laboratoire.models.Laboratoire;
 import com.example.gestion_laboratoire.test_utils.IBC;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class LaboratoireServiceTest {
 
@@ -73,19 +75,26 @@ public class LaboratoireServiceTest {
         List<Laboratoire> labos = laboratoireService.getLaboratoires();
         assertEquals(1, labos.size());
 
-        // Testing the fetching of a laboratory
+        // Testing the fetching of a laboratory by id
         Laboratoire laboFound = laboratoireService.getLaboratoiresById(1L);
         assertNotNull(laboFound, "Labo has been registered");
         assertEquals("labo_x", laboFound.getNom());
         assertEquals("R123456", laboFound.getNrc());
         assertNotNull(laboFound.getLogo(), "Image has been added successfully");
 
+        // Testing the fetching of a laboratory with an invalid Id
+        try {
+            laboratoireService.getLaboratoiresById(999L);
+            assertEquals(1, 2);
+        } catch (EntityNotFoundException ex) {
+            assertEquals("Laboratory Not found", ex.getMessage());
+        }
+
         // Testing the update of a laboratory
         Laboratoire laboBeforeUpdated = new Laboratoire("labo_x69", "R123456789",
-        true, new Date());
+                true, new Date());
         labo.setImageFile(IBC.extractBytes(image2Path));
-        ResponseEntity<Object> updatedResponse =
-        laboratoireService.updateLaboratoire(1L, laboBeforeUpdated);
+        ResponseEntity<Object> updatedResponse = laboratoireService.updateLaboratoire(1L, laboBeforeUpdated);
         assertEquals(updatedResponse.getStatusCode(), HttpStatus.OK);
         Laboratoire laboAfterUpdate = laboratoireService.getLaboratoiresById(1L);
         assertNotNull(laboAfterUpdate, "Labo has been registered");
@@ -93,9 +102,20 @@ public class LaboratoireServiceTest {
         assertEquals("R123456789", laboAfterUpdate.getNrc());
         assertNotEquals(laboBeforeUpdated.getLogo(), laboAfterUpdate.getLogo());
 
+        // Testing the update with an invalid id
+        Laboratoire laboBeforeUpdated1 = new Laboratoire("labo_x69", "R123456789",
+                true, new Date());
+        labo.setImageFile(IBC.extractBytes(image2Path));
+        ResponseEntity<Object> invalidUpdatedResponse = laboratoireService.updateLaboratoire(999L, laboBeforeUpdated1);
+        assertEquals(invalidUpdatedResponse.getStatusCode(), HttpStatus.NOT_FOUND);
+
         // Testing the deletion of a laboratory
-        ResponseEntity<Object> deleteResponse =
-        laboratoireService.deleteLaboratoire(1L);
+        ResponseEntity<Object> deleteResponse = laboratoireService.deleteLaboratoire(1L);
         assertEquals(deleteResponse.getStatusCode(), HttpStatus.NO_CONTENT);
+
+        // Testing the delete with an invalid id
+        ResponseEntity<Object> invalidDeleteResponse = laboratoireService.deleteLaboratoire(999L);
+        assertEquals(invalidDeleteResponse.getStatusCode(), HttpStatus.NOT_FOUND);
+
     }
 }
