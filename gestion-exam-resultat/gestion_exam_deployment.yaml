@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gestion-exam-deployment
+  labels:
+    app: gestion-exam
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gestion-exam
+  template:
+    metadata:
+      labels:
+        app: gestion-exam
+    spec:
+      containers:
+        - name: gestion-exam
+          image: registry.gitlab.com/webs2435142/new-proj/gestion-exam-resultat:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          envFrom:
+            - secretRef:
+                name: proto-secrets
+      imagePullSecrets:
+        - name: regcred
+

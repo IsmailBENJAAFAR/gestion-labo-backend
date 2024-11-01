@@ -1,0 +1,44 @@
+name: Gestion Exam Resultat CI/CD
+
+on:
+  push:
+    branches: [ "master" ]
+    paths:
+      - 'gestion-exam-resultat/**'
+  pull_request:
+    branches: [ "master" ]
+    paths:
+      - 'gestion-exam-resultat/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+    
+    - name: Build
+      run: |
+        cd gestion-exam-resultat
+        cargo build --release --verbose
+    
+    - name: Run tests
+      run: |
+        cd gestion-exam-resultat
+        cargo test --verbose
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: Deploy to production
+      run: |
+        # Add deployment steps here
+        echo "Deploying gestion-exam-resultat to production"

@@ -1,15 +1,12 @@
 from django.db import models
 
-# from my_api.models.Laboratoire import Laboratoire
+from .BaseModel import BaseModel
 
-# Analyse class
-class Analyse(models.Model):
+
+class Analyse(BaseModel):
     nom = models.CharField(max_length=255)
     description = models.TextField()
-    # idFkLaboratoire = models.ForeignKey(Laboratoire,
-    #                                     on_delete=models.CASCADE,
-    #                                     db_column="idFkLaboratoire",db_constraint=False)
-    idFkLaboratoire = models.IntegerField(blank=False, null=False)
-    
+    id_fk_laboratoire = models.IntegerField(blank=False, null=False)
+
     def __str__(self):
         return self.nom

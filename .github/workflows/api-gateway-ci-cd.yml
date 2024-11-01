@@ -1,0 +1,48 @@
+name: Api Gateway
+
+on:
+  push:
+    branches: [ "master" ]
+    paths:
+      - 'api_gateway/**'
+  pull_request:
+    branches: [ "master" ]
+    paths:
+      - 'api_gateway/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get install -y nodejs npm
+        cd api_gateway
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Test
+      run: |
+          cd api_gateway/test
+          python test.py
+
+    - name: Build and push docker image
+      env:
+        FRONTEND_ACCESS_TOKEN: ${{secrets.FRONTEND_ACCESS_TOKEN}}
+        FRONTEND_ACCESS_USER: ${{secrets.FRONTEND_ACCESS_USER}}
+        CONTAINER_REGISTRY: ${{secrets.CONTAINER_REGISTRY}}
+        CONTAINER_REGISTRY_USER: ${{secrets.CONTAINER_REGISTRY_USER}}
+        CONTAINER_REGISTRY_TOKEN: ${{secrets.CONTAINER_REGISTRY_TOKEN}}
+      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      run: |
+          cd api_gateway
+          python action.py  --token "$FRONTEND_ACCESS_TOKEN" --user "$FRONTEND_ACCESS_USER" --registry "$CONTAINER_REGISTRY" \
+          --registry-user "$CONTAINER_REGISTRY_USER" --registry-token "$CONTAINER_REGISTRY_TOKEN"
+
