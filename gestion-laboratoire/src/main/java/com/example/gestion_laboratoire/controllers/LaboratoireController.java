@@ -16,8 +16,6 @@ import com.example.gestion_laboratoire.models.Laboratoire;
 import com.example.gestion_laboratoire.services.LaboratoireService;
 
 @RestController
-// this is kinda like setting the root URL, and then you can set the branch
-// urls, cool
 @RequestMapping(path = "api/laboratoire")
 public class LaboratoireController {
 
@@ -34,7 +32,7 @@ public class LaboratoireController {
 
     @GetMapping(path = "{laboId}")
     public Laboratoire getById(@PathVariable(name = "laboId") Long id) throws Exception {
-        return laboratoireService.getLaboratoiresByIdLong(id);
+        return laboratoireService.getLaboratoiresById(id);
     }
 
     @PostMapping(path = "/")

@@ -7,6 +7,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Base64;
+import java.util.HashMap;
 import java.io.IOException;
 
 import org.springframework.stereotype.Service;
@@ -17,6 +18,29 @@ public class CloudinaryService {
     private Dotenv dotenv = Dotenv.load();
     private final Cloudinary cloudinary = new Cloudinary(dotenv.get("CLOUDINARY_URL"));
     private String folder = "logos";
+
+    @SuppressWarnings("rawtypes")
+    public Map<String, Object> uploadImage(byte[] imageBytes) {
+        Map<String, Object> imageInfo = new HashMap<>();
+        Map params1 = ObjectUtils.asMap(
+                "folder", folder,
+                "use_filename", false,
+                "unique_filename", true,
+                "resource_type", "image",
+                "overwrite", true);
+
+        try {
+            Map response = cloudinary.uploader().upload(imageBytes,
+                    params1);
+            imageInfo.put("display_name", response.get("display_name"));
+            imageInfo.put("url", response.get("url"));
+            return imageInfo;
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            imageInfo.put("error", "Failed to upload image");
+            return imageInfo;
+        }
+    }
 
     @SuppressWarnings("rawtypes")
     public String uploadImage(String imageName, byte[] imageBytes) {
@@ -41,7 +65,6 @@ public class CloudinaryService {
 
     @SuppressWarnings("unchecked")
     public String deleteImage(String imageName) {
-        imageName = Base64.getEncoder().withoutPadding().encodeToString(imageName.getBytes());
         try {
             ApiResponse apiResponse = cloudinary.api().deleteResources(Arrays.asList(folder + "/" + imageName),
                     ObjectUtils.asMap("type", "upload", "resource_type", "image"));

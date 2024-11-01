@@ -1,6 +1,7 @@
 package com.example.gestion_laboratoire.services;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,7 +30,7 @@ public class LaboratoireService {
         return laboratoireRepository.findAll();
     }
 
-    public Laboratoire getLaboratoiresByIdLong(Long id) throws EntityNotFoundException {
+    public Laboratoire getLaboratoiresById(Long id) throws EntityNotFoundException {
         if (laboratoireRepository.existsById(id))
             return laboratoireRepository.findById(id).get();
         else
@@ -38,12 +39,13 @@ public class LaboratoireService {
 
     public ResponseEntity<Object> createLaboratoire(Laboratoire laboratoire) {
         try {
-            String imageName = laboratoire.getNom() + "_" + laboratoire.getId();
-            String imageURL = cloudinaryService.uploadImage(imageName, laboratoire.getImageFile());
-            if (imageURL == "Failed to upload image") {
-                return new ResponseEntity<>("Could not create laboratory : " + imageURL, HttpStatus.FAILED_DEPENDENCY);
+            Map<String, Object> imageURLInfo = cloudinaryService.uploadImage(laboratoire.getImageFile());
+            if (imageURLInfo == null) {
+                return new ResponseEntity<>("Could not create laboratory : " + imageURLInfo,
+                        HttpStatus.FAILED_DEPENDENCY);
             }
-            laboratoire.setLogo(imageURL);
+            laboratoire.setLogo(String.valueOf(imageURLInfo.get("url")));
+            laboratoire.setLogoID(String.valueOf(imageURLInfo.get("display_name")));
             laboratoireRepository.save(laboratoire);
             return new ResponseEntity<>("Laboratory created successfully", HttpStatus.CREATED);
         } catch (Exception ie) {
@@ -54,7 +56,6 @@ public class LaboratoireService {
 
     @Transactional
     public ResponseEntity<Object> updateLaboratoire(Long id, Laboratoire laboratoire) {
-        System.out.println(laboratoire);
         if (laboratoireRepository.existsById(id)) {
             Laboratoire labo = laboratoireRepository.findById(id).get();
             if (laboratoire.getNom() != null && laboratoire.getNom().length() != 0)
@@ -66,8 +67,9 @@ public class LaboratoireService {
             if (laboratoire.getCreatedAt() != null)
                 labo.setCreatedAt(laboratoire.getCreatedAt());
             if (laboratoire.getImageFile() != null && laboratoire.getImageFile().length != 0)
-                laboratoire.setLogo(cloudinaryService.uploadImage(laboratoire.getNom() + "_" + laboratoire.getId(),
+                laboratoire.setLogo(cloudinaryService.uploadImage(laboratoire.getLogoID(),
                         laboratoire.getImageFile()));
+
             return new ResponseEntity<>("Laboratory " + laboratoire.getNom() + " updated", HttpStatus.OK);
         } else {
             return new ResponseEntity<>("Laboratory not found", HttpStatus.NOT_FOUND);
@@ -78,7 +80,8 @@ public class LaboratoireService {
         if (laboratoireRepository.existsById(id)) {
             Laboratoire laboratoire = laboratoireRepository.findById(id).get();
             String imageDeletionMessage = cloudinaryService
-                    .deleteImage(laboratoire.getNom() + "_" + laboratoire.getId());
+                    .deleteImage(laboratoire.getLogoID());
+
             if (imageDeletionMessage != "Image deleted successfully") {
                 return new ResponseEntity<>("Could not delete laboratory, " + imageDeletionMessage,
                         HttpStatus.FAILED_DEPENDENCY);

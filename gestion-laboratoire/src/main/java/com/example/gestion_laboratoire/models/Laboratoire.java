@@ -33,6 +33,7 @@ public class Laboratoire {
     private String nrc;
     private Boolean active = false;
     private Date dateActivation;
+    private String logoID;
     @CreationTimestamp
     private Date CreatedAt;
     @UpdateTimestamp
@@ -40,10 +41,10 @@ public class Laboratoire {
     @Transient
     private byte[] imageFile;
 
-    public Laboratoire(String nom, String logo, String nrc, boolean active, Date dateActivation) {
+    // // TODO: Should probably remove the logo from constructor
+    public Laboratoire(String nom, String nrc, boolean active, Date dateActivation) {
         super();
         this.nom = nom;
-        this.logo = logo;
         this.nrc = nrc;
         this.active = active;
         this.dateActivation = dateActivation;
