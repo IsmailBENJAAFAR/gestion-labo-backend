@@ -40,8 +40,8 @@ public class LaboratoireService {
     public ResponseEntity<Object> createLaboratoire(Laboratoire laboratoire) {
         try {
             Map<String, Object> imageURLInfo = cloudinaryService.uploadImage(laboratoire.getImageFile());
-            if (imageURLInfo == null) {
-                return new ResponseEntity<>("Could not create laboratory : " + imageURLInfo,
+            if (imageURLInfo.get("url") == null) {
+                return new ResponseEntity<>("Could not create laboratory : " + imageURLInfo.get("error"),
                         HttpStatus.FAILED_DEPENDENCY);
             }
             laboratoire.setLogo(String.valueOf(imageURLInfo.get("url")));

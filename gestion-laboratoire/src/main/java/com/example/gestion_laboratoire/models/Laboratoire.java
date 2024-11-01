@@ -41,7 +41,6 @@ public class Laboratoire {
     @Transient
     private byte[] imageFile;
 
-    // // TODO: Should probably remove the logo from constructor
     public Laboratoire(String nom, String nrc, boolean active, Date dateActivation) {
         super();
         this.nom = nom;

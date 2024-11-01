@@ -6,13 +6,11 @@ import java.nio.file.Files;
 
 public class IBC {
 
-    public static byte[] extractBytes(String ImageName) throws IOException {
+    public static byte[] extractBytes(String imageName) throws IOException {
         // open image
-        File imgPath = new File(ImageName);
+        File imgPath = new File(imageName);
         byte[] fileContent = Files.readAllBytes(imgPath.toPath());
 
         return fileContent;
     }
-
-    // TODO: Should add file size to control it even from the backend
 }
