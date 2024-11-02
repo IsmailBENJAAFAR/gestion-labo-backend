@@ -10,5 +10,8 @@
         <module name="gestion-dossier.main" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="gestion-utilisateur" target="17" />
+    </bytecodeTargetLevel>
   </component>
 </project>
