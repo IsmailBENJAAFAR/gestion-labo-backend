@@ -19,7 +19,8 @@ public class CloudinaryService {
     private Dotenv dotenv = Dotenv.load();
     private final Cloudinary cloudinary = new Cloudinary(dotenv.get("CLOUDINARY_URL"));
     private String folder = "logos";
-    private final long maxImageSize = 770000; // equivilant to 770kb, just to allow some flexibility
+    private final int tolerance = 20000;
+    private final long maxImageSize = 750000 + tolerance; // equivilant to 770kb, just to allow some flexibility
 
     private boolean isTooBig(byte[] imageBytes) {
         return imageBytes.length > maxImageSize;
@@ -29,7 +30,8 @@ public class CloudinaryService {
         Map<String, Object> imageInfo = new HashMap<>();
 
         if (isTooBig(imageBytes)) {
-            imageInfo.put("error", "Failed to upload image : Image should be less than 750kb");
+            imageInfo.put("error",
+                    "Failed to upload image : Image should be less than " + ((maxImageSize - tolerance) / 1000) + "kb");
             return imageInfo;
         }
 
@@ -55,7 +57,7 @@ public class CloudinaryService {
     public String uploadImage(String imageName, byte[] imageBytes) {
 
         if (isTooBig(imageBytes)) {
-            return "Failed to upload image : Image should be less than 750kb";
+            return "Failed to upload image : Image should be less than " + ((maxImageSize - tolerance) / 1000) + "kb";
         }
 
         try {

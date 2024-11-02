@@ -12,8 +12,4 @@ public class ImageToBytesConverter {
 
         return fileContent;
     }
-
-    public static void main(String[] args) throws IOException {
-        System.out.println(ImageToBytesConverter.extractBytes("cloudinary_test_images/car.jpg").length);
-    }
 }
