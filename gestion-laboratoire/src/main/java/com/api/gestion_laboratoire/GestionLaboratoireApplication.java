@@ -1,4 +1,4 @@
-package com.example.gestion_laboratoire;
+package com.api.gestion_laboratoire;
 
 import java.util.Properties;
 

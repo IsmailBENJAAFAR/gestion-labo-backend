@@ -1,4 +1,4 @@
-package com.example.gestion_laboratoire.test_utils;
+package com.api.gestion_laboratoire.test_utils;
 
 import java.io.File;
 import java.io.IOException;

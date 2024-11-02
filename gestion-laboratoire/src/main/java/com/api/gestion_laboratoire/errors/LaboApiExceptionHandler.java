@@ -1,4 +1,4 @@
-package com.example.gestion_laboratoire.errors;
+package com.api.gestion_laboratoire.errors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

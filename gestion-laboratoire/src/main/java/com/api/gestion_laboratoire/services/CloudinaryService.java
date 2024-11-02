@@ -1,4 +1,4 @@
-package com.example.gestion_laboratoire.services;
+package com.api.gestion_laboratoire.services;
 
 import com.cloudinary.*;
 import com.cloudinary.api.ApiResponse;

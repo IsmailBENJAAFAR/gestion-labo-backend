@@ -1,4 +1,4 @@
-package com.example.gestion_laboratoire.services;
+package com.api.gestion_laboratoire.services;
 
 import java.util.List;
 import java.util.Map;
@@ -9,8 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.gestion_laboratoire.models.Laboratoire;
-import com.example.gestion_laboratoire.repositories.LaboratoireRepository;
+import com.api.gestion_laboratoire.models.Laboratoire;
+import com.api.gestion_laboratoire.repositories.LaboratoireRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 

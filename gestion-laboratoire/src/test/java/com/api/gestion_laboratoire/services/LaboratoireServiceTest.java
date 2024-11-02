@@ -1,4 +1,4 @@
-package com.example.gestion_laboratoire.services;
+package com.api.gestion_laboratoire.services;
 
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,16 +19,16 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-import com.example.gestion_laboratoire.models.Laboratoire;
-import com.example.gestion_laboratoire.test_utils.ImageToBytesConverter;
+import com.api.gestion_laboratoire.models.Laboratoire;
+import com.api.gestion_laboratoire.test_utils.ImageToBytesConverter;
 
 import jakarta.persistence.EntityNotFoundException;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class LaboratoireServiceTest {
 
-    private String image1Path = "cloudinary_test_images/AMI.png";
-    private String image2Path = "cloudinary_test_images/stare.png";
+    private String image1Path = "src/test/java/com/api/gestion_laboratoire/services/cloudinary_test_images/AMI.png";
+    private String image2Path = "src/test/java/com/api/gestion_laboratoire/services/cloudinary_test_images/stare.png";
 
     @Autowired
     private LaboratoireService laboratoireService;
@@ -64,7 +64,7 @@ public class LaboratoireServiceTest {
         Laboratoire labo = new Laboratoire("labo_x", "R123456", true, new Date());
         labo.setImageFile(ImageToBytesConverter.extractBytes(image1Path));
         ResponseEntity<Object> response = laboratoireService.createLaboratoire(labo);
-        assertEquals(response.getStatusCode(), HttpStatus.CREATED);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
         // Testing the fetching of all laboratories
         List<Laboratoire> labos = laboratoireService.getLaboratoires();

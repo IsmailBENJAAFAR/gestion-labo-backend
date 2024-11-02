@@ -1,4 +1,4 @@
-package com.example.gestion_laboratoire.services;
+package com.api.gestion_laboratoire.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -10,15 +10,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.example.gestion_laboratoire.test_utils.ImageToBytesConverter;
+import com.api.gestion_laboratoire.test_utils.ImageToBytesConverter;
 
 @SpringBootTest(classes = CloudinaryService.class)
 public class CloudinaryServiceTest {
 
     @Autowired
     private CloudinaryService cloudinaryService;
-
-    private String image1Path = "cloudinary_test_images/AMI.png";
+    
+    private String image1Path = "src/test/java/com/api/gestion_laboratoire/services/cloudinary_test_images/AMI.png";
 
     @Test
     void testCloudinaryUploadAndDeleteService() throws IOException {
@@ -37,7 +37,7 @@ public class CloudinaryServiceTest {
     void testImageIsTooBigConstraintInCloudinaryService() throws IOException {
 
         // Testing when the image is bigger than 750kb
-        String tooBigImage = "cloudinary_test_images/car.jpg";
+        String tooBigImage = "src/test/java/com/api/gestion_laboratoire/services/cloudinary_test_images/car.jpg";
         Map<String, Object> imageInfo = cloudinaryService
                 .uploadImage(ImageToBytesConverter.extractBytes(tooBigImage));
         assertEquals("Failed to upload image : Image should be less than 750kb", imageInfo.get("error"));
