@@ -1,4 +1,4 @@
-package com.example.gestioncontact;
+package com.api.gestioncontact;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
