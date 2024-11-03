@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.Instant;
 
@@ -30,6 +30,6 @@ public class Contact {
 
     @CreatedDate
     private Instant createdAt;
-    @LastModifiedBy
+    @LastModifiedDate
     private Instant updatedAt;
 }
