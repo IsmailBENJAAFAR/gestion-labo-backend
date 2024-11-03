@@ -5,22 +5,28 @@ import com.cloudinary.api.ApiResponse;
 import com.cloudinary.utils.ObjectUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 
 @Service
+@ComponentScan(basePackages = {"com.api.gestion_laboratoire.config"})
 public class CloudinaryService {
 
-    private Dotenv dotenv = Dotenv.load();
-    private final Cloudinary cloudinary = new Cloudinary(dotenv.get("CLOUDINARY_URL"));
+    private Cloudinary cloudinary;
     private String folder = "logos";
     private final int tolerance = 20000;
     private final long maxImageSize = 750000 + tolerance; // equivilant to 770kb, just to allow some flexibility
+
+    @Autowired
+    public CloudinaryService(Cloudinary cloudinary) {
+        this.cloudinary = cloudinary;
+    }
 
     private boolean isTooBig(byte[] imageBytes) {
         return imageBytes.length > maxImageSize;

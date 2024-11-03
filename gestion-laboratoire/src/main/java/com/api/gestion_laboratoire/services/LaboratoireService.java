@@ -20,6 +20,7 @@ public class LaboratoireService {
     private final LaboratoireRepository laboratoireRepository;
     private final CloudinaryService cloudinaryService;
 
+    @Autowired
     public LaboratoireService(LaboratoireRepository laboratoireRepository, CloudinaryService cloudinaryService) {
         this.laboratoireRepository = laboratoireRepository;
         this.cloudinaryService = cloudinaryService;
