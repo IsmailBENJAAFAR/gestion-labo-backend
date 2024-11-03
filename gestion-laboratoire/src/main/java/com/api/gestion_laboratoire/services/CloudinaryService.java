@@ -26,16 +26,6 @@ public class CloudinaryService {
         return imageBytes.length > maxImageSize;
     }
 
-    public Map uploadToReg(byte[] imageBytes) throws IOException {
-        return cloudinary.uploader().upload(imageBytes,
-                ObjectUtils.asMap(
-                        "folder", folder,
-                        "use_filename", false,
-                        "unique_filename", true,
-                        "resource_type", "image",
-                        "overwrite", true));
-    }
-
     public Map<String, Object> uploadImage(byte[] imageBytes) {
         Map<String, Object> imageInfo = new HashMap<>();
 
@@ -46,7 +36,13 @@ public class CloudinaryService {
         }
 
         try {
-            Map response = uploadToReg(imageBytes);
+            Map response = cloudinary.uploader().upload(imageBytes,
+                    ObjectUtils.asMap(
+                            "folder", folder,
+                            "use_filename", false,
+                            "unique_filename", true,
+                            "resource_type", "image",
+                            "overwrite", true));
 
             imageInfo.put("display_name", response.get("display_name"));
             imageInfo.put("url", response.get("url"));
