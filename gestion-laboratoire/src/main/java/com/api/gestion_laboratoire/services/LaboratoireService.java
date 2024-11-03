@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.api.gestion_laboratoire.models.Laboratoire;
-import com.api.gestion_laboratoire.repositories.GenericStorage;
 import com.api.gestion_laboratoire.repositories.LaboratoireRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -18,11 +17,11 @@ import jakarta.persistence.EntityNotFoundException;
 public class LaboratoireService {
 
     private final LaboratoireRepository laboratoireRepository;
-    private final GenericStorage storageService;
+    private final GenericStorageService genericStorageService;
 
-    public LaboratoireService(LaboratoireRepository laboratoireRepository, GenericStorage storageService) {
+    public LaboratoireService(LaboratoireRepository laboratoireRepository, GenericStorageService genericStorageService) {
         this.laboratoireRepository = laboratoireRepository;
-        this.storageService = storageService;
+        this.genericStorageService = genericStorageService;
     }
 
     public List<Laboratoire> getLaboratoires() {
@@ -38,7 +37,7 @@ public class LaboratoireService {
 
     public ResponseEntity<Object> createLaboratoire(Laboratoire laboratoire) {
         try {
-            Map<String, Object> imageURLInfo = storageService.uploadImage(laboratoire.getImageFile());
+            Map<String, Object> imageURLInfo = genericStorageService.uploadImage(laboratoire.getImageFile());
             if (imageURLInfo.get("url") == null) {
                 return new ResponseEntity<>("Could not create laboratory : " + imageURLInfo.get("error"),
                         HttpStatus.FAILED_DEPENDENCY);
@@ -66,7 +65,7 @@ public class LaboratoireService {
             if (laboratoire.getCreatedAt() != null)
                 labo.setCreatedAt(laboratoire.getCreatedAt());
             if (laboratoire.getImageFile() != null && laboratoire.getImageFile().length != 0)
-                labo.setLogo(storageService.uploadImage(laboratoire.getLogoID(),
+                labo.setLogo(genericStorageService.uploadImage(laboratoire.getLogoID(),
                         laboratoire.getImageFile()));
 
             return new ResponseEntity<>("Laboratory " + laboratoire.getNom() + " updated", HttpStatus.OK);
@@ -78,7 +77,7 @@ public class LaboratoireService {
     public ResponseEntity<Object> deleteLaboratoire(Long id) {
         if (laboratoireRepository.existsById(id)) {
             Laboratoire laboratoire = laboratoireRepository.findById(id).get();
-            String imageDeletionMessage = storageService
+            String imageDeletionMessage = genericStorageService
                     .deleteImage(laboratoire.getLogoID());
 
             if (imageDeletionMessage != "Image deleted successfully") {
