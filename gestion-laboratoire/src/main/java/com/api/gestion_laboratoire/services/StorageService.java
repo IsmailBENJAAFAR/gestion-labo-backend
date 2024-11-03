@@ -15,14 +15,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 @ComponentScan(basePackages = {"com.api.gestion_laboratoire.config"})
-public class GenericStorageService {
+public class StorageService {
 
     private Cloudinary cloudinary;
     private String folder = "logos";
     private final int tolerance = 20000;
     private final long maxImageSize = 750000 + tolerance; // equivilant to 770kb, just to allow some flexibility
 
-    public GenericStorageService(Cloudinary cloudinary) {
+    public StorageService(Cloudinary cloudinary) {
         this.cloudinary = cloudinary;
     }
 

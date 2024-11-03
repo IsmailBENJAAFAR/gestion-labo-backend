@@ -36,7 +36,7 @@ public class LaboratoireServiceTest {
 
     private LaboratoireService laboratoireService;
     @Mock
-    private GenericStorageService genericStorageService;
+    private StorageService storageService;
     @Mock
     private LaboratoireRepository laboratoireRepository;
 
@@ -48,7 +48,7 @@ public class LaboratoireServiceTest {
 
     @BeforeEach
     void setup() {
-        this.laboratoireService = new LaboratoireService(laboratoireRepository, genericStorageService);
+        this.laboratoireService = new LaboratoireService(laboratoireRepository, storageService);
     }
 
     @BeforeAll
@@ -80,7 +80,7 @@ public class LaboratoireServiceTest {
         };
         Laboratoire laboratoire = new Laboratoire("labo_x", "R123456", true, LocalDate.now());
 
-        BDDMockito.when(genericStorageService.uploadImage(laboratoire.getImageFile())).thenReturn(map);
+        BDDMockito.when(storageService.uploadImage(laboratoire.getImageFile())).thenReturn(map);
 
         ResponseEntity<Object> response = laboratoireService.createLaboratoire(laboratoire);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
@@ -97,7 +97,7 @@ public class LaboratoireServiceTest {
         };
         Laboratoire laboratoire = new Laboratoire("labo_x", "R123456", true, LocalDate.now());
 
-        BDDMockito.when(genericStorageService.uploadImage(laboratoire.getImageFile())).thenReturn(map);
+        BDDMockito.when(storageService.uploadImage(laboratoire.getImageFile())).thenReturn(map);
 
         ResponseEntity<Object> response = laboratoireService.createLaboratoire(laboratoire);
         assertEquals(HttpStatus.FAILED_DEPENDENCY, response.getStatusCode());
@@ -105,11 +105,11 @@ public class LaboratoireServiceTest {
     }
 
     @Test
-    void testCreateLaboratoireWithOfflineGenericStorageService() throws Exception {
+    void testCreateLaboratoireWithOfflineStorageService() throws Exception {
         // Test create action if cloudinary services are down
         Laboratoire laboratoire = new Laboratoire("labo_x", "R123456", true, LocalDate.now());
 
-        BDDMockito.when(genericStorageService.uploadImage(laboratoire.getImageFile())).thenReturn(null);
+        BDDMockito.when(storageService.uploadImage(laboratoire.getImageFile())).thenReturn(null);
 
         ResponseEntity<Object> response = laboratoireService.createLaboratoire(laboratoire);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -123,7 +123,7 @@ public class LaboratoireServiceTest {
 
         BDDMockito.given(laboratoireRepository.existsById(1L)).willReturn(true);
         BDDMockito.given(laboratoireRepository.findById(1L)).willReturn(laboratoire);
-        BDDMockito.when(genericStorageService.deleteImage(laboratoire.get().getLogoID()))
+        BDDMockito.when(storageService.deleteImage(laboratoire.get().getLogoID()))
                 .thenReturn("Image deleted successfully");
 
         ResponseEntity<Object> response = laboratoireService.deleteLaboratoire(1L);
@@ -150,7 +150,7 @@ public class LaboratoireServiceTest {
 
         BDDMockito.given(laboratoireRepository.existsById(1L)).willReturn(true);
         BDDMockito.given(laboratoireRepository.findById(1L)).willReturn(laboratoire);
-        BDDMockito.when(genericStorageService.deleteImage(laboratoire.get().getLogoID()))
+        BDDMockito.when(storageService.deleteImage(laboratoire.get().getLogoID()))
                 .thenReturn("something that is not Image deleted successfully");
 
         ResponseEntity<Object> response = laboratoireService.deleteLaboratoire(1L);
@@ -211,7 +211,7 @@ public class LaboratoireServiceTest {
 
         BDDMockito.given(laboratoireRepository.existsById(1L)).willReturn(true);
         BDDMockito.given(laboratoireRepository.findById(1L)).willReturn(laboratoire);
-        BDDMockito.when(genericStorageService.uploadImage(laboUpdate.getLogoID(), laboUpdate.getImageFile()))
+        BDDMockito.when(storageService.uploadImage(laboUpdate.getLogoID(), laboUpdate.getImageFile()))
                 .thenReturn("url/to/image");
 
         ResponseEntity<Object> response = laboratoireService.updateLaboratoire(1L, laboUpdate);
