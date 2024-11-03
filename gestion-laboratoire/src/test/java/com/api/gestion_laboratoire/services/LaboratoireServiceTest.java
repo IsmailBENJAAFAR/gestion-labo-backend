@@ -4,7 +4,6 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.verify;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,8 +36,6 @@ public class LaboratoireServiceTest {
     private LaboratoireService laboratoireService;
     @Mock
     private CloudinaryService cloudinaryService;
-    private String image1Path = "src/test/java/com/api/gestion_laboratoire/services/cloudinary_test_images/AMI.png";
-    private String image2Path = "src/test/java/com/api/gestion_laboratoire/services/cloudinary_test_images/stare.png";
     @Mock
     private LaboratoireRepository laboratoireRepository;
 
@@ -173,7 +170,6 @@ public class LaboratoireServiceTest {
 
         BDDMockito.given(laboratoireRepository.existsById(1L)).willReturn(true);
         BDDMockito.given(laboratoireRepository.findById(1L)).willReturn(laboratoire);
-        verify(laboratoireRepository).deleteById(1L);
 
         Laboratoire response = laboratoireService.getLaboratoiresById(1L);
         assertNotNull(response);
@@ -236,67 +232,4 @@ public class LaboratoireServiceTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertEquals("Laboratory not found", response.getBody());
     }
-
-    
-
-    // @Test
-    // void testLaboratoireActions() throws IOException {
-
-    // // Testing the creation of a laboratory
-    // Laboratoire labo = new Laboratoire("labo_x", "R123456", true, new Date());
-    // labo.setImageFile(ImageToBytesConverter.extractBytes(image1Path));
-    // ResponseEntity<Object> response = laboratoireService.createLaboratoire(labo);
-    // assertEquals(HttpStatus.CREATED, response.getStatusCode());
-
-    // // Testing the fetching of all laboratories
-    // List<Laboratoire> labos = laboratoireService.getLaboratoires();
-    // assertEquals(1, labos.size());
-
-    // // Testing the fetching of a laboratory by id
-    // Laboratoire laboFound = laboratoireService.getLaboratoiresById(1L);
-    // assertNotNull(laboFound, "Labo has been registered");
-    // assertEquals("labo_x", laboFound.getNom());
-    // assertEquals("R123456", laboFound.getNrc());
-    // assertNotNull(laboFound.getLogo(), "Image has been added successfully");
-
-    // // Testing the fetching of a laboratory with an invalid Id
-    // try {
-    // laboratoireService.getLaboratoiresById(999L);
-    // assertEquals(1, 2);
-    // } catch (EntityNotFoundException ex) {
-    // assertEquals("Laboratory Not found", ex.getMessage());
-    // }
-
-    // // Testing the update of a laboratory
-    // Laboratoire laboBeforeUpdated = new Laboratoire("labo_x69", "R123456789",
-    // true, new Date());
-    // labo.setImageFile(ImageToBytesConverter.extractBytes(image2Path));
-    // ResponseEntity<Object> updatedResponse =
-    // laboratoireService.updateLaboratoire(1L, laboBeforeUpdated);
-    // assertEquals(updatedResponse.getStatusCode(), HttpStatus.OK);
-    // Laboratoire laboAfterUpdate = laboratoireService.getLaboratoiresById(1L);
-    // assertNotNull(laboAfterUpdate, "Labo has been registered");
-    // assertEquals("labo_x69", laboAfterUpdate.getNom());
-    // assertEquals("R123456789", laboAfterUpdate.getNrc());
-    // assertNotEquals(laboBeforeUpdated.getLogo(), laboAfterUpdate.getLogo());
-
-    // // Testing the update with an invalid id
-    // Laboratoire laboBeforeUpdated1 = new Laboratoire("labo_x69", "R123456789",
-    // true, new Date());
-    // labo.setImageFile(ImageToBytesConverter.extractBytes(image2Path));
-    // ResponseEntity<Object> invalidUpdatedResponse =
-    // laboratoireService.updateLaboratoire(999L, laboBeforeUpdated1);
-    // assertEquals(invalidUpdatedResponse.getStatusCode(), HttpStatus.NOT_FOUND);
-
-    // // Testing the deletion of a laboratory
-    // ResponseEntity<Object> deleteResponse =
-    // laboratoireService.deleteLaboratoire(1L);
-    // assertEquals(deleteResponse.getStatusCode(), HttpStatus.NO_CONTENT);
-
-    // // Testing the delete with an invalid id
-    // ResponseEntity<Object> invalidDeleteResponse =
-    // laboratoireService.deleteLaboratoire(999L);
-    // assertEquals(invalidDeleteResponse.getStatusCode(), HttpStatus.NOT_FOUND);
-
-    // }
 }
