@@ -1,5 +1,6 @@
 package com.api.gestion_laboratoire.services;
 
+import com.api.gestion_laboratoire.repositories.GenericStorage;
 import com.cloudinary.*;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.utils.ObjectUtils;
@@ -10,20 +11,18 @@ import java.util.Map;
 import java.util.HashMap;
 import java.io.IOException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 
 @Service
-@ComponentScan(basePackages = {"com.api.gestion_laboratoire.config"})
-public class CloudinaryService {
+@ComponentScan(basePackages = { "com.api.gestion_laboratoire.config" })
+public class CloudinaryService implements GenericStorage {
 
     private Cloudinary cloudinary;
     private String folder = "logos";
     private final int tolerance = 20000;
     private final long maxImageSize = 750000 + tolerance; // equivilant to 770kb, just to allow some flexibility
 
-    @Autowired
     public CloudinaryService(Cloudinary cloudinary) {
         this.cloudinary = cloudinary;
     }
@@ -32,6 +31,7 @@ public class CloudinaryService {
         return imageBytes.length > maxImageSize;
     }
 
+    @Override
     public Map<String, Object> uploadImage(byte[] imageBytes) {
         Map<String, Object> imageInfo = new HashMap<>();
 
@@ -60,6 +60,7 @@ public class CloudinaryService {
         }
     }
 
+    @Override
     public String uploadImage(String imageName, byte[] imageBytes) {
 
         if (isTooBig(imageBytes)) {
@@ -83,6 +84,7 @@ public class CloudinaryService {
         }
     }
 
+    @Override
     public String deleteImage(String imageName) {
         try {
             ObjectMapper mapper = new ObjectMapper();

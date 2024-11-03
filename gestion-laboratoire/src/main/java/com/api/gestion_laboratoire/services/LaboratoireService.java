@@ -3,13 +3,13 @@ package com.api.gestion_laboratoire.services;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.api.gestion_laboratoire.models.Laboratoire;
+import com.api.gestion_laboratoire.repositories.GenericStorage;
 import com.api.gestion_laboratoire.repositories.LaboratoireRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -18,10 +18,9 @@ import jakarta.persistence.EntityNotFoundException;
 public class LaboratoireService {
 
     private final LaboratoireRepository laboratoireRepository;
-    private final CloudinaryService cloudinaryService;
+    private final GenericStorage cloudinaryService;
 
-    @Autowired
-    public LaboratoireService(LaboratoireRepository laboratoireRepository, CloudinaryService cloudinaryService) {
+    public LaboratoireService(LaboratoireRepository laboratoireRepository, GenericStorage cloudinaryService) {
         this.laboratoireRepository = laboratoireRepository;
         this.cloudinaryService = cloudinaryService;
     }
