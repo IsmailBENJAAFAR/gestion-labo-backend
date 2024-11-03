@@ -20,6 +20,7 @@ def build_dist():
     change_dir("frontend")
     assert os.system("npm i") == 0
     assert os.system("npm run build") == 0
+    shutil.rmtree("../dist", ignore_errors=True)
     shutil.copytree("./dist/gestion-labo-frontend/browser", "../dist")
     change_dir("..")
     
