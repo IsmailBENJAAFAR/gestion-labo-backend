@@ -66,7 +66,7 @@ public class LaboratoireService {
             if (laboratoire.getCreatedAt() != null)
                 labo.setCreatedAt(laboratoire.getCreatedAt());
             if (laboratoire.getImageFile() != null && laboratoire.getImageFile().length != 0)
-                laboratoire.setLogo(cloudinaryService.uploadImage(laboratoire.getLogoID(),
+                labo.setLogo(cloudinaryService.uploadImage(laboratoire.getLogoID(),
                         laboratoire.getImageFile()));
 
             return new ResponseEntity<>("Laboratory " + laboratoire.getNom() + " updated", HttpStatus.OK);

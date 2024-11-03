@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -15,7 +16,12 @@ import com.api.gestion_laboratoire.test_utils.ImageToBytesConverter;
 @SpringBootTest(classes = CloudinaryService.class)
 public class CloudinaryServiceTest {
 
-    private CloudinaryService cloudinaryService = new CloudinaryService();
+    private CloudinaryService cloudinaryService;
+
+    @BeforeEach
+    void setup() {
+        this.cloudinaryService = new CloudinaryService();
+    }
 
     private String image1Path = "src/test/java/com/api/gestion_laboratoire/services/cloudinary_test_images/AMI.png";
 
