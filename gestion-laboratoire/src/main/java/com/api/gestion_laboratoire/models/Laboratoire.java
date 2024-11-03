@@ -12,21 +12,17 @@ import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
 @Entity
 @Table
-@Getter
-@Setter
-@ToString
+@Data
 @NoArgsConstructor
 public class Laboratoire {
     @Id
     @SequenceGenerator(name = "laboratoire_sequence", sequenceName = "laboratoire_sequence", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "laboratoire_sequence")
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "laboratoire_sequence")
     private Long id;
     private String nom;
     private String logo;

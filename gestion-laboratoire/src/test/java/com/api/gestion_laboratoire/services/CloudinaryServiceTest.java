@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.io.IOException;
 import java.util.Map;
 
+import org.junit.Before;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.api.gestion_laboratoire.test_utils.ImageToBytesConverter;
@@ -15,9 +15,8 @@ import com.api.gestion_laboratoire.test_utils.ImageToBytesConverter;
 @SpringBootTest(classes = CloudinaryService.class)
 public class CloudinaryServiceTest {
 
-    @Autowired
-    private CloudinaryService cloudinaryService;
-    
+    private CloudinaryService cloudinaryService = new CloudinaryService();
+
     private String image1Path = "src/test/java/com/api/gestion_laboratoire/services/cloudinary_test_images/AMI.png";
 
     @Test
