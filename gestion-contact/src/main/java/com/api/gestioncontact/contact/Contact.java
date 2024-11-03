@@ -1,8 +1,7 @@
 package com.api.gestioncontact.contact;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import com.api.gestioncontact.adresse.Adresse;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,6 +23,10 @@ public class Contact {
     private int numeroTelophone;
     private int fax;
     private String email;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_adresse")
+    private Adresse adresse;
 
     @CreatedDate
     private Instant createdAt;
