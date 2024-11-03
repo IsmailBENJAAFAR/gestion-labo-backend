@@ -16,7 +16,7 @@ import com.api.gestion_laboratoire.models.Laboratoire;
 import com.api.gestion_laboratoire.services.LaboratoireService;
 
 @RestController
-@RequestMapping(path = "api/laboratoire")
+@RequestMapping(path = "api/v1/laboratoire")
 public class LaboratoireController {
 
     private final LaboratoireService laboratoireService;

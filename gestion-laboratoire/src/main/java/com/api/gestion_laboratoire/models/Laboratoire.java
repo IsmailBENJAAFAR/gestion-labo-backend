@@ -1,5 +1,6 @@
 package com.api.gestion_laboratoire.models;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -28,7 +29,7 @@ public class Laboratoire {
     private String logo;
     private String nrc;
     private Boolean active = false;
-    private Date dateActivation;
+    private LocalDate dateActivation;
     private String logoID;
     @CreationTimestamp
     private Date CreatedAt;
@@ -37,7 +38,7 @@ public class Laboratoire {
     @Transient
     private byte[] imageFile;
 
-    public Laboratoire(String nom, String nrc, boolean active, Date dateActivation) {
+    public Laboratoire(String nom, String nrc, boolean active, LocalDate dateActivation) {
         super();
         this.nom = nom;
         this.nrc = nrc;
