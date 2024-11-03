@@ -7,6 +7,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+
+import java.time.Instant;
 
 @Data
 @Builder
@@ -14,7 +18,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 public class Adresse {
-    
+
     @Id
     @GeneratedValue
     private Integer id;
@@ -23,4 +27,10 @@ public class Adresse {
     private int codePostale;
     private String ville;
     private String commune;
+
+    @CreatedDate
+    private Instant createdAt;
+    @LastModifiedBy
+    private Instant updatedAt;
+    
 }
