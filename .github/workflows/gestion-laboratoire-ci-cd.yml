@@ -3,12 +3,12 @@ name: Gestion laboratoire CI/CD
 on:
   push:
     branches:
-      - branch-x
+      - master
     paths:
       - "gestion-laboratoire/**"
   pull_request:
     branches:
-      - branch-x
+      - master
     paths:
       - "gestion-laboratoire/**"
 
