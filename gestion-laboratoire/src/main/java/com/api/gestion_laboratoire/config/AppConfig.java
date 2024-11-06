@@ -5,13 +5,11 @@ import org.springframework.context.annotation.Configuration;
 
 import com.cloudinary.Cloudinary;
 
-import io.github.cdimascio.dotenv.Dotenv;
-
 @Configuration
 public class AppConfig {
 
     @Bean
     public Cloudinary cloudinary() {
-        return new Cloudinary(Dotenv.load().get("CLOUDINARY_URL"));
+        return new Cloudinary(System.getenv("CLOUDINARY_URL"));
     }
 }
