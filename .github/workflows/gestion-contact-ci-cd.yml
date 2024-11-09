@@ -1,0 +1,37 @@
+name: Gestion Contact CI/CD
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'gestion-contact/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'gestion-contact/**'
+
+jobs:
+
+  build:
+    runs-on: self-hosted
+    name: Build backend
+    needs: [ compile, unit-tests ]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+
+      - name: Compile project
+        run: |
+          cd book-network
+          ./mvnw clean compile
+
+
+  deploy:
