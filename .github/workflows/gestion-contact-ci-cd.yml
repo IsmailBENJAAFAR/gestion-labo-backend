@@ -52,4 +52,7 @@ jobs:
         run: |
           cd book-network
           ./mvnw clean test
+
+  sonar-qube:
+
   deploy:
