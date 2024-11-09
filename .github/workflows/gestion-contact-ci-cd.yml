@@ -30,8 +30,7 @@ jobs:
 
       - name: Compile project
         run: |
-          cd book-network
-          ./mvnw clean compile
+          cd gestion-contact
 
   unit-tests:
     runs-on: self-hosted
@@ -50,8 +49,7 @@ jobs:
 
       - name: Running Unit Tests
         run: |
-          cd book-network
-          ./mvnw clean test
+          cd gestion-contact
 
   sonar-qube:
 
