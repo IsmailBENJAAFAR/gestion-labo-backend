@@ -4,4 +4,4 @@ WORKDIR /gestion-laboratoire
 
 COPY ./build/libs ./
 
-CMD [ "java","-jar","./gestion-laboratoire-*.jar" ]
+CMD java -jar gestion-laboratoire-*.jar 
