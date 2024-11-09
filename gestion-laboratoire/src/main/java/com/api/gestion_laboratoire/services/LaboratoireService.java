@@ -36,6 +36,10 @@ public class LaboratoireService {
     }
 
     public ResponseEntity<Object> createLaboratoire(Laboratoire laboratoire) {
+        if (laboratoire.getNrc().length() != 9) {
+            return new ResponseEntity<>("Could not create laboratory : Invalid Laboratory NRC ",
+                    HttpStatus.BAD_REQUEST);
+        }
         try {
             Map<String, Object> imageURLInfo = storageService.uploadImage(laboratoire.getImageFile());
             if (imageURLInfo.get("url") == null) {
@@ -54,6 +58,10 @@ public class LaboratoireService {
 
     @Transactional
     public ResponseEntity<Object> updateLaboratoire(Long id, Laboratoire laboratoire) {
+        if (laboratoire.getNrc().length() != 9) {
+            return new ResponseEntity<>("Could not create laboratory : Invalid Laboratory NRC ",
+                    HttpStatus.BAD_REQUEST);
+        }
         if (laboratoireRepository.existsById(id)) {
             Laboratoire labo = laboratoireRepository.findById(id).get();
             if (laboratoire.getNom() != null && laboratoire.getNom().length() != 0)
