@@ -55,4 +55,6 @@ jobs:
 
   sonar-qube:
 
+  integration-tests:
+
   deploy:
