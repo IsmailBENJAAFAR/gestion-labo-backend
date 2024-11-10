@@ -51,7 +51,9 @@ jobs:
         with:
           java-version: '17'
           distribution: 'corretto'
-          cache: 'gradle'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582
 
       - name: Running Unit Tests
         run: |
@@ -79,7 +81,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'corretto'
-          cache: 'gradle'
 
       - name: Cache SonarQube packages
         uses: actions/cache@v3
@@ -88,17 +89,18 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      - name: Run SonarQube Analysis
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
+
+      - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          cd gestion-contact
-          ./gradlew sonarqube \
-            -Dsonar.projectKey=gestion-contact \
-            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-            -Dsonar.java.coveragePlugin=jacoco \
-            -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: ./gradlew build sonar --info
 
   build:
     runs-on: ubuntu-latest
