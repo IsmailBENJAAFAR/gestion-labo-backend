@@ -192,6 +192,7 @@ jobs:
           echo "Deploying gestion-contact to production"
 
   e2e-tests:
+    needs: deploy
     runs-on: ubuntu-latest
 
     steps:
