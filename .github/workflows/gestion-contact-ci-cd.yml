@@ -2,11 +2,11 @@ name: Gestion Contact CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
     paths:
       - 'gestion-contact/**'
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
     paths:
       - 'gestion-contact/**'
 
