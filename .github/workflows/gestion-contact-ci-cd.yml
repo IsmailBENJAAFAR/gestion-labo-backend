@@ -33,6 +33,7 @@ jobs:
       - name: Compile project
         run: |
           cd gestion-contact
+          chmod +x ./gradlew
           ./gradlew compileJava
           ./gradlew compileTestJava
 
