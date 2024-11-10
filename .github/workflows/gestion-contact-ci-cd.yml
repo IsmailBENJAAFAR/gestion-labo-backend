@@ -58,6 +58,7 @@ jobs:
       - name: Running Unit Tests
         run: |
           cd gestion-contact
+          chmod +x ./gradlew
           ./gradlew test
 
       - name: Upload test results
@@ -117,11 +118,14 @@ jobs:
         with:
           java-version: '17'
           distribution: 'corretto'
-          cache: 'gradle'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582
 
       - name: Build project
         run: |
           cd gestion-contact
+          chmod +x ./gradlew
           ./gradlew build -x test
 
       - name: Upload build artifact
