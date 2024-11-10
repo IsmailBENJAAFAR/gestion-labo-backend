@@ -10,9 +10,6 @@ on:
     paths:
       - 'gestion-contact/**'
 
-env:
-  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-
 jobs:
   compile:
     runs-on: ubuntu-latest
@@ -28,7 +25,9 @@ jobs:
         with:
           java-version: '17'
           distribution: 'corretto'
-          cache: 'gradle'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582
 
       - name: Compile project
         run: |
