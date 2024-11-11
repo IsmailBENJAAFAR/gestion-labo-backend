@@ -26,6 +26,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
+import com.api.gestion_laboratoire.errors.ApiError;
 import com.api.gestion_laboratoire.models.Laboratoire;
 import com.api.gestion_laboratoire.repositories.LaboratoireRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -85,10 +86,10 @@ public class LaboratoireServiceTest {
 
         BDDMockito.when(storageService.uploadImage(laboratoire.getImageFile())).thenReturn(map);
 
-        ResponseEntity<Object> response = laboratoireService.createLaboratoire(laboratoire);
+        ResponseEntity<ApiError> response = laboratoireService.createLaboratoire(laboratoire);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
-        ResponseEntity<Object> responseWithInvalidNrc = laboratoireService.createLaboratoire(invalidLaboratoire);
+        ResponseEntity<ApiError> responseWithInvalidNrc = laboratoireService.createLaboratoire(invalidLaboratoire);
         assertEquals(HttpStatus.BAD_REQUEST, responseWithInvalidNrc.getStatusCode());
     }
 
@@ -105,9 +106,9 @@ public class LaboratoireServiceTest {
 
         BDDMockito.when(storageService.uploadImage(laboratoire.getImageFile())).thenReturn(map);
 
-        ResponseEntity<Object> response = laboratoireService.createLaboratoire(laboratoire);
+        ResponseEntity<ApiError> response = laboratoireService.createLaboratoire(laboratoire);
         assertEquals(HttpStatus.FAILED_DEPENDENCY, response.getStatusCode());
-        assertEquals("Could not create laboratory : " + map.get("error"), response.getBody());
+        assertEquals("Could not create laboratory : " + map.get("error"), response.getBody().getMessage());
     }
 
     @Test
@@ -117,9 +118,10 @@ public class LaboratoireServiceTest {
 
         BDDMockito.when(storageService.uploadImage(laboratoire.getImageFile())).thenReturn(null);
 
-        ResponseEntity<Object> response = laboratoireService.createLaboratoire(laboratoire);
+        ResponseEntity<ApiError> response = laboratoireService.createLaboratoire(laboratoire);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Unknown error has occured during the creation of the Laboratory", response.getBody());
+        assertEquals("Unknown error has occured during the creation of the Laboratory",
+                response.getBody().getMessage());
     }
 
     @Test
@@ -132,11 +134,11 @@ public class LaboratoireServiceTest {
         BDDMockito.when(storageService.deleteImage(laboratoire.get().getLogoID()))
                 .thenReturn("Image deleted successfully");
 
-        ResponseEntity<Object> response = laboratoireService.deleteLaboratoire(1L);
+        ResponseEntity<ApiError> response = laboratoireService.deleteLaboratoire(1L);
         verify(laboratoireRepository).deleteById(1L);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        assertEquals("Laboratory " + laboratoire.get().getNom() + " deleted", response.getBody());
+        assertEquals("Laboratory deleted", response.getBody().getMessage());
     }
 
     @Test
@@ -144,9 +146,9 @@ public class LaboratoireServiceTest {
         // Test delete action with an invalid id
         BDDMockito.given(laboratoireRepository.existsById(1L)).willReturn(false);
 
-        ResponseEntity<Object> response = laboratoireService.deleteLaboratoire(1L);
+        ResponseEntity<ApiError> response = laboratoireService.deleteLaboratoire(1L);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals("Laboratory not found", response.getBody());
+        assertEquals("Laboratory not found", response.getBody().getMessage());
     }
 
     @Test
@@ -159,7 +161,7 @@ public class LaboratoireServiceTest {
         BDDMockito.when(storageService.deleteImage(laboratoire.get().getLogoID()))
                 .thenReturn("something that is not Image deleted successfully");
 
-        ResponseEntity<Object> response = laboratoireService.deleteLaboratoire(1L);
+        ResponseEntity<ApiError> response = laboratoireService.deleteLaboratoire(1L);
         assertEquals(HttpStatus.FAILED_DEPENDENCY, response.getStatusCode());
     }
 
@@ -198,15 +200,15 @@ public class LaboratoireServiceTest {
         BDDMockito.given(laboratoireRepository.findById(1L)).willReturn(laboratoire);
 
         // Update with a valid request
-        ResponseEntity<Object> response = laboratoireService.updateLaboratoire(1L,
+        ResponseEntity<ApiError> response = laboratoireService.updateLaboratoire(1L,
                 new Laboratoire("labo_x69", "999999999", true, LocalDate.now()));
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("labo_x69", laboratoire.get().getNom());
         assertEquals("999999999", laboratoire.get().getNrc());
-        assertEquals("Laboratory " + laboratoire.get().getNom() + " updated", response.getBody());
+        assertEquals("Laboratory updated", response.getBody().getMessage());
 
         // Update with bad NRC in request
-        ResponseEntity<Object> responseWithInvalidNrc = laboratoireService.updateLaboratoire(1L,
+        ResponseEntity<ApiError> responseWithInvalidNrc = laboratoireService.updateLaboratoire(1L,
                 new Laboratoire("labo_x69", "99999999966666", true, LocalDate.now()));
         assertEquals(HttpStatus.BAD_REQUEST, responseWithInvalidNrc.getStatusCode());
     }
@@ -226,11 +228,11 @@ public class LaboratoireServiceTest {
         BDDMockito.when(storageService.uploadImage(laboUpdate.getLogoID(), laboUpdate.getImageFile()))
                 .thenReturn("url/to/image");
 
-        ResponseEntity<Object> response = laboratoireService.updateLaboratoire(1L, laboUpdate);
+        ResponseEntity<ApiError> response = laboratoireService.updateLaboratoire(1L, laboUpdate);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("labo_x69", laboratoire.get().getNom());
         assertEquals("123456789", laboratoire.get().getNrc());
-        assertEquals("Laboratory " + laboratoire.get().getNom() + " updated", response.getBody());
+        assertEquals("Laboratory updated", response.getBody().getMessage());
         assertEquals("url/to/image", laboratoire.get().getLogo());
     }
 
@@ -239,10 +241,10 @@ public class LaboratoireServiceTest {
         // Test update action with an invalid id
         BDDMockito.given(laboratoireRepository.existsById(1L)).willReturn(false);
 
-        ResponseEntity<Object> response = laboratoireService.updateLaboratoire(1L,
+        ResponseEntity<ApiError> response = laboratoireService.updateLaboratoire(1L,
                 new Laboratoire("labo_x69", "123456789", true, LocalDate.now()));
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals("Laboratory not found", response.getBody());
+        assertEquals("Laboratory not found", response.getBody().getMessage());
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.api.gestion_laboratoire.errors.ApiError;
 import com.api.gestion_laboratoire.models.Laboratoire;
 import com.api.gestion_laboratoire.repositories.LaboratoireRepository;
 
@@ -35,31 +36,39 @@ public class LaboratoireService {
             throw new EntityNotFoundException("Laboratory Not found");
     }
 
-    public ResponseEntity<Object> createLaboratoire(Laboratoire laboratoire) {
+    public ResponseEntity<ApiError> createLaboratoire(Laboratoire laboratoire) {
         if (laboratoire.getNrc().length() != 9) {
-            return new ResponseEntity<>("Could not create laboratory : Invalid Laboratory NRC ",
+            return new ResponseEntity<ApiError>(
+                    new ApiError("Could not create laboratory : Invalid Laboratory NRC ", HttpStatus.BAD_REQUEST),
                     HttpStatus.BAD_REQUEST);
         }
         try {
             Map<String, Object> imageURLInfo = storageService.uploadImage(laboratoire.getImageFile());
             if (imageURLInfo.get("url") == null) {
-                return new ResponseEntity<>("Could not create laboratory : " + imageURLInfo.get("error"),
+                return new ResponseEntity<ApiError>(
+                        new ApiError("Could not create laboratory : " + imageURLInfo.get("error"),
+                                HttpStatus.FAILED_DEPENDENCY),
                         HttpStatus.FAILED_DEPENDENCY);
             }
             laboratoire.setLogo(String.valueOf(imageURLInfo.get("url")));
             laboratoire.setLogoID(String.valueOf(imageURLInfo.get("display_name")));
             laboratoireRepository.save(laboratoire);
-            return new ResponseEntity<>("Laboratory created successfully", HttpStatus.CREATED);
+            return new ResponseEntity<ApiError>(new ApiError("Laboratory created successfully", HttpStatus.CREATED),
+                    HttpStatus.CREATED);
         } catch (Exception ie) {
-            return new ResponseEntity<>("Unknown error has occured during the creation of the Laboratory",
+            return new ResponseEntity<ApiError>(
+                    new ApiError("Unknown error has occured during the creation of the Laboratory",
+                            HttpStatus.BAD_REQUEST),
                     HttpStatus.BAD_REQUEST);
         }
     }
 
     @Transactional
-    public ResponseEntity<Object> updateLaboratoire(Long id, Laboratoire laboratoire) {
+    public ResponseEntity<ApiError> updateLaboratoire(Long id, Laboratoire laboratoire) {
         if (laboratoire.getNrc().length() != 9) {
-            return new ResponseEntity<>("Could not create laboratory : Invalid Laboratory NRC ",
+            return new ResponseEntity<ApiError>(
+                    new ApiError("Could not create laboratory : Invalid Laboratory NRC ",
+                            HttpStatus.BAD_REQUEST),
                     HttpStatus.BAD_REQUEST);
         }
         if (laboratoireRepository.existsById(id)) {
@@ -76,26 +85,31 @@ public class LaboratoireService {
                 labo.setLogo(storageService.uploadImage(laboratoire.getLogoID(),
                         laboratoire.getImageFile()));
 
-            return new ResponseEntity<>("Laboratory " + laboratoire.getNom() + " updated", HttpStatus.OK);
+            return new ResponseEntity<ApiError>(new ApiError("Laboratory updated", HttpStatus.OK), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("Laboratory not found", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<ApiError>(new ApiError("Laboratory not found", HttpStatus.NOT_FOUND),
+                    HttpStatus.NOT_FOUND);
         }
     }
 
-    public ResponseEntity<Object> deleteLaboratoire(Long id) {
+    public ResponseEntity<ApiError> deleteLaboratoire(Long id) {
         if (laboratoireRepository.existsById(id)) {
             Laboratoire laboratoire = laboratoireRepository.findById(id).get();
             String imageDeletionMessage = storageService
                     .deleteImage(laboratoire.getLogoID());
 
             if (imageDeletionMessage != "Image deleted successfully") {
-                return new ResponseEntity<>("Could not delete laboratory, " + imageDeletionMessage,
+                return new ResponseEntity<ApiError>(
+                        new ApiError("Could not delete laboratory, " + imageDeletionMessage,
+                                HttpStatus.FAILED_DEPENDENCY),
                         HttpStatus.FAILED_DEPENDENCY);
             }
             laboratoireRepository.deleteById(id);
-            return new ResponseEntity<>("Laboratory " + laboratoire.getNom() + " deleted", HttpStatus.NO_CONTENT);
+            return new ResponseEntity<ApiError>(new ApiError("Laboratory deleted", HttpStatus.NO_CONTENT),
+                    HttpStatus.NO_CONTENT);
         } else {
-            return new ResponseEntity<>("Laboratory not found", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<ApiError>(new ApiError("Laboratory not found", HttpStatus.NOT_FOUND),
+                    HttpStatus.NOT_FOUND);
         }
     }
 
