@@ -51,10 +51,3 @@ dependencies {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
-
-sonar {
-    properties {
-        property("sonar.projectKey", "gestion-contact")
-        property("sonar.projectName", "gestion-contact")
-    }
-}
