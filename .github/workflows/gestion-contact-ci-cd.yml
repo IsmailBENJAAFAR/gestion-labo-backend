@@ -98,13 +98,14 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle
 
       - name: Build and analyze
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
           cd gestion-contact
           chmod +x ./gradlew
-          ./gradlew build sonar --info
+          ./gradlew sonar \
+            -Dsonar.projectKey=gestion-contact \
+            -Dsonar.projectName='gestion-contact' \
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+            -Dsonar.token=${{ secrets.SONAR_TOKEN }}
 
   build:
     runs-on: ubuntu-latest
