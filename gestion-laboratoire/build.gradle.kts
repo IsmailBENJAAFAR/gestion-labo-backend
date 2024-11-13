@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.api"
-version = "0.0.1"
+version = System.getenv("VERSION") ?: "latest"
 
 java {
 	toolchain {

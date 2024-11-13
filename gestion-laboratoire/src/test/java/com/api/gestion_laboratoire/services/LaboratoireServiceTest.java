@@ -202,10 +202,12 @@ public class LaboratoireServiceTest {
 
         // Update with a valid request
         ResponseEntity<ApiResponse> response = laboratoireService.updateLaboratoire(1L,
-                new Laboratoire("labo_x69", "999999999", true, LocalDate.now()));
+                new Laboratoire("labo_x69", "999999999", false, LocalDate.of(2011, 11, 11)));
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("labo_x69", laboratoire.get().getNom());
         assertEquals("999999999", laboratoire.get().getNrc());
+        assertEquals(false, laboratoire.get().getActive());
+        assertEquals(LocalDate.of(2011, 11, 11), laboratoire.get().getDateActivation());
         assertEquals("Laboratory updated", response.getBody().getMessage());
 
         // Update with bad NRC in request

@@ -80,8 +80,8 @@ public class LaboratoireService {
                 labo.setNrc(laboratoire.getNrc());
             if (laboratoire.getActive() != null)
                 labo.setActive(laboratoire.getActive());
-            if (laboratoire.getCreatedAt() != null)
-                labo.setCreatedAt(laboratoire.getCreatedAt());
+            if (laboratoire.getDateActivation() != null)
+                labo.setDateActivation(laboratoire.getDateActivation());
             if (laboratoire.getImageFile() != null && laboratoire.getImageFile().length != 0)
                 labo.setLogo(storageService.uploadImage(laboratoire.getLogoID(),
                         laboratoire.getImageFile()));
