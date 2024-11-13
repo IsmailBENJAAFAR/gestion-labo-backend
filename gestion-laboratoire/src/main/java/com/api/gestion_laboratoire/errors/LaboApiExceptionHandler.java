@@ -12,13 +12,13 @@ import jakarta.persistence.EntityNotFoundException;
 public class LaboApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
-    protected ResponseEntity<ApiError> handleLaboNotFound(EntityNotFoundException ex) {
-        return new ResponseEntity<ApiError>(new ApiError(ex.getMessage(), HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND);
+    protected ResponseEntity<ApiResponse> handleLaboNotFound(EntityNotFoundException ex) {
+        return new ResponseEntity<ApiResponse>(new ApiResponse(ex.getMessage()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    protected ResponseEntity<ApiError> handleBadLaboBodyRequest(IllegalArgumentException ex) {
-        return new ResponseEntity<ApiError>(new ApiError(ex.getMessage(), HttpStatus.BAD_REQUEST),
+    protected ResponseEntity<ApiResponse> handleBadLaboBodyRequest(IllegalArgumentException ex) {
+        return new ResponseEntity<ApiResponse>(new ApiResponse(ex.getMessage()),
                 HttpStatus.BAD_REQUEST);
     }
 }
