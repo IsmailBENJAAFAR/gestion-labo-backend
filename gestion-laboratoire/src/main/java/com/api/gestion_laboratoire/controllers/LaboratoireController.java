@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.api.gestion_laboratoire.models.Laboratoire;
 import com.api.gestion_laboratoire.services.LaboratoireService;
 
-import jakarta.validation.Valid;
-
 @RestController
 @RequestMapping(path = "api/v1/laboratoire")
 @CrossOrigin

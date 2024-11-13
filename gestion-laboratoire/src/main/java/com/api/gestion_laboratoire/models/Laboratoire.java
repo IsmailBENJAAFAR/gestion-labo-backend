@@ -6,7 +6,6 @@ import java.util.Date;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -28,10 +28,10 @@ public class Laboratoire {
     @SequenceGenerator(name = "laboratoire_sequence", sequenceName = "laboratoire_sequence", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "laboratoire_sequence")
     private Long id;
-    @NotNull
+    @NotEmpty
     private String nom;
     private String logo;
-    @NotNull
+    @NotEmpty
     @Size(max = 9, min = 9, message = "NRC should be exactly 9 characters long")
     private String nrc;
     @NotNull
