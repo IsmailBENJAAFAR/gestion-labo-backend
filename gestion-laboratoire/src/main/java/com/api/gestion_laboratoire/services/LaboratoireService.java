@@ -2,27 +2,33 @@ package com.api.gestion_laboratoire.services;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import com.api.gestion_laboratoire.errors.ApiError;
 import com.api.gestion_laboratoire.models.Laboratoire;
 import com.api.gestion_laboratoire.repositories.LaboratoireRepository;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 
 @Service
 public class LaboratoireService {
 
     private final LaboratoireRepository laboratoireRepository;
     private final StorageService storageService;
+    private final Validator validator;
 
     public LaboratoireService(LaboratoireRepository laboratoireRepository, StorageService storageService) {
         this.laboratoireRepository = laboratoireRepository;
         this.storageService = storageService;
+        this.validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
     public List<Laboratoire> getLaboratoires() {
@@ -37,11 +43,11 @@ public class LaboratoireService {
     }
 
     public ResponseEntity<ApiError> createLaboratoire(Laboratoire laboratoire) {
-        if (laboratoire.getNrc().length() != 9) {
-            return new ResponseEntity<ApiError>(
-                    new ApiError("Could not create laboratory : Invalid Laboratory NRC ", HttpStatus.BAD_REQUEST),
+
+        if (!validator.validate(laboratoire).isEmpty())
+            return new ResponseEntity<ApiError>(new ApiError("Invalid request", HttpStatus.BAD_REQUEST),
                     HttpStatus.BAD_REQUEST);
-        }
+
         try {
             Map<String, Object> imageURLInfo = storageService.uploadImage(laboratoire.getImageFile());
             if (imageURLInfo.get("url") == null) {
@@ -65,17 +71,15 @@ public class LaboratoireService {
 
     @Transactional
     public ResponseEntity<ApiError> updateLaboratoire(Long id, Laboratoire laboratoire) {
-        if (laboratoire.getNrc().length() != 9) {
-            return new ResponseEntity<ApiError>(
-                    new ApiError("Could not create laboratory : Invalid Laboratory NRC ",
-                            HttpStatus.BAD_REQUEST),
+        if (!validator.validate(laboratoire).isEmpty())
+            return new ResponseEntity<ApiError>(new ApiError("Invalid request", HttpStatus.BAD_REQUEST),
                     HttpStatus.BAD_REQUEST);
-        }
+
         if (laboratoireRepository.existsById(id)) {
             Laboratoire labo = laboratoireRepository.findById(id).get();
-            if (laboratoire.getNom() != null && laboratoire.getNom().length() != 0)
+            if (laboratoire.getNom() != null && !laboratoire.getNom().isEmpty())
                 labo.setNom(laboratoire.getNom());
-            if (laboratoire.getNrc() != null && laboratoire.getNrc().length() != 0)
+            if (laboratoire.getNrc() != null && !laboratoire.getNrc().isEmpty())
                 labo.setNrc(laboratoire.getNrc());
             if (laboratoire.getActive() != null)
                 labo.setActive(laboratoire.getActive());
@@ -98,7 +102,7 @@ public class LaboratoireService {
             String imageDeletionMessage = storageService
                     .deleteImage(laboratoire.getLogoID());
 
-            if (imageDeletionMessage != "Image deleted successfully") {
+            if (!Objects.equals(imageDeletionMessage, "Image deleted successfully")) {
                 return new ResponseEntity<ApiError>(
                         new ApiError("Could not delete laboratory, " + imageDeletionMessage,
                                 HttpStatus.FAILED_DEPENDENCY),

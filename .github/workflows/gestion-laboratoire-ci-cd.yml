@@ -12,6 +12,9 @@ on:
     paths:
       - "gestion-laboratoire/**"
 
+env:
+  CLOUDINARY_URL: ${{ secrets.CLOUDINARY_URL }}
+
 jobs:
   build:
     if: github.event_name == 'pull_request'
@@ -41,7 +44,6 @@ jobs:
 
       - name: Perform testing
         run: |
-          export CLOUDINARY_URL=${{ secrets.CLOUDINARY_URL }}
           ./gradlew test
 
   deploy:
