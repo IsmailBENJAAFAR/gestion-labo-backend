@@ -40,7 +40,7 @@ public class Laboratoire {
     private LocalDate dateActivation;
     private String logoID;
     @CreationTimestamp
-    private Date CreatedAt;
+    private Date createdAt;
     @UpdateTimestamp
     private Date updatedAt;
     @Transient
