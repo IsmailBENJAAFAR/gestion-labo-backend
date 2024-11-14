@@ -69,7 +69,7 @@ jobs:
           path: gestion-contact/build/reports/tests/
 
   sonar-qube:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: unit-tests
     steps:
       - name: Checkout code
