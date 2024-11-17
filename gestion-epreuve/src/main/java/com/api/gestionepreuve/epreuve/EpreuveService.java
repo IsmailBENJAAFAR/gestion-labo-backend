@@ -13,4 +13,8 @@ public class EpreuveService {
     public List<Epreuve> getAllEpreuve() {
         return epreuveRepository.findAll();
     }
+
+    public Epreuve addEpreuve(Epreuve epreuve) {
+        return epreuveRepository.save(epreuve);
+    }
 }
