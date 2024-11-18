@@ -101,7 +101,6 @@ jobs:
         run: |
           Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process
           cd gestion-contact
-          chmod +x ./gradlew
           ./gradlew sonar \
             -Dsonar.projectKey=gestion-contact \
             -Dsonar.projectName='gestion-contact' \
