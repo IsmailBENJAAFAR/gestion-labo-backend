@@ -3,6 +3,19 @@ plugins {
     id("org.springframework.boot") version "3.3.5"
     id("io.spring.dependency-management") version "1.1.6"
     id("org.sonarqube") version "5.1.0.4882"
+    id("jacoco")
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "geastion-contact")
+        property("sonar.projectName", "gestion-contact")
+        property("sonar.host.url", System.getenv("SONAR_HOST_URL"))
+        property("sonar.login", System.getenv("SONAR_TOKEN"))
+    }
+    properties {
+        property("sonar.jacoco.reportPaths", "${layout.buildDirectory}/jacoco/test.exec")
+    }
 }
 
 group = "com.api"
@@ -52,9 +65,18 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-sonar {
-    properties {
-        property("sonar.projectKey", "gestion-contact")
-        property("sonar.projectName", "gestion-contact")
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        html.required = true
+        xml.required = true
     }
 }
