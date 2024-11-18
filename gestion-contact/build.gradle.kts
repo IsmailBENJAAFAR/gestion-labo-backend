@@ -11,7 +11,7 @@ sonar {
         property("sonar.projectKey", "geastion-contact")
         property("sonar.projectName", "gestion-contact")
         property("sonar.host.url", System.getenv("SONAR_HOST_URL"))
-        property("sonar.login", System.getenv("SONAR_TOKEN"))
+        property("sonar.token", System.getenv("SONAR_TOKEN"))
     }
     properties {
         property("sonar.jacoco.reportPaths", "${layout.buildDirectory}/jacoco/test.exec")
