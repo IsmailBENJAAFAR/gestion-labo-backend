@@ -101,17 +101,11 @@ jobs:
         run: |
           Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process
           cd gestion-contact
-          $gradlewPath = ".\gradlew.bat"
-          if (!(Test-Path -Path $gradlewPath -PathType Leaf)) {
-            Write-Error "Gradlew not found"
-            exit 1
-          }
-          & $gradlewPath sonar `
-            "-Dsonar.projectKey=gestion-contact" `
-            "-Dsonar.projectName=gestion-contact" `
-            "-Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}" `
-            "-Dsonar.token=${{ secrets.SONAR_TOKEN }}"
+          .\gradlew sonar
         shell: powershell
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
   build:
     runs-on: ubuntu-latest
