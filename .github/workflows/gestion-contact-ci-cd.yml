@@ -99,6 +99,7 @@ jobs:
 
       - name: Build and analyze
         run: |
+          Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process
           cd gestion-contact
           chmod +x ./gradlew
           ./gradlew sonar \
@@ -106,6 +107,7 @@ jobs:
             -Dsonar.projectName='gestion-contact' \
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
             -Dsonar.token=${{ secrets.SONAR_TOKEN }}
+        shell: powershell
 
   build:
     runs-on: ubuntu-latest
