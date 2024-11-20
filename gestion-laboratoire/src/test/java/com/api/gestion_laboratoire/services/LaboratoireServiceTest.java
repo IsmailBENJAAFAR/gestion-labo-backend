@@ -43,7 +43,6 @@ public class LaboratoireServiceTest {
 
     @LocalServerPort
     // Configuring the testcontainer
-    private Integer port;
 
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16");
 
@@ -72,9 +71,9 @@ public class LaboratoireServiceTest {
     }
 
     @Test
-    void testCreateLaboratoire() throws Exception {
+    void testCreateLaboratoire() {
         // Test create action under normal conditions
-        Map<String, Object> map = new HashMap<String, Object>() {
+        Map<String, Object> map = new HashMap<>() {
             {
                 put("url", "some_url");
                 put("display_name", "idk");
@@ -96,9 +95,9 @@ public class LaboratoireServiceTest {
 
     @Test
     // @Disabled
-    void testCreateLaboratoireWithBadImage() throws Exception {
+    void testCreateLaboratoireWithBadImage() {
         // Test create action but with a bad image
-        Map<String, Object> map = new HashMap<String, Object>() {
+        Map<String, Object> map = new HashMap<>() {
             {
                 put("error", "some_error");
             }
@@ -113,7 +112,7 @@ public class LaboratoireServiceTest {
     }
 
     @Test
-    void testCreateLaboratoireWithOfflineStorageService() throws Exception {
+    void testCreateLaboratoireWithOfflineStorageService(){
         // Test create action if cloudinary services are down
         Laboratoire laboratoire = new Laboratoire("labo_x", "123456789", true, LocalDate.now());
 
@@ -130,7 +129,6 @@ public class LaboratoireServiceTest {
         // Test delete action under normal conditions
         Optional<Laboratoire> laboratoire = Optional.of(new Laboratoire("labo_x", "123456789", true, LocalDate.now()));
 
-        BDDMockito.given(laboratoireRepository.existsById(1L)).willReturn(true);
         BDDMockito.given(laboratoireRepository.findById(1L)).willReturn(laboratoire);
         BDDMockito.when(storageService.deleteImage(laboratoire.get().getLogoID()))
                 .thenReturn("Image deleted successfully");
@@ -138,14 +136,13 @@ public class LaboratoireServiceTest {
         ResponseEntity<ApiResponse> response = laboratoireService.deleteLaboratoire(1L);
         verify(laboratoireRepository).deleteById(1L);
 
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("Laboratory deleted", response.getBody().getMessage());
     }
 
     @Test
     void testDeleteLaboratoireWithBadId() {
         // Test delete action with an invalid id
-        BDDMockito.given(laboratoireRepository.existsById(1L)).willReturn(false);
 
         ResponseEntity<ApiResponse> response = laboratoireService.deleteLaboratoire(1L);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -157,7 +154,6 @@ public class LaboratoireServiceTest {
         // Test delete action if the cloudinary service fails
         Optional<Laboratoire> laboratoire = Optional.of(new Laboratoire("labo_x", "123456789", true, LocalDate.now()));
 
-        BDDMockito.given(laboratoireRepository.existsById(1L)).willReturn(true);
         BDDMockito.given(laboratoireRepository.findById(1L)).willReturn(laboratoire);
         BDDMockito.when(storageService.deleteImage(laboratoire.get().getLogoID()))
                 .thenReturn("something that is not Image deleted successfully");
@@ -178,7 +174,6 @@ public class LaboratoireServiceTest {
         // Test get by id action under normal conditions
         Optional<Laboratoire> laboratoire = Optional.of(new Laboratoire("labo_x", "123456789", true, LocalDate.now()));
 
-        BDDMockito.given(laboratoireRepository.existsById(1L)).willReturn(true);
         BDDMockito.given(laboratoireRepository.findById(1L)).willReturn(laboratoire);
 
         Laboratoire response = laboratoireService.getLaboratoiresById(1L);
@@ -188,7 +183,6 @@ public class LaboratoireServiceTest {
     @Test
     void testGetLaboratoiresByANonExistingId() {
         // Test get by id action with an invalid id
-        BDDMockito.given(laboratoireRepository.existsById(1L)).willReturn(false);
         assertThrows(EntityNotFoundException.class, () -> laboratoireService.getLaboratoiresById(1L));
     }
 
@@ -197,7 +191,6 @@ public class LaboratoireServiceTest {
         // Test update action under normal conditions without an image
         Optional<Laboratoire> laboratoire = Optional.of(new Laboratoire("labo_x", "123456789", true, LocalDate.now()));
 
-        BDDMockito.given(laboratoireRepository.existsById(1L)).willReturn(true);
         BDDMockito.given(laboratoireRepository.findById(1L)).willReturn(laboratoire);
 
         // Update with a valid request
@@ -226,7 +219,6 @@ public class LaboratoireServiceTest {
         laboUpdate.setImageFile(b);
         laboUpdate.setLogoID("imageID");
 
-        BDDMockito.given(laboratoireRepository.existsById(1L)).willReturn(true);
         BDDMockito.given(laboratoireRepository.findById(1L)).willReturn(laboratoire);
         BDDMockito.when(storageService.uploadImage(laboUpdate.getLogoID(), laboUpdate.getImageFile()))
                 .thenReturn("url/to/image");
@@ -242,7 +234,6 @@ public class LaboratoireServiceTest {
     @Test
     void testUpdateLaboratoireWithNonValidId() {
         // Test update action with an invalid id
-        BDDMockito.given(laboratoireRepository.existsById(1L)).willReturn(false);
 
         ResponseEntity<ApiResponse> response = laboratoireService.updateLaboratoire(1L,
                 new Laboratoire("labo_x69", "123456789", true, LocalDate.now()));

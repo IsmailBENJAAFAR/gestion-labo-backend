@@ -13,12 +13,12 @@ public class LaboApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     protected ResponseEntity<ApiResponse> handleLaboNotFound(EntityNotFoundException ex) {
-        return new ResponseEntity<ApiResponse>(new ApiResponse(ex.getMessage()), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new ApiResponse(ex.getMessage()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     protected ResponseEntity<ApiResponse> handleBadLaboBodyRequest(IllegalArgumentException ex) {
-        return new ResponseEntity<ApiResponse>(new ApiResponse(ex.getMessage()),
+        return new ResponseEntity<>(new ApiResponse(ex.getMessage()),
                 HttpStatus.BAD_REQUEST);
     }
 }
