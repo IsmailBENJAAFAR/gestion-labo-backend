@@ -10,14 +10,13 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  // note: the app password will apparently be depricated by 2025
   @Get('testmail')
   sendTestMail() {
     try {
       this.appService.sendEmail(
         'moghitmi2@gmail.com',
         'testing the mail',
-        'Hello world?',
+        'Hello world? with OAuth2',
       );
       return 'seems to be sent??';
     } catch {

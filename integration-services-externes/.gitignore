@@ -3,6 +3,7 @@
 /node_modules
 /build
 .env
+needed_rabbitmq_conf.md
 
 # Logs
 logs

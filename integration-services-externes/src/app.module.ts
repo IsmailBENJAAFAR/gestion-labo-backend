@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { MailSenderSetupService } from './mail-sender/mail-sender-setup.service';
 
 @Module({
   imports: [
@@ -10,9 +11,12 @@ import { MailerModule } from '@nestjs-modules/mailer';
         host: 'smtp.gmail.com',
         port: 587,
         secure: false, // true for port 465, false for other ports
+        tls: {
+          rejectUnauthorized: false,
+        },
         auth: {
-          user: process.env.GMAIL_ACC,
-          pass: process.env.GMAIL_PWD,
+          ...MailSenderSetupService.getCreds(),
+          accessToken: MailSenderSetupService.getToken(),
         },
       },
     }),
@@ -20,4 +24,6 @@ import { MailerModule } from '@nestjs-modules/mailer';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  hello: string;
+}

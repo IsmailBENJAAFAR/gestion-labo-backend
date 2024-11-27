@@ -11,7 +11,7 @@ export class AppService {
 
   sendEmail(to: string, subject: string, text: string) {
     this.mailSenderService.sendMail({
-      from: process.env.GMAIL_ACC,
+      from: 'labo.sai.engineer@gmail.com',
       to,
       subject,
       text,
