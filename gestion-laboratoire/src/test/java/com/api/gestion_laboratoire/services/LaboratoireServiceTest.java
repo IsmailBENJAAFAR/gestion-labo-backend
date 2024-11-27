@@ -26,6 +26,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
+import com.api.gestion_laboratoire.dto.LaboratoireDTO;
 import com.api.gestion_laboratoire.errors.ApiResponse;
 import com.api.gestion_laboratoire.models.Laboratoire;
 import com.api.gestion_laboratoire.repositories.LaboratoireRepository;
@@ -176,7 +177,7 @@ public class LaboratoireServiceTest {
 
         BDDMockito.given(laboratoireRepository.findById(1L)).willReturn(laboratoire);
 
-        Laboratoire response = laboratoireService.getLaboratoiresById(1L);
+        LaboratoireDTO response = laboratoireService.getLaboratoiresById(1L);
         assertNotNull(response);
     }
 

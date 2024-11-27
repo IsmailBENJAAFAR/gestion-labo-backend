@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.api.gestion_laboratoire.dto.LaboratoireDTO;
 import com.api.gestion_laboratoire.models.Laboratoire;
 import com.api.gestion_laboratoire.services.LaboratoireService;
 
@@ -30,12 +31,12 @@ public class LaboratoireController {
     }
 
     @GetMapping(path = "/")
-    public List<Laboratoire> getAll() {
+    public List<LaboratoireDTO> getAll() {
         return laboratoireService.getLaboratoires();
     }
 
     @GetMapping(path = "{laboId}")
-    public Laboratoire getById(@PathVariable(name = "laboId") Long id) throws Exception {
+    public LaboratoireDTO getById(@PathVariable(name = "laboId") Long id) throws Exception {
         return laboratoireService.getLaboratoiresById(id);
     }
 

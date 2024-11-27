@@ -1,5 +1,6 @@
 package com.api.gestion_laboratoire.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.api.gestion_laboratoire.dto.LaboratoireDTO;
 import com.api.gestion_laboratoire.errors.ApiResponse;
 import com.api.gestion_laboratoire.models.Laboratoire;
 import com.api.gestion_laboratoire.repositories.LaboratoireRepository;
@@ -31,14 +33,18 @@ public class LaboratoireService {
         this.validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
-    public List<Laboratoire> getLaboratoires() {
-        return laboratoireRepository.findAll();
+    public List<LaboratoireDTO> getLaboratoires() {
+        List<LaboratoireDTO> labos = new ArrayList<>();
+        for (Laboratoire laboratoire : laboratoireRepository.findAll()) {
+            labos.add(new LaboratoireDTO(laboratoire));
+        }
+        return labos;
     }
 
-    public Laboratoire getLaboratoiresById(Long id) throws EntityNotFoundException {
+    public LaboratoireDTO getLaboratoiresById(Long id) throws EntityNotFoundException {
         Optional<Laboratoire> optionalLaboratoire = laboratoireRepository.findById(id);
         if (optionalLaboratoire.isPresent())
-            return optionalLaboratoire.get();
+            return new LaboratoireDTO(optionalLaboratoire.get());
         else
             throw new EntityNotFoundException("Laboratory Not found");
     }
