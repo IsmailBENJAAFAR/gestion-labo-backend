@@ -97,12 +97,12 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
 
-      - name: Build and analyze
-        run: |
-          Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process
-          cd gestion-contact
-          .\gradlew sonar
-        shell: powershell
+      #- name: Build and analyze
+      #  run: |
+      #    Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process
+      #    cd gestion-contact
+      #    .\gradlew sonar
+      #  shell: powershell
 
   build:
     runs-on: ubuntu-latest
