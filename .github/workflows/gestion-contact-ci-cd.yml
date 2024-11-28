@@ -6,7 +6,7 @@ on:
     paths:
       - 'gestion-contact/**'
   pull_request:
-    branches: [ contact-management ]
+    branches: [ master ]
     paths:
       - 'gestion-contact/**'
 
@@ -102,7 +102,7 @@ jobs:
           Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process
           cd gestion-contact
           ./gradlew build -x test
-          ./gradlew sonar -Dsonar.project.settings=./sonar-project.properties
+          ./gradlew sonar   -Dsonar.projectKey=gestion-contact   -Dsonar.projectName='gestion-contact'   -Dsonar.host.url=http://localhost:9000   -Dsonar.token=sqa_377fd9131cb5ae641e81b2bda1a92679b523562b
         shell: powershell
 
   build:
