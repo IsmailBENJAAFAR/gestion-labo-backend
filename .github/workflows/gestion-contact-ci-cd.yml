@@ -101,7 +101,7 @@ jobs:
         run: |
           cd gestion-contact
           ./gradlew build -x test
-          ./gradlew sonar
+          ./gradlew sonar -Dsonar.token=${{ secrets.SONAR_TOKEN }} -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
         shell: powershell
 
   build:

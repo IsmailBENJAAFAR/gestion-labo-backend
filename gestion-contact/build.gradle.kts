@@ -9,9 +9,6 @@ plugins {
 sonar {
     properties {
         property("sonar.projectKey", "geastion-contact")
-        property("sonar.projectName", "gestion-contact")
-        property("sonar.host.url", "http://localhost:9000")
-        property("sonar.token", "sqa_377fd9131cb5ae641e81b2bda1a92679b523562b")
     }
     properties {
         property("sonar.jacoco.reportPaths", "${layout.buildDirectory}/jacoco/test.exec")
