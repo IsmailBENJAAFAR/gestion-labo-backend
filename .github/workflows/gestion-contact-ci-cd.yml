@@ -99,10 +99,9 @@ jobs:
 
       - name: Build and analyze
         run: |
-          Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process
           cd gestion-contact
           ./gradlew build -x test
-          ./gradlew sonar   -Dsonar.projectKey=gestion-contact   -Dsonar.projectName='gestion-contact'   -Dsonar.host.url=http://localhost:9000   -Dsonar.token=sqa_377fd9131cb5ae641e81b2bda1a92679b523562b
+          ./gradlew sonar
         shell: powershell
 
   build:
