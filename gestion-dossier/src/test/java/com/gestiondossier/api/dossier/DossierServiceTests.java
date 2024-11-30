@@ -86,7 +86,7 @@ class DossierServiceTests {
 
         when(dossierRepository.findById(1)).thenReturn(Optional.of(oldDossier));
 
-        Dossier result = dossierService.updateDossier(updatedDossier);
+        Dossier result = dossierService.updateDossier(1, updatedDossier);
 
         assertEquals(updatedDossier, result);
     }
