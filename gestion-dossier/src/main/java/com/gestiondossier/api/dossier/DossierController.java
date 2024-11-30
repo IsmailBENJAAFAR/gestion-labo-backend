@@ -17,12 +17,17 @@ public class DossierController {
         return dossierService.findAll();
     }
 
+    @GetMapping("/{id}")
+    public Dossier findById(@PathVariable("id") Integer dossierId) {
+        return dossierService.findById(dossierId);
+    }
+
     @PostMapping
     public Dossier createDossier(@RequestBody Dossier dossier) {
         return dossierService.createDossier(dossier);
     }
 
-    @PutMapping("/id")
+    @PutMapping("/{id}")
     public Dossier updateDossier(@RequestBody Dossier dossier) {
         return dossierService.updateDossier(dossier);
     }

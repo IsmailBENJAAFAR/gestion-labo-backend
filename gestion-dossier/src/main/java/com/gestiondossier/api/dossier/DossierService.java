@@ -17,6 +17,14 @@ public class DossierService {
         return dossierRepository.findAll();
     }
 
+    public Dossier findById(Integer id) {
+        Optional<Dossier> dossier = dossierRepository.findById(id);
+        if (!dossier.isPresent())
+            throw new IllegalStateException("dossier with id " + id + " does not exists");
+
+        return dossier.get();
+    }
+
     public Dossier createDossier(Dossier dossier) {
         return dossierRepository.save(dossier);
     }
