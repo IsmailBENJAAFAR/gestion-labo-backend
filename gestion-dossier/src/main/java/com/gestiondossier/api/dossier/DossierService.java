@@ -1,6 +1,7 @@
 package com.gestiondossier.api.dossier;
 
 import com.gestiondossier.api.dossier.models.entity.Dossier;
+import com.gestiondossier.api.dossier.models.error.DossierNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,10 +20,11 @@ public class DossierService {
 
     public Dossier findById(Integer id) {
         Optional<Dossier> dossier = dossierRepository.findById(id);
-        if (!dossier.isPresent())
-            throw new IllegalStateException("dossier with id " + id + " does not exists");
+        if (dossier.isPresent())
+            return dossier.get();
+        else
+            throw new DossierNotFoundException();
 
-        return dossier.get();
     }
 
     public Dossier createDossier(Dossier dossier) {
@@ -30,16 +32,15 @@ public class DossierService {
     }
 
     @Transactional
-    public Dossier updateDossier(Dossier requestDossier) {
-        Optional<Dossier> dossier = dossierRepository.findById(requestDossier.getId());
-        if (!dossier.isPresent())
-            throw new IllegalStateException("dossier with id " + requestDossier.getId() + " does not exists");
+    public Dossier updateDossier(Integer id, Dossier requestDossier) {
+        Optional<Dossier> dossier = dossierRepository.findById(id);
+        if (dossier.isPresent()) {
+            dossier.get().setFkEmailUtilisateur(requestDossier.getFkEmailUtilisateur());
+            dossier.get().setDate(requestDossier.getDate());
+            dossier.get().setPatient(requestDossier.getPatient());
+            return dossier.get();
+        } else throw new DossierNotFoundException();
 
-        dossier.get().setFkEmailUtilisateur(requestDossier.getFkEmailUtilisateur());
-        dossier.get().setDate(requestDossier.getDate());
-        dossier.get().setPatient(requestDossier.getPatient());
-
-        return dossier.get();
     }
 
     public void deleteDossier(Integer dossierId) {
