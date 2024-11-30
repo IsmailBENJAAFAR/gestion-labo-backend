@@ -46,7 +46,7 @@ public class DossierService {
     public void deleteDossier(Integer dossierId) {
         boolean exists = dossierRepository.existsById(dossierId);
         if (!exists) {
-            throw new IllegalStateException("Dossier with id " + dossierId + " does not exists");
+            throw new DossierNotFoundException();
         }
         dossierRepository.deleteById(dossierId);
     }
