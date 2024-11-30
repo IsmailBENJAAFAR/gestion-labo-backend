@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { MailSenderSetupService } from './mail-sender/mail-sender-setup.service';
+import { WbsocketGateway } from './websocket/wbsocket/wbsocket.gateway';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { MailSenderSetupService } from './mail-sender/mail-sender-setup.service'
     }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, WbsocketGateway],
 })
 export class AppModule {
   hello: string;

@@ -25,6 +25,8 @@
     "@nestjs/config": "^3.3.0",
     "@nestjs/core": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/platform-socket.io": "^10.4.12",
+    "@nestjs/websockets": "^10.4.12",
     "googleapis": "^144.0.0",
     "handlebars": "^4.7.8",
     "nodemailer": "^6.9.16",
