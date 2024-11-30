@@ -27,8 +27,14 @@ public class DossierController {
         return dossierService.createDossier(dossier);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping
     public Dossier updateDossier(@RequestBody Dossier dossier) {
         return dossierService.updateDossier(dossier);
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteDossier(@PathVariable("id") Integer dossierId) {
+        dossierService.deleteDossier(dossierId);
+    }
+
 }

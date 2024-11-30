@@ -42,4 +42,11 @@ public class DossierService {
         return dossier.get();
     }
 
+    public void deleteDossier(Integer dossierId) {
+        boolean exists = dossierRepository.existsById(dossierId);
+        if (!exists) {
+            throw new IllegalStateException("Dossier with id " + dossierId + " does not exists");
+        }
+        dossierRepository.deleteById(dossierId);
+    }
 }
