@@ -81,7 +81,7 @@ jobs:
       - name: Build Jar with gradle
         run: |
           cd gestion-laboratoire
-          $env:VERSION:"$(cat version.txt)"
+          $VERSION = Get-Content version.txt
           ./gradlew bootJar
         shell: powershell
 
@@ -116,7 +116,7 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: gestion-labo-jar
+          name: laboratoire--jar
           path: gestion-laboratoire/build/libs/
 
         # This is to test the image integrity
