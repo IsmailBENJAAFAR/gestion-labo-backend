@@ -81,8 +81,9 @@ jobs:
       - name: Build Jar with gradle
         run: |
           cd gestion-laboratoire
-          export VERSION="$(cat version.txt)"
+          $env:VERSION:"$(cat version.txt)"
           ./gradlew bootJar
+        shell: powershell
 
       - name: analyze code quality
         env:
