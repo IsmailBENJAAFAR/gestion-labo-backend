@@ -2,9 +2,7 @@ package com.gestiondossier.api.dossier;
 
 import com.gestiondossier.api.dossier.models.entity.Dossier;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -17,5 +15,10 @@ public class DossierController {
     @GetMapping
     public List<Dossier> findAll() {
         return dossierService.findAll();
+    }
+
+    @PostMapping
+    public Dossier createDossier(@RequestBody Dossier dossier) {
+        return dossierService.createDossier(dossier);
     }
 }

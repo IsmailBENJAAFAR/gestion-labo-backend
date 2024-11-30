@@ -11,8 +11,12 @@ import java.util.List;
 public class DossierService {
     private final DossierRepository dossierRepository;
 
-    public List<Dossier> findAll(){
+    public List<Dossier> findAll() {
         return dossierRepository.findAll();
+    }
+
+    public Dossier createDossier(Dossier dossier) {
+        return dossierRepository.save(dossier);
     }
 
 }
