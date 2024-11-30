@@ -17,14 +17,13 @@ export class WbsocketGateway {
     @MessageBody() message: string,
     @ConnectedSocket() client: Socket,
   ) {
-    console.log('WHO ARE YOU');
-    console.log(client.rooms);
     client.join(message);
     console.log(client.rooms);
-    return 'good';
+    return 'allowed';
   }
 
-  handleMessage(room: string, data: string): void {
+  handleMessage(room: string, data: any): void {
+    // room here will probably be some hashed user data (like for example their email and id)
     this.server.to(room).emit('notification', data);
   }
 }
