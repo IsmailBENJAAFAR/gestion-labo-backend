@@ -72,7 +72,7 @@ class DossierServiceTests {
     @Test
     void shouldNotFindDossierById() {
 
-        when(dossierRepository.findById(99)).thenThrow(new DossierNotFoundException());
+        when(dossierRepository.findById(99)).thenReturn(Optional.empty());
 
         assertThrows(DossierNotFoundException.class, () -> {
             dossierService.findById(99);
@@ -103,6 +103,19 @@ class DossierServiceTests {
         Dossier result = dossierService.updateDossier(1, updatedDossier);
 
         assertEquals(updatedDossier, result);
+    }
+
+    @Test
+    void shouldNotUpdateDossier() {
+        Dossier updatedDossier = new Dossier(1, "ismail.ismail@gmail.com", new Patient(), LocalDate.now());
+
+        when(dossierRepository.findById(99)).thenReturn(Optional.empty());
+
+        assertThrows(DossierNotFoundException.class, () -> {
+            dossierService.updateDossier(99, updatedDossier);
+        });
+
+        verify(dossierRepository).findById(99);
     }
 
     @Test
