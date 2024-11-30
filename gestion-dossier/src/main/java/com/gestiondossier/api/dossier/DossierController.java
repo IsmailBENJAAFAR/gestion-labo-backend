@@ -21,4 +21,9 @@ public class DossierController {
     public Dossier createDossier(@RequestBody Dossier dossier) {
         return dossierService.createDossier(dossier);
     }
+
+    @PutMapping("/id")
+    public Dossier updateDossier(@RequestBody Dossier dossier) {
+        return dossierService.updateDossier(dossier);
+    }
 }
