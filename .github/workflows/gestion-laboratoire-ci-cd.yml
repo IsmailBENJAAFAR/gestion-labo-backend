@@ -46,9 +46,62 @@ jobs:
         run: |
           ./gradlew test
 
-  deploy:
+          - name: Cache Gradle packages
+          uses: actions/cache@v4
+          with:
+            path: |
+              ~/.gradle/caches
+              ~/.gradle/wrapper
+            key: ${{ runner.os }}-gradle-${{ hashFiles('./*.gradle*', './gradle-wrapper.properties') }}
+            restore-keys: |
+              ${{ runner.os }}-gradle-
+
+  code-quality-analyse:
+    runs-on: self-hosted
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Cache SonarQube packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Build Jar with gradle
+        run: |
+          cd gestion-laboratoire
+          export VERSION="$(cat version.txt)"
+          ./gradlew bootJar
+
+      - name: analyze code quality
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          cd gestion-laboratoire
+          ./gradlew sonar
+
+      - name: Upload jar build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gestion-labo-jar
+          path: gestion-laboratoire/build/libs/*.jar
+
+
+  containerize:
     runs-on: ubuntu-22.04
-    if: github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     permissions:
       contents: read
@@ -59,20 +112,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
         with:
-          java-version: "17"
-          distribution: temurin
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582
-
-      - name: Build Jar with gradle
-        run: |
-          cd gestion-laboratoire
-          export VERSION="$(cat version.txt)"
-          ./gradlew bootJar
+          name: app-jar
+          path: gestion-laboratoire/build/libs/
 
         # This is to test the image integrity
       - name: Install cosign
@@ -105,6 +149,29 @@ jobs:
         with:
           context: ./gestion-laboratoire
           push: "${{ github.event_name != 'pull_request' }}"
-          tags: "${{secrets.CONTAINER_REGISTRY}}/gestion-laboratoire:${{ env.VERSION }}"
+          tags: |
+            ${{secrets.CONTAINER_REGISTRY}}/gestion-laboratoire:latest
+            ${{secrets.CONTAINER_REGISTRY}}/gestion-laboratoire:${{ env.VERSION }}
           cache-from: type=gha
           cache-to: "type=gha,mode=max"
+    
+  deploy:
+    needs: containerize
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Deploy to production
+        run: |
+          # Add deployment steps here
+          echo "Deploying gestion-dossier to production"
+
+  e2e-tests:
+    needs: deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: E2E Tests
+        run: |
+          # Add E2E test steps here
+          echo "E2E tests for gestion-dossier"
