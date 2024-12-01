@@ -103,7 +103,7 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
           cd gestion-contact
-          ./gradlew build -x test
+          ./gradlew build
           ./gradlew sonar
         shell: powershell
 
