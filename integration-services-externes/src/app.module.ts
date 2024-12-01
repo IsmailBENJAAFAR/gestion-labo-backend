@@ -13,7 +13,7 @@ import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
       transport: {
         host: 'smtp.gmail.com',
         port: 587,
-        secure: false, // true for port 465, false for other ports
+        secure: false,
         tls: {
           rejectUnauthorized: false,
         },
