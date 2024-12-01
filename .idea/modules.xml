@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/gestion-contact.main.iml" filepath="$PROJECT_DIR$/.idea/modules/gestion-contact.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/gestion-dossier.main.iml" filepath="$PROJECT_DIR$/.idea/modules/gestion-dossier.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/gestion-utilisateur/gestion-utilisateur.iml" filepath="$PROJECT_DIR$/gestion-utilisateur/gestion-utilisateur.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/gestionLaboBackend.iml" filepath="$PROJECT_DIR$/.idea/gestionLaboBackend.iml" />
     </modules>
