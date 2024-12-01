@@ -11,7 +11,7 @@ export class AppController {
 
   @Get('')
   getHello(): string {
-    this.amqpConnection.publish('main_exchange', 'user.pro', 'hello_world');
+    this.amqpConnection.publish('tut.topic', 'lazy', 'hello_world');
     return this.appService.getHello();
   }
 
@@ -23,7 +23,7 @@ export class AppController {
         'testing the mail',
         'Hello world? with OAuth2',
       );
-      return 'seems to be sent??';
+      return 'email sent';
     } catch {
       return 'there was some error';
     }
