@@ -70,7 +70,7 @@ class DossierServiceTests {
     }
 
     @Test
-    void shouldNotFindDossierById() {
+    void shouldThrowDossierNotFoundExceptionWhileFindingById() {
 
         when(dossierRepository.findById(99)).thenReturn(Optional.empty());
 
@@ -106,7 +106,7 @@ class DossierServiceTests {
     }
 
     @Test
-    void shouldNotUpdateDossier() {
+    void shouldThrowDossierNotFoundExceptionWhileUpdating() {
         Dossier updatedDossier = new Dossier(1, "ismail.ismail@gmail.com", new Patient(), LocalDate.now());
 
         when(dossierRepository.findById(99)).thenReturn(Optional.empty());
@@ -127,7 +127,7 @@ class DossierServiceTests {
     }
 
     @Test
-    void shouldThrowDossierNotFoundExceptionWhenWhenGivenAnInvalidDossierIDWhileDeleting() {
+    void shouldThrowDossierNotFoundExceptionWhileDeleting() {
         when(dossierRepository.existsById(1)).thenReturn(false);
 
         assertThrows(DossierNotFoundException.class, () -> {
