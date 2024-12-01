@@ -26,7 +26,7 @@ public class Patient {
     private TypePieceIdentite typePieceIdentite;
     private String numPieceIdentite;
     private String adresse;
-    private int numTel;
+    private String numTel;
     private String email;
 
     @OneToOne(mappedBy = "patient")
