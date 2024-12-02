@@ -96,10 +96,9 @@ public class LaboratoireService {
                         laboratoire.getImageFile()));
 
             return new ResponseEntity<>(new ApiResponse("Laboratory updated"), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(new ApiResponse("Laboratory not found"),
-                    HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(new ApiResponse("Laboratory not found"),
+                HttpStatus.NOT_FOUND);
     }
 
     public ResponseEntity<ApiResponse> deleteLaboratoire(Long id) {

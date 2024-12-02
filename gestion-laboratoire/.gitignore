@@ -8,7 +8,9 @@ build/
 notes.md
 docker-compose-dev.yml
 docker-compose-sonar.yml
-
+sonar-project.properties
+test_utils
+makefile
 
 ### STS ###
 .apt_generated

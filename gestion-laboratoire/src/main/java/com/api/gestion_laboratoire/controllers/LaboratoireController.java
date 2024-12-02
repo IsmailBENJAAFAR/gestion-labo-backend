@@ -2,6 +2,7 @@ package com.api.gestion_laboratoire.controllers;
 
 import java.util.List;
 
+import com.api.gestion_laboratoire.errors.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -36,23 +37,23 @@ public class LaboratoireController {
     }
 
     @GetMapping(path = "{laboId}")
-    public LaboratoireDTO getById(@PathVariable(name = "laboId") Long id) throws Exception {
+    public LaboratoireDTO getById(@PathVariable(name = "laboId") Long id) {
         return laboratoireService.getLaboratoiresById(id);
     }
 
     @PostMapping(path = "/")
-    public ResponseEntity<?> create(@RequestBody Laboratoire laboratoire) {
+    public ResponseEntity<ApiResponse> create(@RequestBody Laboratoire laboratoire) {
         return laboratoireService.createLaboratoire(laboratoire);
     }
 
     @PutMapping(path = "{laboId}")
-    public ResponseEntity<?> update(@PathVariable(name = "laboId") Long id,
+    public ResponseEntity<ApiResponse> update(@PathVariable(name = "laboId") Long id,
             @RequestBody Laboratoire laboratoire) {
         return laboratoireService.updateLaboratoire(id, laboratoire);
     }
 
     @DeleteMapping(path = "{laboId}")
-    public ResponseEntity<?> delete(@PathVariable(name = "laboId") Long id) {
+    public ResponseEntity<ApiResponse> delete(@PathVariable(name = "laboId") Long id) {
         return laboratoireService.deleteLaboratoire(id);
     }
 

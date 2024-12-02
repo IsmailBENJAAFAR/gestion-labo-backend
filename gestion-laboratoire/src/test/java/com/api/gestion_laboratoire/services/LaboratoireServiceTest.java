@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -34,7 +35,7 @@ import jakarta.persistence.EntityNotFoundException;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith(MockitoExtension.class)
-public class LaboratoireServiceTest {
+class LaboratoireServiceTest {
 
     private LaboratoireService laboratoireService;
     @Mock
@@ -113,7 +114,7 @@ public class LaboratoireServiceTest {
     }
 
     @Test
-    void testCreateLaboratoireWithOfflineStorageService(){
+    void testCreateLaboratoireWithOfflineStorageService() {
         // Test create action if cloudinary services are down
         Laboratoire laboratoire = new Laboratoire("labo_x", "123456789", true, LocalDate.now());
 
@@ -166,8 +167,9 @@ public class LaboratoireServiceTest {
     @Test
     void testGetLaboratoires() {
         // Test getAll
-        laboratoireService.getLaboratoires();
-        verify(laboratoireRepository).findAll();
+        List<Laboratoire> labos = List.of(new Laboratoire("labo_x", "123456789", true, LocalDate.now()));
+        BDDMockito.when(laboratoireRepository.findAll()).thenReturn(labos);
+        assertEquals(laboratoireService.getLaboratoires().get(0), new LaboratoireDTO(labos.get(0)));
     }
 
     @Test
