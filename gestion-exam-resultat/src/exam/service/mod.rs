@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use axum::http::{header, HeaderName};
+use axum::Json;
 use axum::{http::StatusCode, response::IntoResponse};
 
 use crate::dao::interface::Dao;
@@ -17,24 +18,29 @@ impl Service {
         Service { dao }
     }
 
-    pub async fn create_exam(
-        &self,
-        exam: ExamDto,
-    ) -> (StatusCode, std::string::String) {
+    pub async fn create_exam(&self, exam: ExamDto) -> (StatusCode, std::string::String) {
         let exam = Exam::new(
             exam.fk_num_dossier,
             exam.fk_id_epreuve,
             exam.fk_id_test_analyse,
         );
         match self.dao.insert(exam).await {
-            Ok(true) => (StatusCode::CREATED, "Exam has been created".to_string()),
+            Ok(true) => (
+                StatusCode::CREATED,
+                Json("Exam has been created").to_string(),
+            ),
             Ok(false) => (
                 StatusCode::BAD_REQUEST,
-                "Exam hasn't been created".to_string(),
+                Json("Exam hasn't been created").to_string(),
             ),
-            Err(e) => (StatusCode::BAD_REQUEST, format!("error: {e:?}")),
+            Err(e) => (
+                StatusCode::BAD_REQUEST,
+                Json(format!("error: {e:?}")).to_string(),
+            ),
         }
     }
+
+    // TODO: Transform all serde_json calls to axum::Json instead
 
     pub async fn get_exam(
         &self,
@@ -69,7 +75,7 @@ impl Service {
     }
 
     pub async fn get_exams(
-        &self
+        &self,
     ) -> (
         StatusCode,
         [(HeaderName, &'static str); 1],
