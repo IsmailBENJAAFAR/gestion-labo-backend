@@ -91,7 +91,7 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
           cd gestion-laboratoire
-          ./gradlew build
+          ./gradlew build -x jar
           ./gradlew sonar
 
       - name: Upload jar build artifact
