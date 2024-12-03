@@ -20,7 +20,7 @@ import com.api.gestion_laboratoire.models.Laboratoire;
 import com.api.gestion_laboratoire.services.LaboratoireService;
 
 @RestController
-@RequestMapping(path = "api/v1/laboratoire")
+@RequestMapping(path = "api/v1/laboratoires")
 @CrossOrigin
 public class LaboratoireController {
 
