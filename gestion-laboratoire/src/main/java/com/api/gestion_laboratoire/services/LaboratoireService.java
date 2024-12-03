@@ -115,7 +115,7 @@ public class LaboratoireService {
             }
             laboratoireRepository.deleteById(id);
             return new ResponseEntity<>(new ApiResponse("Laboratory deleted"),
-                    HttpStatus.OK);
+                    HttpStatus.NO_CONTENT);
         } else {
             return new ResponseEntity<>(new ApiResponse("Laboratory not found"),
                     HttpStatus.NOT_FOUND);

@@ -138,7 +138,7 @@ class LaboratoireServiceTest {
         ResponseEntity<ApiResponse> response = laboratoireService.deleteLaboratoire(1L);
         verify(laboratoireRepository).deleteById(1L);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         assertEquals("Laboratory deleted", response.getBody().getMessage());
     }
 
@@ -158,10 +158,14 @@ class LaboratoireServiceTest {
 
         BDDMockito.given(laboratoireRepository.findById(1L)).willReturn(laboratoire);
         BDDMockito.when(storageService.deleteImage(laboratoire.get().getLogoID()))
-                .thenReturn("something that is not Image deleted successfully");
-
+                .thenReturn("Failed to delete image");
         ResponseEntity<ApiResponse> response = laboratoireService.deleteLaboratoire(1L);
         assertEquals(HttpStatus.FAILED_DEPENDENCY, response.getStatusCode());
+
+        BDDMockito.when(storageService.deleteImage(laboratoire.get().getLogoID()))
+                .thenReturn("Unable to delete image : Image not found");
+        ResponseEntity<ApiResponse> response2 = laboratoireService.deleteLaboratoire(1L);
+        assertEquals(HttpStatus.NO_CONTENT, response2.getStatusCode());
     }
 
     @Test

@@ -31,7 +31,7 @@ public class LaboratoireController {
         this.laboratoireService = laboratoireService;
     }
 
-    @GetMapping(path = "/")
+    @GetMapping
     public List<LaboratoireDTO> getAll() {
         return laboratoireService.getLaboratoires();
     }
@@ -41,7 +41,7 @@ public class LaboratoireController {
         return laboratoireService.getLaboratoiresById(id);
     }
 
-    @PostMapping(path = "/")
+    @PostMapping
     public ResponseEntity<ApiResponse> create(@RequestBody Laboratoire laboratoire) {
         return laboratoireService.createLaboratoire(laboratoire);
     }
