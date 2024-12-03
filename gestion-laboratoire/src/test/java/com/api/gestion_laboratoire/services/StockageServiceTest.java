@@ -48,7 +48,7 @@ class StockageServiceTest {
         imageInfo.put("display_name", "moooooo");
         imageInfo.put("url", "https://baaaaa3");
         when(mockUploader.upload(imageEx, ObjectUtils.asMap("unique_filename", true, "folder", folder, "overwrite",
-                true, "use_filename", false, "resourceType", "image"))).thenReturn(imageInfo);
+                true, "use_filename", false, "resource_type", "image"))).thenReturn(imageInfo);
 
         Map<String, Object> realResp = storageService.uploadImage(imageEx);
         assertEquals(imageInfo.get("display_name"), realResp.get("display_name"));
@@ -74,7 +74,7 @@ class StockageServiceTest {
                 "folder", folder,
                 "overwrite", true,
                 "use_filename", false,
-                "resourceType", "image"))).thenThrow(new IOException());
+                "resource_type", "image"))).thenThrow(new IOException());
 
         Map<String, Object> response = storageService.uploadImage(imageEx);
         assertEquals(
@@ -96,7 +96,7 @@ class StockageServiceTest {
                 "overwrite", true,
                 "use_filename", true,
                 "filename_override", imageExName,
-                "resourceType", "image"))).thenReturn(imageInfo);
+                "resource_type", "image"))).thenReturn(imageInfo);
 
         String realImageName = storageService.uploadImage(imageExName, imageEx);
         assertEquals(imageInfo.get("url"), realImageName);
@@ -122,7 +122,7 @@ class StockageServiceTest {
                 "folder", folder,
                 "use_filename", true,
                 "unique_filename", false,
-                "resourceType", "image",
+                "resource_type", "image",
                 "filename_override", imageExName,
                 "overwrite", true))).thenThrow(new IOException());
 
@@ -140,7 +140,7 @@ class StockageServiceTest {
 
         when(mockCloudinary.api()).thenReturn(mockCloudinaryApi);
         when(mockCloudinaryApi.deleteResources(List.of(folder + "/" + imageExName),
-                ObjectUtils.asMap("type", "upload", "resourceType", "image")))
+                ObjectUtils.asMap("type", "upload", "resource_type", "image")))
                 .thenReturn(mockCloudinaryApiResp);
         when(mockCloudinaryApiResp.get("deleted")).thenReturn(resp);
 
@@ -156,7 +156,7 @@ class StockageServiceTest {
 
         when(mockCloudinary.api()).thenReturn(mockCloudinaryApi);
         when(mockCloudinaryApi.deleteResources(List.of(folder + "/" + imageExName),
-                ObjectUtils.asMap("type", "upload", "resourceType", "image")))
+                ObjectUtils.asMap("type", "upload", "resource_type", "image")))
                 .thenReturn(mockCloudinaryApiResp);
         when(mockCloudinaryApiResp.get("deleted")).thenReturn(resp);
 
@@ -178,7 +178,7 @@ class StockageServiceTest {
         String imageExName = "tag";
         Exception ex = new Exception("kaboom");
         when(mockCloudinaryApi.deleteResources(List.of(folder + "/" + imageExName),
-                ObjectUtils.asMap("type", "upload", "resourceType", "image")))
+                ObjectUtils.asMap("type", "upload", "resource_type", "image")))
                 .thenThrow(ex);
         String response = storageService.deleteImage(imageExName);
         assertEquals("Failed to delete image : " + ex.getMessage(), response);
