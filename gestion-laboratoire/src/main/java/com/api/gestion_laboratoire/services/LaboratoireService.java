@@ -108,7 +108,7 @@ public class LaboratoireService {
             String imageDeletionMessage = storageService
                     .deleteImage(laboratoire.getLogoID());
 
-            if (!Objects.equals(imageDeletionMessage, "Image deleted successfully")) {
+            if (imageDeletionMessage.contains("Failed to delete image")) {
                 return new ResponseEntity<>(
                         new ApiResponse("Could not delete laboratory, " + imageDeletionMessage),
                         HttpStatus.FAILED_DEPENDENCY);
