@@ -18,7 +18,7 @@ impl Service {
         Service { dao }
     }
 
-    pub async fn create_exam(&self, exam: ExamDto) -> (StatusCode, std::string::String) {
+    pub async fn create_exam(&self, exam: ExamDto) -> (StatusCode, String) {
         let exam = Exam::new(
             exam.fk_num_dossier,
             exam.fk_id_epreuve,
@@ -41,6 +41,9 @@ impl Service {
     }
 
     // TODO: Transform all serde_json calls to axum::Json instead
+    // TODO: Transform return types into errors, and add an AppError struct that contains an error
+    // that you can always return in case of errors, with a specific message (and that is of json
+    // type)
 
     pub async fn get_exam(
         &self,

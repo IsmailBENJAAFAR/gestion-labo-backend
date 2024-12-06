@@ -48,7 +48,7 @@ async fn main() -> Result<()> {
 
     let app = global_router
         .nest(
-            "/api",
+            "/api/v1",
             Router::new()
                 .route(
                     "/exam",
@@ -62,7 +62,9 @@ async fn main() -> Result<()> {
         .layer(CorsLayer::permissive())
         .with_state(state);
 
-    let listener = TcpListener::bind("0.0.0.0:80").await?;
+    let listener = TcpListener::bind("0.0.0.0:8080")
+        .await
+        .context("Binding listener to address")?;
     axum::serve(listener, app).await?;
     Ok(())
 }
