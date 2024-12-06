@@ -51,11 +51,11 @@ async fn main() -> Result<()> {
             "/api/v1",
             Router::new()
                 .route(
-                    "/exam",
+                    "/examens",
                     get(exam::controller::get_exams).post(exam::controller::create_exam),
                 )
                 .route(
-                    "/exam/:id",
+                    "/examens/:id",
                     get(exam::controller::get_exam).delete(exam::controller::delete_exam),
                 ),
         )
