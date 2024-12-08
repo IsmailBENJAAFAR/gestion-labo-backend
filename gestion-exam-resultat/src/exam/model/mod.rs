@@ -5,12 +5,13 @@ use sqlx::Row;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Exam {
     pub id: i32,
-    #[serde(skip_serializing)]
+    #[serde(rename = "dossierId")]
     pub fk_num_dossier: i32,
-    #[serde(skip_serializing)]
+    #[serde(rename = "epreuveId")]
     pub fk_id_epreuve: i32,
-    #[serde(skip_serializing)]
+    #[serde(rename = "testAnalyseId")]
     pub fk_id_test_analyse: i32,
+    #[serde(rename = "createdAt")]
     pub created_at: chrono::DateTime<chrono::Utc>,
     pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
 }
