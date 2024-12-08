@@ -67,8 +67,9 @@ impl Service {
                 anyhow!("error: examen has not been deleted"),
                 Some(StatusCode::BAD_REQUEST),
             ))?,
-            Err(e) => Err(ApiError::new(
-                anyhow!("error: exam not found: {e}"),
+            // TODO: log errors
+            Err(_e) => Err(ApiError::new(
+                anyhow!("error: exam not found"),
                 Some(StatusCode::BAD_REQUEST),
             ))?,
         }

@@ -1,4 +1,5 @@
-use axum::{http::StatusCode, response::IntoResponse};
+use axum::{http::StatusCode, response::IntoResponse, Json};
+use serde::Serialize;
 
 pub struct ApiError {
     error: anyhow::Error,
@@ -23,15 +24,19 @@ where
     }
 }
 
+#[derive(Serialize)]
+struct SerError {
+    message: String,
+}
+
 impl IntoResponse for ApiError {
     fn into_response(self) -> axum::response::Response {
+        let err = SerError {
+            message: format!("error: {}", self.error),
+        };
         match self.status {
-            Some(status) => (status, format!("Error: {}", self.error)).into_response(),
-            None => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Something went wrong: {}", self.error),
-            )
-                .into_response(),
+            Some(status) => (status, Json(err)).into_response(),
+            None => (StatusCode::INTERNAL_SERVER_ERROR, Json(err)).into_response(),
         }
     }
 }
