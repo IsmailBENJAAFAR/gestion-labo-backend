@@ -27,24 +27,30 @@ impl Service {
         );
         match self.dao.insert(&exam).await {
             Ok(true) => Ok((StatusCode::CREATED, Json(exam))),
-            // TODO: log the attempted object creation
-            Ok(false) => Err(ApiError::with_status(
-                anyhow!("Exam hasn't been created"),
-                StatusCode::BAD_REQUEST,
-            )),
-            // TODO: log error
-            Err(_e) => Err(ApiError::new(anyhow!("error: couldn't create exam"))),
+            Ok(false) => {
+                tracing::error!("exam wasn't created: {exam:?}");
+                Err(ApiError::with_status(
+                    anyhow!("Exam hasn't been created"),
+                    StatusCode::BAD_REQUEST,
+                ))
+            }
+            Err(e) => {
+                tracing::error!("exam wasn't created: {exam:?}, error: {e}");
+                Err(ApiError::new(anyhow!("error: couldn't create exam")))
+            }
         }
     }
 
     pub async fn get_exam(&self, id: i32) -> Result<(StatusCode, Json<Exam>), ApiError> {
         let exam = match self.dao.find(id).await {
             Ok(exam) => exam,
-            // TODO: log error and return `exam not found` only
-            Err(e) => Err(ApiError::with_status(
-                anyhow!("exam not found: {e}"),
-                StatusCode::NOT_FOUND,
-            ))?,
+            Err(e) => {
+                tracing::error!("exam not found with id: {id}, error: {e}");
+                Err(ApiError::with_status(
+                    anyhow!("exam not found with id: {id}"),
+                    StatusCode::NOT_FOUND,
+                ))?
+            }
         };
         Ok((StatusCode::OK, Json(exam)))
     }
@@ -52,7 +58,10 @@ impl Service {
     pub async fn get_exams(&self) -> Result<(StatusCode, Json<Vec<Exam>>), ApiError> {
         let exams = match self.dao.find_all().await {
             Ok(exams) => exams,
-            Err(e) => Err(ApiError::new(e))?,
+            Err(e) => {
+                tracing::error!("couldn't fetch exams: {e}");
+                Err(ApiError::new(anyhow!("couldn't fetch exams")))?
+            }
         };
         Ok((StatusCode::OK, Json(exams)))
     }
@@ -60,15 +69,20 @@ impl Service {
     pub async fn delete_exam(&self, id: i32) -> Result<StatusCode, ApiError> {
         match self.dao.remove(id).await {
             Ok(true) => Ok(StatusCode::NO_CONTENT),
-            Ok(false) => Err(ApiError::with_status(
-                anyhow!("error: examen has not been deleted"),
-                StatusCode::BAD_REQUEST,
-            ))?,
-            // TODO: log errors
-            Err(_e) => Err(ApiError::with_status(
-                anyhow!("error: exam not found"),
-                StatusCode::BAD_REQUEST,
-            ))?,
+            Ok(false) => {
+                tracing::error!("attempt to delete exam with id: {id}");
+                Err(ApiError::with_status(
+                    anyhow!("error: examen has not been deleted"),
+                    StatusCode::BAD_REQUEST,
+                ))?
+            }
+            Err(e) => {
+                tracing::error!("failed to delete exam with id: {id}, error: {e}");
+                Err(ApiError::with_status(
+                    anyhow!("error: exam not found"),
+                    StatusCode::BAD_REQUEST,
+                ))?
+            }
         }
     }
 }
