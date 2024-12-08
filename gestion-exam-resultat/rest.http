@@ -3,9 +3,9 @@ Content-Type: application/json
 
 {
 	"nom": "Electrique",
-	"fk_num_dossier": 2,
-	"fk_id_epreuve": 4,
-	"fk_id_test_analyse": 3
+	"dossierId": 2,
+	"epreuveId": 4,
+	"testAnalyseId": 3
 }
 
 ###
