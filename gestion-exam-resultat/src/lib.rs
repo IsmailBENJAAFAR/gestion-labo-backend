@@ -68,7 +68,7 @@ mod test {
         let res = dao.find(1).await;
         assert!(res.is_err());
 
-        let res = dao.insert(Exam::new(1, 2, 3)).await.context("insert")?;
+        let res = dao.insert(&Exam::new(1, 2, 3)).await.context("insert")?;
         assert!(res);
 
         let res = dao.find(1).await?;
@@ -112,7 +112,7 @@ mod test {
 
         // Mocking the DAO
         mock.expect_find_all().times(1).returning(|| Ok(vec![]));
-        mock.expect_insert().return_once(|_exam: Exam| Ok(true));
+        mock.expect_insert().return_once(|_exam: &Exam| Ok(true));
         {
             let exam = exam.clone();
             mock.expect_find_all()
@@ -129,7 +129,7 @@ mod test {
         assert_eq!((code, data.len()), (StatusCode::OK, 0));
 
         let exam_dto = ExamDto::new(1, 1, 1);
-        let (code, _) = service.create_exam(exam_dto).await;
+        let (code, _) = service.create_exam(exam_dto).await.unwrap();
         assert_eq!(code, StatusCode::CREATED);
 
         let (code, Json(data)) = service.get_exams().await.unwrap();

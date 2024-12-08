@@ -8,8 +8,17 @@ pub struct ApiError {
 }
 
 impl ApiError {
-    pub fn new(error: anyhow::Error, status: Option<StatusCode>) -> ApiError {
-        ApiError { error, status }
+    pub fn with_status(error: anyhow::Error, status: StatusCode) -> ApiError {
+        ApiError {
+            error,
+            status: Some(status),
+        }
+    }
+    pub fn new(error: anyhow::Error) -> ApiError {
+        ApiError {
+            error,
+            status: None,
+        }
     }
 }
 
