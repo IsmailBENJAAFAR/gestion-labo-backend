@@ -30,6 +30,8 @@ impl FromRef<AppState> for Arc<exam::service::Service> {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    tracing_subscriber::fmt().init();
+
     match dotenv() {
         Ok(_) => eprintln!(".env file loaded successfully."),
         Err(_) => eprintln!("Warning: .env file not found."),
