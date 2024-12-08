@@ -64,7 +64,7 @@ impl Service {
         match self.dao.remove(id).await {
             Ok(true) => Ok(StatusCode::NO_CONTENT),
             Ok(false) => Err(ApiError::new(
-                anyhow!("Exam has not been deleted"),
+                anyhow!("error: examen has not been deleted"),
                 Some(StatusCode::BAD_REQUEST),
             ))?,
             Err(e) => Err(ApiError::new(
