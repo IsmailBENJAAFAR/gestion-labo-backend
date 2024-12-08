@@ -1,11 +1,12 @@
 use std::sync::Arc;
 
-use axum::http::{header, HeaderName};
+use anyhow::anyhow;
+use axum::http::StatusCode;
 use axum::Json;
-use axum::{http::StatusCode, response::IntoResponse};
 
 use crate::dao::interface::Dao;
 
+use super::api_error::ApiError;
 use super::dto::ExamDto;
 use super::model::Exam;
 
@@ -40,85 +41,36 @@ impl Service {
         }
     }
 
-    // TODO: Transform all serde_json calls to axum::Json instead
-    // TODO: Transform return types into errors, and add an AppError struct that contains an error
-    // that you can always return in case of errors, with a specific message (and that is of json
-    // type)
-
-    pub async fn get_exam(
-        &self,
-        id: i32,
-    ) -> (
-        StatusCode,
-        [(HeaderName, &'static str); 1],
-        std::string::String,
-    ) {
+    pub async fn get_exam(&self, id: i32) -> Result<(StatusCode, Json<Exam>), ApiError> {
         let exam = match self.dao.find(id).await {
             Ok(exam) => exam,
-            Err(e) => {
-                return (
-                    StatusCode::NOT_FOUND,
-                    [(header::CONTENT_TYPE, "application/json")],
-                    format!("error: exam not found: {e:?}"),
-                )
-            }
+            Err(e) => Err(ApiError::new(
+                anyhow!("exam not found: {e}"),
+                Some(StatusCode::NOT_FOUND),
+            ))?,
         };
-        match serde_json::to_string(&exam) {
-            Ok(response) => (
-                StatusCode::OK,
-                [(header::CONTENT_TYPE, "application/json")],
-                response,
-            ),
-            Err(e) => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                [(header::CONTENT_TYPE, "application/json")],
-                format!("error: {e:?}"),
-            ),
-        }
+        Ok((StatusCode::OK, Json(exam)))
     }
 
-    pub async fn get_exams(
-        &self,
-    ) -> (
-        StatusCode,
-        [(HeaderName, &'static str); 1],
-        std::string::String,
-    ) {
+    pub async fn get_exams(&self) -> Result<(StatusCode, Json<Vec<Exam>>), ApiError> {
         let exams = match self.dao.find_all().await {
             Ok(exams) => exams,
-            Err(e) => {
-                return (
-                    StatusCode::BAD_REQUEST,
-                    [(header::CONTENT_TYPE, "application/json")],
-                    format!("error: {e:?}"),
-                )
-            }
+            Err(e) => Err(ApiError::new(e, None))?,
         };
-        match serde_json::to_string(&exams) {
-            Ok(response) => (
-                StatusCode::OK,
-                [(header::CONTENT_TYPE, "application/json")],
-                response,
-            ),
-            Err(e) => (
-                StatusCode::BAD_REQUEST,
-                [(header::CONTENT_TYPE, "application/json")],
-                format!("error: {e:?}"),
-            ),
-        }
+        Ok((StatusCode::OK, Json(exams)))
     }
 
-    pub async fn delete_exam(&self, id: i32) -> impl IntoResponse {
+    pub async fn delete_exam(&self, id: i32) -> Result<StatusCode, ApiError> {
         match self.dao.remove(id).await {
-            Ok(true) => (StatusCode::NO_CONTENT, "Exam has been deleted.".to_string()),
-            Ok(false) => (
-                StatusCode::BAD_REQUEST,
-                "Exam has not been deleted.".to_string(),
-            ),
-            Err(e) => (
-                StatusCode::BAD_REQUEST,
-                format!("error: exam not found: {e:?}"),
-            ),
+            Ok(true) => Ok(StatusCode::NO_CONTENT),
+            Ok(false) => Err(ApiError::new(
+                anyhow!("Exam has not been deleted"),
+                Some(StatusCode::BAD_REQUEST),
+            ))?,
+            Err(e) => Err(ApiError::new(
+                anyhow!("error: exam not found: {e}"),
+                Some(StatusCode::BAD_REQUEST),
+            ))?,
         }
     }
 }
