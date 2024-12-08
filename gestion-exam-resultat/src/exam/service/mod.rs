@@ -19,6 +19,7 @@ impl Service {
         Service { dao }
     }
 
+    // TODO: return the created exam with its new id
     pub async fn create_exam(&self, exam: ExamDto) -> (StatusCode, String) {
         let exam = Exam::new(
             exam.fk_num_dossier,

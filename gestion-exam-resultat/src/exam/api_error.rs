@@ -1,9 +1,10 @@
 use axum::{http::StatusCode, response::IntoResponse, Json};
 use serde::Serialize;
 
+#[derive(Debug)]
 pub struct ApiError {
     error: anyhow::Error,
-    status: Option<StatusCode>,
+    pub status: Option<StatusCode>,
 }
 
 impl ApiError {

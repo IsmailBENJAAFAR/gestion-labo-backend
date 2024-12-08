@@ -6,7 +6,7 @@ mod test {
     use std::sync::Arc;
 
     use anyhow::{anyhow, Context, Result};
-    use axum::http::StatusCode;
+    use axum::{http::StatusCode, Json};
     use mockall::predicate::eq;
     use sqlx::postgres::PgPoolOptions;
     use testcontainers::{
@@ -18,7 +18,7 @@ mod test {
 
     use crate::{
         dao::interface::{Dao, MockDao},
-        exam::{dao::ExamDao, dto::ExamDto, model::Exam, service},
+        exam::{api_error::ApiError, dao::ExamDao, dto::ExamDto, model::Exam, service},
     };
 
     #[tokio::test]
@@ -125,20 +125,27 @@ mod test {
 
         let service = service::Service::new(Arc::new(mock));
         // Using the exams service with the MockDao object
-        let (code, _, data) = service.get_exams().await;
-        assert_eq!((code, data.as_str()), (StatusCode::OK, "[]"));
+        let (code, Json(data)) = service.get_exams().await.unwrap();
+        assert_eq!((code, data.len()), (StatusCode::OK, 0));
 
         let exam_dto = ExamDto::new(1, 1, 1);
         let (code, _) = service.create_exam(exam_dto).await;
         assert_eq!(code, StatusCode::CREATED);
 
-        let (code, _, data) = service.get_exams().await;
+        let (code, Json(data)) = service.get_exams().await.unwrap();
         assert_eq!(
-            (code, data),
+            (code, serde_json::to_string(&data).unwrap()),
             (StatusCode::OK, serde_json::to_string(&[exam]).unwrap())
         );
 
-        let (code, _, _) = service.get_exam(2).await;
-        assert_eq!(StatusCode::NOT_FOUND, code);
+        if let Err(ApiError {
+            status: Some(status),
+            ..
+        }) = service.get_exam(2).await
+        {
+            assert_eq!(StatusCode::NOT_FOUND, status);
+        } else {
+            panic!("service.get_exam failed");
+        }
     }
 }
