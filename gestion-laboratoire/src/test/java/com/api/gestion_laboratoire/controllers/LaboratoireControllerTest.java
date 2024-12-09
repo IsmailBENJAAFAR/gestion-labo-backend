@@ -1,167 +1,115 @@
 package com.api.gestion_laboratoire.controllers;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.BDDMockito;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.springframework.test.web.servlet.MvcResult;
+
+import com.api.gestion_laboratoire.dto.LaboratoireDTO;
+import com.api.gestion_laboratoire.errors.ApiResponse;
+import com.api.gestion_laboratoire.models.Laboratoire;
+import com.api.gestion_laboratoire.services.LaboratoireService;
+
+import java.time.LocalDate;
+import java.util.List;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.api.gestion_laboratoire.dto.LaboratoireDTO;
-import com.api.gestion_laboratoire.errors.ApiResponse;
-import com.api.gestion_laboratoire.models.Laboratoire;
-import com.api.gestion_laboratoire.repositories.LaboratoireRepository;
-import com.api.gestion_laboratoire.services.LaboratoireService;
-
 @WebMvcTest(LaboratoireController.class)
 @AutoConfigureMockMvc
-class LaboratoireControllerTest {
+class LaboratoireControllerTests {
 
-    @Autowired
-    MockMvc mockMvc;
+  @Autowired
+  MockMvc mockMvc;
 
-    @MockBean
-    LaboratoireService laboratoireService;
+  @MockBean
+  LaboratoireService laboService;
 
-    Laboratoire laboratoireTest;
+  Laboratoire labo;
 
-    @BeforeEach
-    void setup() {
-        laboratoireTest = new Laboratoire("labo_x", "123456789", true, null);
-        laboratoireTest.setId(1L);
-    }
+  @BeforeEach
+  void setUp() {
+    labo = new Laboratoire("x", "123456789", true, LocalDate.of(2011, 11, 11));
+    labo.setId(1L);
+  }
 
-    @Test
-    void testGetAll() throws Exception {
+  @Test
+  void shouldFindAllLaboratoires() throws Exception {
+    String jsonResp = """
+            [
+              {
+                "id": 1,
+                "nom": "x",
+                "nrc": "123456789",
+                "active": true,
+                "dateActivation": "2011-11-11"
+              }
+            ]
+        """;
+    when(laboService.getLaboratoires()).thenReturn(List.of(new LaboratoireDTO(labo)));
 
-        String jsonResp = """
-                    [
-                      {
-                        "id": 1,
-                        "nom": "labo_x",
-                        "logo": null,
-                        "nrc": "123456789",
-                        "active": true,
-                        "dateActivation": null,
-                        "logoID": null
-                      }
-                    ]
-                """;
+    ResultActions resultActions = mockMvc.perform(get("/api/v1/laboratoires"))
+        .andExpect(status().isOk())
+        .andExpect(content().json(jsonResp));
 
-        List<LaboratoireDTO> laboList = List.of(new LaboratoireDTO(laboratoireTest));
+    JSONAssert.assertEquals(jsonResp, resultActions.andReturn().getResponse().getContentAsString(), false);
 
-        BDDMockito.when(laboratoireService.getLaboratoires()).thenReturn(laboList);
+  }
 
-        ResultActions resultActions = mockMvc.perform(get("/api/v1/laboratoires")).andExpect(status().isOk())
-                .andExpect(content().json(jsonResp));
+  @Test
+  void shouldFindLaboratoireWhenGivenValidId() throws Exception {
+    when(laboService.getLaboratoiresById(1L)).thenReturn(new LaboratoireDTO(labo));
+    String json = """
+        {
+                "id": 1,
+                "nom": "x",
+                "nrc": "123456789",
+                "active": true,
+                "dateActivation": "2011-11-11"
+        }
+        """;
 
-        JSONAssert.assertEquals(jsonResp, resultActions.andReturn().getResponse().getContentAsString(), false);
+    mockMvc.perform(get("/api/v1/laboratoires/1"))
+        .andExpect(status().isOk())
+        .andExpect(content().json(json));
+  }
 
-    }
+  @Test
+  void shouldCreateNewLaboratoire() throws Exception {
+    when(laboService.createLaboratoire(labo))
+        .thenReturn(new ResponseEntity<>(new ApiResponse("Laboratory created successfully"),
+            HttpStatus.CREATED));
+    String json = """
+        {
+                "id": 1,
+                "nom": "x",
+                "nrc": "123456789",
+                "active": true,
+                "dateActivation": "2011-11-11"
+        }
+        """;
+    String resp = """
+        {"message":"Laboratory created successfully"}
+        """;
 
-    @Test
-    void testGetById() throws Exception {
-        String jsonResp = """
-                      {
-                        "id": 1,
-                        "nom": "labo_x",
-                        "logo": null,
-                        "nrc": "123456789",
-                        "active": true,
-                        "dateActivation": null,
-                        "logoID": null
-                      }
-                """;
+    mockMvc.perform(post("/api/v1/laboratoires")
+        .contentType("application/json")
+        .content(json))
+        .andExpect(status().isCreated())
+        .andExpect(content().json(resp));
+  }
 
-        LaboratoireDTO laboDTO = new LaboratoireDTO(laboratoireTest);
-
-        BDDMockito.when(laboratoireService.getLaboratoiresById(1L)).thenReturn(laboDTO);
-
-        ResultActions resultActions = mockMvc.perform(get("/api/v1/laboratoires/1")).andExpect(status().isOk())
-                .andExpect(content().json(jsonResp));
-
-        JSONAssert.assertEquals(jsonResp, resultActions.andReturn().getResponse().getContentAsString(), false);
-    }
-
-    // @Test
-    // void testCreateLaboratoire() {
-    // long laboId = 1L;
-    // Laboratoire laboratoire = new Laboratoire("labo_x", "123456789", true,
-    // LocalDate.now());
-    // laboratoire.setId(laboId);
-    // ResponseEntity<ApiResponse> response = new ResponseEntity<>(new
-    // ApiResponse("creation success"),
-    // HttpStatus.CREATED);
-
-    // BDDMockito.when(laboratoireService.createLaboratoire(laboratoire)).thenReturn(response);
-
-    // assertEquals(response.getStatusCode(),
-    // laboratoireController.create(laboratoire).getStatusCode());
-    // assertEquals(response.getBody().getMessage(),
-    // laboratoireController.create(laboratoire).getBody().getMessage());
-    // }
-
-    // @Test
-    // void testUpdateLaboratoire() {
-    // long laboId = 1L;
-    // Laboratoire laboratoire = new Laboratoire("labo_y", "123456000", true,
-    // LocalDate.now());
-    // laboratoire.setId(laboId);
-    // ResponseEntity<ApiResponse> response = new ResponseEntity<>(new
-    // ApiResponse("update success"),
-    // HttpStatus.OK);
-
-    // BDDMockito.when(laboratoireService.updateLaboratoire(laboId,
-    // laboratoire)).thenReturn(response);
-
-    // assertEquals(response.getStatusCode(), laboratoireController.update(laboId,
-    // laboratoire).getStatusCode());
-    // assertEquals(response.getBody().getMessage(),
-    // laboratoireController.update(laboId, laboratoire).getBody().getMessage());
-    // }
-
-    // @Test
-    // void testDeleteLaboratoire() {
-    // long laboId = 1L;
-    // ResponseEntity<ApiResponse> response = new ResponseEntity<>(new
-    // ApiResponse("deletion success"),
-    // HttpStatus.OK);
-
-    // BDDMockito.when(laboratoireService.deleteLaboratoire(laboId)).thenReturn(response);
-
-    // assertEquals(response.getStatusCode(),
-    // laboratoireController.delete(laboId).getStatusCode());
-    // assertEquals(response.getBody().getMessage(),
-    // laboratoireController.delete(laboId).getBody().getMessage());
-    // }
+  
 
 }
