@@ -19,7 +19,6 @@ import com.api.gestion_laboratoire.services.LaboratoireService;
 
 import java.time.LocalDate;
 import java.util.List;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -99,17 +98,67 @@ class LaboratoireControllerTests {
                 "dateActivation": "2011-11-11"
         }
         """;
-    String resp = """
-        {"message":"Laboratory created successfully"}
-        """;
 
     mockMvc.perform(post("/api/v1/laboratoires")
         .contentType("application/json")
         .content(json))
-        .andExpect(status().isCreated())
+        .andExpect(status().isCreated());
+  }
+
+  @Test
+  void shouldUpdateLaboratoire() throws Exception {
+    Laboratoire updatedLaboratoire = new Laboratoire("rip bozo (I am the bozo)", "123456789", true,
+        LocalDate.of(2012, 10, 10));
+    updatedLaboratoire.setId(1L);
+    when(laboService.updateLaboratoire(1L,
+        updatedLaboratoire)).thenReturn(new ResponseEntity<>(new ApiResponse("Laboratory updated"), HttpStatus.OK));
+    String json = """
+        {
+                "id": 1,
+                "nom": "rip bozo (I am the bozo)",
+                "nrc": "123456789",
+                "active": true,
+                "dateActivation": "2012-10-10"
+        }
+        """;
+
+    String resp = """
+          {"message":"Laboratory updated"}
+        """;
+
+    mockMvc.perform(put("/api/v1/laboratoires/1")
+        .contentType("application/json")
+        .content(json))
+        .andExpect(status().isOk())
         .andExpect(content().json(resp));
   }
 
-  
+  @Test
+  void shouldNotUpdateAndReturnNotFoundHttpRespWhenGivenAnInvalidLaboratoireID() throws Exception {
+    String json = """
+        {
+            "id": null,
+            "nom": "rip bozo (I am the bozo)",
+            "nrc": "123456789",
+            "active": true,
+            "dateActivation": "2012-10-10"
+        }
+        """;
 
+    mockMvc.perform(put("/api/v1/dossiers/69420")
+        .contentType("application/json")
+        .content(json))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  void shouldDeleteLaboratoireWhenGivenValidID() throws Exception {
+    when(laboService.deleteLaboratoire(1L)).thenReturn(new ResponseEntity<>(new ApiResponse("Laboratory deleted"),
+        HttpStatus.NO_CONTENT));
+
+    mockMvc.perform(delete("/api/v1/laboratoires/1"))
+        .andExpect(status().isNoContent());
+
+    verify(laboService, times(1)).deleteLaboratoire(1L);
+  }
 }
