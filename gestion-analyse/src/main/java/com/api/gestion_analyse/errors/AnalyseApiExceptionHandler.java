@@ -15,10 +15,4 @@ public class AnalyseApiExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<ApiResponse> handleAnalyseNotFound(EntityNotFoundException ex) {
         return new ResponseEntity<>(new ApiResponse(ex.getMessage()), HttpStatus.NOT_FOUND);
     }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    protected ResponseEntity<ApiResponse> handleBadAnalyseBodyRequest(IllegalArgumentException ex) {
-        return new ResponseEntity<>(new ApiResponse(ex.getMessage()),
-                HttpStatus.BAD_REQUEST);
-    }
 }

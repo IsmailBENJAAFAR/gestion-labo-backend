@@ -4,6 +4,7 @@ import com.api.gestion_analyse.DTO.AnalyseDTO;
 import com.api.gestion_analyse.errors.ApiResponse;
 import com.api.gestion_analyse.models.Analyse;
 import com.api.gestion_analyse.services.AnalyseService;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -82,6 +83,19 @@ class TestAnalyseController {
         }
 
         @Test
+        void shouldReturnNotFoundWhenGivenNonValidId() throws Exception {
+                when(analyseService.getAnalyseById(1L)).thenThrow(new EntityNotFoundException("Analyse Not found"));
+
+                String errRespJson = """
+                    {"message": "Analyse Not found"}
+                """;
+
+                mockMvc.perform(get(baseUrl + "/1"))
+                        .andExpect(status().isNotFound())
+                        .andExpect(content().json(errRespJson));
+        }
+
+        @Test
         void shouldCreateNewAnalyse() throws Exception {
                 String json = """
                                 {
@@ -155,17 +169,6 @@ class TestAnalyseController {
 
                 mockMvc.perform(delete(baseUrl + "/1"))
                                 .andExpect(status().isNoContent());
-
-        }
-
-        @Test
-        void shouldNotDeleteAnalyseWhenGivenAnInvalidID() throws Exception {
-                when(analyseService.deleteAnalyse(1L))
-                                .thenReturn(new ResponseEntity<>(new ApiResponse("Analyse not found"),
-                                                HttpStatus.NOT_FOUND));
-
-                mockMvc.perform(delete(baseUrl + "/1"))
-                                .andExpect(status().isNotFound());
 
         }
 }
