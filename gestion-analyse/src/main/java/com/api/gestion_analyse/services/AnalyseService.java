@@ -90,7 +90,7 @@ public class AnalyseService {
         Optional<Analyse> analyse = analyseRepository.findById(id);
         if (analyse.isPresent()) {
             analyseRepository.delete(analyse.get());
-            return new ResponseEntity<>(new ApiResponse("Analyse deleted successfully"), HttpStatus.OK);
+            return new ResponseEntity<>(new ApiResponse("Analyse deleted successfully"), HttpStatus.NO_CONTENT);
         } else {
             return new ResponseEntity<>(new ApiResponse("Analyse not found"), HttpStatus.NOT_FOUND);
         }

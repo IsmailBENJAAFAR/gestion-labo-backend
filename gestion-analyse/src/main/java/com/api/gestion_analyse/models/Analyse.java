@@ -30,4 +30,12 @@ public class Analyse {
     private Date CreatedAt;
     @UpdateTimestamp
     private Date updatedAt;
+
+    public Analyse(Long id, String nom, String description, Long fkIdLaboratoire) {
+        this.id = id;
+        this.nom = nom;
+        this.description = description;
+        this.fkIdLaboratoire = fkIdLaboratoire;
+    }
+
 }
