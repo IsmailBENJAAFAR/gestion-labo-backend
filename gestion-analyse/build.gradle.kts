@@ -2,6 +2,7 @@ plugins {
 	java
 	id("org.springframework.boot") version "3.3.6"
 	id("io.spring.dependency-management") version "1.1.6"
+	// id("jacoco")
 }
 
 group = "com.api"
@@ -10,6 +11,12 @@ version = "0.0.1"
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom(configurations.annotationProcessor.get())
 	}
 }
 
@@ -37,3 +44,19 @@ dependencies {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
+
+// jacoco {
+//     toolVersion = "0.8.12"
+// }
+
+// tasks.test {
+//     finalizedBy(tasks.jacocoTestReport)
+// }
+
+// tasks.jacocoTestReport {
+//     dependsOn(tasks.test)
+//     reports {
+//         html.required = true
+//         xml.required = true
+//     }
+// }
