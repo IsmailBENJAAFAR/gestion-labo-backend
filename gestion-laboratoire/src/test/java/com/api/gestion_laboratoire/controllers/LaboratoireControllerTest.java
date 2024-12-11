@@ -17,6 +17,8 @@ import com.api.gestion_laboratoire.errors.ApiResponse;
 import com.api.gestion_laboratoire.models.Laboratoire;
 import com.api.gestion_laboratoire.services.LaboratoireService;
 
+import jakarta.persistence.EntityNotFoundException;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -36,6 +38,7 @@ class LaboratoireControllerTests {
   LaboratoireService laboService;
 
   Laboratoire labo;
+  String baseUrl = "/api/v1/laboratoires";
 
   @BeforeEach
   void setUp() {
@@ -58,7 +61,7 @@ class LaboratoireControllerTests {
         """;
     when(laboService.getLaboratoires()).thenReturn(List.of(new LaboratoireDTO(labo)));
 
-    ResultActions resultActions = mockMvc.perform(get("/api/v1/laboratoires"))
+    ResultActions resultActions = mockMvc.perform(get(baseUrl + ""))
         .andExpect(status().isOk())
         .andExpect(content().json(jsonResp));
 
@@ -79,9 +82,22 @@ class LaboratoireControllerTests {
         }
         """;
 
-    mockMvc.perform(get("/api/v1/laboratoires/1"))
+    mockMvc.perform(get(baseUrl + "/1"))
         .andExpect(status().isOk())
         .andExpect(content().json(json));
+  }
+
+  @Test
+  void shouldReturnNotFoundWhenGivenNonValidId() throws Exception {
+    when(laboService.getLaboratoiresById(1L)).thenThrow(new EntityNotFoundException("Laboratory Not found"));
+
+    String errRespJson = """
+        {"message": "Laboratory Not found"}
+        """;
+
+    mockMvc.perform(get(baseUrl + "/1"))
+        .andExpect(status().isNotFound())
+        .andExpect(content().json(errRespJson));
   }
 
   @Test
@@ -99,7 +115,7 @@ class LaboratoireControllerTests {
         }
         """;
 
-    mockMvc.perform(post("/api/v1/laboratoires")
+    mockMvc.perform(post(baseUrl + "")
         .contentType("application/json")
         .content(json))
         .andExpect(status().isCreated());
@@ -109,12 +125,14 @@ class LaboratoireControllerTests {
   void shouldUpdateLaboratoire() throws Exception {
     Laboratoire updatedLaboratoire = new Laboratoire("rip bozo (I am the bozo)", "123456789", true,
         LocalDate.of(2012, 10, 10));
-    updatedLaboratoire.setId(1L);
+    // updatedLaboratoire.setId(1L);
+
     when(laboService.updateLaboratoire(1L,
         updatedLaboratoire)).thenReturn(new ResponseEntity<>(new ApiResponse("Laboratory updated"), HttpStatus.OK));
+
     String json = """
         {
-                "id": 1,
+                "id": null,
                 "nom": "rip bozo (I am the bozo)",
                 "nrc": "123456789",
                 "active": true,
@@ -126,7 +144,7 @@ class LaboratoireControllerTests {
           {"message":"Laboratory updated"}
         """;
 
-    mockMvc.perform(put("/api/v1/laboratoires/1")
+    mockMvc.perform(put(baseUrl + "/1")
         .contentType("application/json")
         .content(json))
         .andExpect(status().isOk())
@@ -135,6 +153,8 @@ class LaboratoireControllerTests {
 
   @Test
   void shouldNotUpdateAndReturnNotFoundHttpRespWhenGivenAnInvalidLaboratoireID() throws Exception {
+    Laboratoire updatedLaboratoire = new Laboratoire("rip bozo (I am the bozo)", "123456789", true,
+        LocalDate.of(2012, 10, 10));
     String json = """
         {
             "id": null,
@@ -145,7 +165,10 @@ class LaboratoireControllerTests {
         }
         """;
 
-    mockMvc.perform(put("/api/v1/dossiers/69420")
+    when(laboService.updateLaboratoire(1L,
+        updatedLaboratoire)).thenReturn(new ResponseEntity<>(new ApiResponse("Laboratory not found"), HttpStatus.NOT_FOUND));
+
+    mockMvc.perform(put(baseUrl + "/1")
         .contentType("application/json")
         .content(json))
         .andExpect(status().isNotFound());
@@ -156,7 +179,7 @@ class LaboratoireControllerTests {
     when(laboService.deleteLaboratoire(1L)).thenReturn(new ResponseEntity<>(new ApiResponse("Laboratory deleted"),
         HttpStatus.NO_CONTENT));
 
-    mockMvc.perform(delete("/api/v1/laboratoires/1"))
+    mockMvc.perform(delete(baseUrl + "/1"))
         .andExpect(status().isNoContent());
 
     verify(laboService, times(1)).deleteLaboratoire(1L);
