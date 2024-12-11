@@ -1,5 +1,6 @@
 package com.api.analyse.services;
 
+import com.api.analyse.DTO.AnalyseDTO;
 import com.api.analyse.errors.ApiResponse;
 import com.api.analyse.models.Analyse;
 import com.api.analyse.repositores.AnalyseRepository;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,20 +28,25 @@ public class AnalyseService {
         this.validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
-    public List<Analyse> getAnalyses() {
-        return analyseRepository.findAll();
+    public List<AnalyseDTO> getAnalyses() {
+        List<AnalyseDTO> listAnalyseDTO = new ArrayList<>();
+
+        for (Analyse analyse : analyseRepository.findAll()) {
+            listAnalyseDTO.add(new AnalyseDTO(analyse));
+        }
+        return listAnalyseDTO;
     }
 
-    public Analyse getAnalyseById(Long id) {
+    public AnalyseDTO getAnalyseById(Long id) {
         Optional<Analyse> analyse = analyseRepository.findById(id);
         if (analyse.isPresent()) {
-            return analyse.get();
+            return new AnalyseDTO(analyse.get());
         } else {
             throw new EntityNotFoundException("Analyse not found");
         }
     }
 
-    public ResponseEntity<Object> createAnalyse(Analyse analyse) {
+    public ResponseEntity<ApiResponse> createAnalyse(Analyse analyse) {
         if (validator.validate(analyse).isEmpty()) {
             return new ResponseEntity<>(new ApiResponse("Invalid request"), HttpStatus.BAD_REQUEST);
         }
@@ -54,7 +61,7 @@ public class AnalyseService {
     }
 
     @Transactional
-    public ResponseEntity<Object> updateAnalyse(Long id, Analyse analyse) {
+    public ResponseEntity<ApiResponse> updateAnalyse(Long id, Analyse analyse) {
         if (validator.validate(analyse).isEmpty()) {
             return new ResponseEntity<>(new ApiResponse("Invalid request"), HttpStatus.BAD_REQUEST);
         }
@@ -77,7 +84,7 @@ public class AnalyseService {
         }
     }
 
-    public ResponseEntity<Object> deleteAnalyse(Long id) {
+    public ResponseEntity<ApiResponse> deleteAnalyse(Long id) {
         Optional<Analyse> analyse = analyseRepository.findById(id);
         if (analyse.isPresent()) {
             analyseRepository.delete(analyse.get());
