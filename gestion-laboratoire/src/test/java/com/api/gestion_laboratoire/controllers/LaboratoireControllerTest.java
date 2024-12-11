@@ -125,7 +125,6 @@ class LaboratoireControllerTests {
   void shouldUpdateLaboratoire() throws Exception {
     Laboratoire updatedLaboratoire = new Laboratoire("rip bozo (I am the bozo)", "123456789", true,
         LocalDate.of(2012, 10, 10));
-    // updatedLaboratoire.setId(1L);
 
     when(laboService.updateLaboratoire(1L,
         updatedLaboratoire)).thenReturn(new ResponseEntity<>(new ApiResponse("Laboratory updated"), HttpStatus.OK));
