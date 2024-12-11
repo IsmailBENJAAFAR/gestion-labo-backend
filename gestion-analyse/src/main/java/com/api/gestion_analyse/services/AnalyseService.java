@@ -1,9 +1,5 @@
-package com.api.analyse.services;
+package com.api.gestion_analyse.services;
 
-import com.api.analyse.DTO.AnalyseDTO;
-import com.api.analyse.errors.ApiResponse;
-import com.api.analyse.models.Analyse;
-import com.api.analyse.repositores.AnalyseRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -12,6 +8,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.api.gestion_analyse.DTO.AnalyseDTO;
+import com.api.gestion_analyse.errors.ApiResponse;
+import com.api.gestion_analyse.models.Analyse;
+import com.api.gestion_analyse.repositores.AnalyseRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +48,8 @@ public class AnalyseService {
     }
 
     public ResponseEntity<ApiResponse> createAnalyse(Analyse analyse) {
-        if (validator.validate(analyse).isEmpty()) {
+        System.out.println(analyse);
+        if (!validator.validate(analyse).isEmpty()) {
             return new ResponseEntity<>(new ApiResponse("Invalid request"), HttpStatus.BAD_REQUEST);
         }
         try {
@@ -62,7 +64,7 @@ public class AnalyseService {
 
     @Transactional
     public ResponseEntity<ApiResponse> updateAnalyse(Long id, Analyse analyse) {
-        if (validator.validate(analyse).isEmpty()) {
+        if (!validator.validate(analyse).isEmpty()) {
             return new ResponseEntity<>(new ApiResponse("Invalid request"), HttpStatus.BAD_REQUEST);
         }
         Optional<Analyse> analyseOpt = analyseRepository.findById(id);

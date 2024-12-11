@@ -1,4 +1,4 @@
-package com.api.analyse;
+package com.api.gestion_analyse;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

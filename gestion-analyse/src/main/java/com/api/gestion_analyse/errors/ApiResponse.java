@@ -1,4 +1,4 @@
-package com.api.analyse.errors;
+package com.api.gestion_analyse.errors;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

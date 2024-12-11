@@ -1,8 +1,9 @@
-package com.api.analyse.repositores;
+package com.api.gestion_analyse.repositores;
 
-import com.api.analyse.models.Analyse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import com.api.gestion_analyse.models.Analyse;
 
 @Repository
 public interface AnalyseRepository extends JpaRepository<Analyse, Long> {

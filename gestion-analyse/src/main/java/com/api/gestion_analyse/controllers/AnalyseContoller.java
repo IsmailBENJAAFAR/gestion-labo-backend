@@ -1,4 +1,4 @@
-package com.api.analyse.controllers;
+package com.api.gestion_analyse.controllers;
 
 import java.util.List;
 
@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.api.analyse.DTO.AnalyseDTO;
-import com.api.analyse.errors.ApiResponse;
-import com.api.analyse.models.Analyse;
-import com.api.analyse.services.AnalyseService;
+import com.api.gestion_analyse.DTO.AnalyseDTO;
+import com.api.gestion_analyse.errors.ApiResponse;
+import com.api.gestion_analyse.models.Analyse;
+import com.api.gestion_analyse.services.AnalyseService;
 
 @RestController
 @RequestMapping(path = "api/v1/analyses")

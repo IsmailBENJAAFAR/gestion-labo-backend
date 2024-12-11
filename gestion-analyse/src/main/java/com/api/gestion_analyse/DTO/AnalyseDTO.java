@@ -1,6 +1,6 @@
-package com.api.analyse.DTO;
+package com.api.gestion_analyse.DTO;
 
-import com.api.analyse.models.Analyse;
+import com.api.gestion_analyse.models.Analyse;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

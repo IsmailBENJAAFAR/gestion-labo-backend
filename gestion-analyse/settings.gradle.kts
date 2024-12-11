@@ -1,1 +1,1 @@
-rootProject.name = "analyse"
+rootProject.name = "gestion-analyse"
