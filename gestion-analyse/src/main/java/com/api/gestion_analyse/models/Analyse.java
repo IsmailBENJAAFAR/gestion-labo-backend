@@ -27,7 +27,7 @@ public class Analyse {
     @NotNull
     private Long fkIdLaboratoire;
     @CreationTimestamp
-    private Date CreatedAt;
+    private Date createdAt;
     @UpdateTimestamp
     private Date updatedAt;
 

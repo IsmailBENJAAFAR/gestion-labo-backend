@@ -61,7 +61,7 @@ public class TestAnalyseService {
     }
 
     @Test
-    public void testGetAllAnalyses() {
+    void testGetAllAnalyses() {
         Analyse analyse = new Analyse(1L, "MRI", new String(new byte[1000]), 2L);
         BDDMockito.when(analyseRepository.findAll()).thenReturn(List.of(analyse));
         List<AnalyseDTO> analysesDTO = analyseService.getAnalyses();
@@ -70,7 +70,7 @@ public class TestAnalyseService {
     }
 
     @Test
-    public void testGetAnalyseByValidId() {
+    void testGetAnalyseByValidId() {
         Optional<Analyse> analyse = Optional.of(new Analyse(1L, "MRI", new String(new byte[1000]), 2L));
         BDDMockito.when(analyseRepository.findById(analyse.get().getId())).thenReturn(analyse);
         AnalyseDTO analyseDTO = analyseService.getAnalyseById(analyse.get().getId());
@@ -78,14 +78,14 @@ public class TestAnalyseService {
     }
 
     @Test
-    public void testGetAnalyseByBaaaaadId() {
+    void testGetAnalyseByBaaaaadId() {
         BDDMockito.when(analyseRepository.findById(1L)).thenReturn(Optional.empty());
         Throwable t = assertThrows(EntityNotFoundException.class, () -> analyseService.getAnalyseById(1L));
         Assertions.assertEquals("Analyse not found", t.getMessage());
     }
 
     @Test
-    public void testCreateValidAnalyse() {
+    void testCreateValidAnalyse() {
         Analyse analyse = new Analyse(null, "MRI", new String(new byte[1000]), 2L);
         BDDMockito.when(analyseRepository.save(analyse)).thenReturn(analyse);
         ResponseEntity<ApiResponse> response = analyseService.createAnalyse(analyse);
@@ -94,7 +94,7 @@ public class TestAnalyseService {
     }
 
     @Test
-    public void testCreateNonValidAnalyseRequest() {
+    void testCreateNonValidAnalyseRequest() {
         Analyse analyse = new Analyse(null, null, new String(new byte[1000]), null);
         ResponseEntity<ApiResponse> response = analyseService.createAnalyse(analyse);
         assertEquals("Invalid request", response.getBody().getMessage());
@@ -102,7 +102,7 @@ public class TestAnalyseService {
     }
 
     @Test
-    public void testCreateValidAnalyseWithJPAError() {
+    void testCreateValidAnalyseWithJPAError() {
         Analyse analyse = new Analyse(null, "MRI", new String(new byte[1000]), 2L);
         BDDMockito.when(analyseRepository.save(analyse)).thenThrow(new EntityNotFoundException("rip me"));
         ResponseEntity<ApiResponse> response = analyseService.createAnalyse(analyse);
@@ -111,26 +111,26 @@ public class TestAnalyseService {
     }
 
     @Test
-    public void testUpdateAnalyseWithValidId() {
+    void testUpdateAnalyseWithValidId() {
         Analyse analyseOld = new Analyse(1L, "xxMRIxx", new String(new byte[100]), 3L);
         Optional<Analyse> analyse = Optional.of(new Analyse(null, "MRI", new String(new byte[1000]), 2L));
         BDDMockito.when(analyseRepository.findById(analyseOld.getId())).thenReturn(analyse);
-        ResponseEntity<ApiResponse> response = analyseService.updateAnalyse(analyseOld.getId(),analyseOld);
+        ResponseEntity<ApiResponse> response = analyseService.updateAnalyse(analyseOld.getId(), analyseOld);
         assertEquals("Analyse updated successfully", response.getBody().getMessage());
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
-    public void testUpdateAnalyseWithNonValidId() {
+    void testUpdateAnalyseWithNonValidId() {
         Analyse analyseOld = new Analyse(1L, "xxMRIxx", new String(new byte[100]), 3L);
         BDDMockito.when(analyseRepository.findById(analyseOld.getId())).thenReturn(Optional.empty());
-        ResponseEntity<ApiResponse> response = analyseService.updateAnalyse(analyseOld.getId(),analyseOld);
+        ResponseEntity<ApiResponse> response = analyseService.updateAnalyse(analyseOld.getId(), analyseOld);
         assertEquals("Analyse not found", response.getBody().getMessage());
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
-    public void testDeleteAnalyseWithValidId() {
+    void testDeleteAnalyseWithValidId() {
         Optional<Analyse> analyse = Optional.of(new Analyse(1L, "MRI", new String(new byte[1000]), 2L));
         BDDMockito.when(analyseRepository.findById(analyse.get().getId())).thenReturn(analyse);
         ResponseEntity<ApiResponse> response = analyseService.deleteAnalyse(1L);
@@ -139,7 +139,7 @@ public class TestAnalyseService {
     }
 
     @Test
-    public void testDeleteAnalyseWithNonValidId() {
+    void testDeleteAnalyseWithNonValidId() {
         Optional<Analyse> analyse = Optional.of(new Analyse(1L, "MRI", new String(new byte[1000]), 2L));
         BDDMockito.when(analyseRepository.findById(analyse.get().getId())).thenReturn(Optional.empty());
         ResponseEntity<ApiResponse> response = analyseService.deleteAnalyse(analyse.get().getId());
