@@ -48,7 +48,6 @@ public class AnalyseService {
     }
 
     public ResponseEntity<ApiResponse> createAnalyse(Analyse analyse) {
-        System.out.println(analyse);
         if (!validator.validate(analyse).isEmpty()) {
             return new ResponseEntity<>(new ApiResponse("Invalid request"), HttpStatus.BAD_REQUEST);
         }
@@ -64,9 +63,6 @@ public class AnalyseService {
 
     @Transactional
     public ResponseEntity<ApiResponse> updateAnalyse(Long id, Analyse analyse) {
-        if (!validator.validate(analyse).isEmpty()) {
-            return new ResponseEntity<>(new ApiResponse("Invalid request"), HttpStatus.BAD_REQUEST);
-        }
         Optional<Analyse> analyseOpt = analyseRepository.findById(id);
         if (analyseOpt.isPresent()) {
             Analyse analyseOld = analyseOpt.get();

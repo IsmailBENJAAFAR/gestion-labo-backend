@@ -38,4 +38,10 @@ public class Analyse {
         this.fkIdLaboratoire = fkIdLaboratoire;
     }
 
+    public Analyse(String nom, String description, Long fkIdLaboratoire) {
+        this.nom = nom;
+        this.description = description;
+        this.fkIdLaboratoire = fkIdLaboratoire;
+    }
+
 }
