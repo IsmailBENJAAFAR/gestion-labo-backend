@@ -2,7 +2,6 @@ POST http://localhost:8080/api/v1/examens
 Content-Type: application/json
 
 {
-	"nom": "Electrique",
 	"dossierId": 2,
 	"epreuveId": 4,
 	"testAnalyseId": 3

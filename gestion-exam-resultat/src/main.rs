@@ -36,7 +36,6 @@ async fn main() -> Result<()> {
         Ok(_) => eprintln!(".env file loaded successfully."),
         Err(_) => eprintln!("Warning: .env file not found."),
     };
-    let global_router = Router::new().fallback(handler_404);
     let url = std::env::var("DATABASE_URL").context("Please set DATABASE_URL for database")?;
     let pool = PgPoolOptions::new()
         .max_connections(5)
@@ -48,7 +47,18 @@ async fn main() -> Result<()> {
     let exam_service = Arc::new(exam::service::Service::new(Arc::new(exam_dao)));
     let state = AppState { exam_service };
 
-    let app = global_router
+    let app = app(state);
+
+    let listener = TcpListener::bind("0.0.0.0:8080")
+        .await
+        .context("Binding listener to address")?;
+    axum::serve(listener, app).await?;
+    Ok(())
+}
+
+fn app(state: AppState) -> Router {
+    Router::new()
+        .fallback(handler_404)
         .nest(
             "/api/v1",
             Router::new()
@@ -62,13 +72,7 @@ async fn main() -> Result<()> {
                 ),
         )
         .layer(CorsLayer::permissive())
-        .with_state(state);
-
-    let listener = TcpListener::bind("0.0.0.0:8080")
-        .await
-        .context("Binding listener to address")?;
-    axum::serve(listener, app).await?;
-    Ok(())
+        .with_state(state)
 }
 
 async fn handler_404(OriginalUri(uri): OriginalUri) -> impl IntoResponse {
