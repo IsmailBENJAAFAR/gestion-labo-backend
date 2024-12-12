@@ -89,12 +89,12 @@ public class TestAnalyseService {
         Analyse analyse = new Analyse(null, "MRI", new String(new byte[1000]), 2L);
         BDDMockito.when(analyseRepository.save(analyse)).thenReturn(analyse);
         ResponseEntity<ApiResponse> response = analyseService.createAnalyse(analyse);
-        assertEquals("Analyse created successfully", response.getBody().getMessage());
+        assertEquals(analyse, (Analyse) response.getBody().getMessage());
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
     }
 
     @Test
-    void testCreateNonValidAnalyseRequest() {
+    void testCreateWithNonValidAnalyseRequest() {
         Analyse analyse = new Analyse(null, null, new String(new byte[1000]), null);
         ResponseEntity<ApiResponse> response = analyseService.createAnalyse(analyse);
         assertEquals("Invalid request", response.getBody().getMessage());

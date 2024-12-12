@@ -52,8 +52,8 @@ public class AnalyseService {
             return new ResponseEntity<>(new ApiResponse("Invalid request"), HttpStatus.BAD_REQUEST);
         }
         try {
-            analyseRepository.save(analyse);
-            return new ResponseEntity<>(new ApiResponse("Analyse created successfully"),
+            Analyse createdAnalyse = analyseRepository.save(analyse);
+            return new ResponseEntity<>(new ApiResponse(createdAnalyse),
                     HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(new ApiResponse("There has been an error when creating this analyse"),
