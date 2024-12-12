@@ -12,8 +12,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.util.Date;
 
 @Entity
-@Table(name = "analizar") // <- yes this is intentional since using analyse
-                          // causes an error in hibernate
+@Table(name = "table_analyse")
 @Data
 @NoArgsConstructor
 public class Analyse {
