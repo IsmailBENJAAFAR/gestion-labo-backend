@@ -31,7 +31,7 @@ pub async fn run_app() -> anyhow::Result<()> {
     tracing_subscriber::fmt().init();
 
     match dotenv() {
-        Ok(_) => eprintln!(".env file loaded successfully."),
+        Ok(f) => eprintln!(".env file: {f:?} loaded successfully."),
         Err(_) => eprintln!("Warning: .env file not found."),
     };
     let url = std::env::var("DATABASE_URL").context("Please set DATABASE_URL for database")?;
@@ -46,8 +46,11 @@ pub async fn run_app() -> anyhow::Result<()> {
     let state = AppState { exam_service };
 
     let app = app(state);
-
-    let listener = TcpListener::bind("0.0.0.0:8080")
+    let addr = match cfg!(debug_assertions) {
+        true => "localhost:8080",
+        false => "0.0.0.0:80",
+    };
+    let listener = TcpListener::bind(addr)
         .await
         .context("Binding listener to address")?;
     axum::serve(listener, app).await?;
