@@ -88,8 +88,13 @@ class LaboratoireServiceTest {
 
         BDDMockito.when(storageService.uploadImage(laboratoire.getImageFile())).thenReturn(map);
 
+        BDDMockito.when(laboratoireRepository.save(laboratoire)).thenReturn(laboratoire);
+
         ResponseEntity<ApiResponse> response = laboratoireService.createLaboratoire(laboratoire);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(
+                new LaboratoireDTO(null, "labo_x", "some_url", "123456789", true, LocalDate.of(2024, 12, 12), "idk"),
+                (LaboratoireDTO) response.getBody().getMessage());
 
         ResponseEntity<ApiResponse> responseWithInvalidNrc = laboratoireService.createLaboratoire(invalidLaboratoire);
         assertEquals(HttpStatus.BAD_REQUEST, responseWithInvalidNrc.getStatusCode());

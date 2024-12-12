@@ -63,8 +63,8 @@ public class LaboratoireService {
             }
             laboratoire.setLogo(String.valueOf(imageURLInfo.get("url")));
             laboratoire.setLogoID(String.valueOf(imageURLInfo.get("display_name")));
-            laboratoireRepository.save(laboratoire);
-            return new ResponseEntity<>(new ApiResponse("Laboratory created successfully"),
+            Laboratoire newLaboratoire = laboratoireRepository.save(laboratoire);
+            return new ResponseEntity<>(new ApiResponse(new LaboratoireDTO(newLaboratoire)),
                     HttpStatus.CREATED);
         } catch (Exception ie) {
             return new ResponseEntity<>(

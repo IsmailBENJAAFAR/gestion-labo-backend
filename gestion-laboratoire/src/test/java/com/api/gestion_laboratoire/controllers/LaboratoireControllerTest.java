@@ -103,7 +103,7 @@ class LaboratoireControllerTests {
   @Test
   void shouldCreateNewLaboratoire() throws Exception {
     when(laboService.createLaboratoire(labo))
-        .thenReturn(new ResponseEntity<>(new ApiResponse("Laboratory created successfully"),
+        .thenReturn(new ResponseEntity<>(new ApiResponse(new LaboratoireDTO(labo)),
             HttpStatus.CREATED));
     String json = """
         {
@@ -127,7 +127,8 @@ class LaboratoireControllerTests {
         LocalDate.of(2012, 10, 10));
 
     when(laboService.updateLaboratoire(1L,
-        updatedLaboratoire)).thenReturn(new ResponseEntity<>(new ApiResponse("Laboratory updated"), HttpStatus.OK));
+        updatedLaboratoire))
+        .thenReturn(new ResponseEntity<>(new ApiResponse("Laboratory updated"), HttpStatus.OK));
 
     String json = """
         {
@@ -165,7 +166,8 @@ class LaboratoireControllerTests {
         """;
 
     when(laboService.updateLaboratoire(1L,
-        updatedLaboratoire)).thenReturn(new ResponseEntity<>(new ApiResponse("Laboratory not found"), HttpStatus.NOT_FOUND));
+        updatedLaboratoire))
+        .thenReturn(new ResponseEntity<>(new ApiResponse("Laboratory not found"), HttpStatus.NOT_FOUND));
 
     mockMvc.perform(put(baseUrl + "/1")
         .contentType("application/json")
@@ -175,8 +177,9 @@ class LaboratoireControllerTests {
 
   @Test
   void shouldDeleteLaboratoireWhenGivenValidID() throws Exception {
-    when(laboService.deleteLaboratoire(1L)).thenReturn(new ResponseEntity<>(new ApiResponse("Laboratory deleted"),
-        HttpStatus.NO_CONTENT));
+    when(laboService.deleteLaboratoire(1L))
+        .thenReturn(new ResponseEntity<>(new ApiResponse("Laboratory deleted"),
+            HttpStatus.NO_CONTENT));
 
     mockMvc.perform(delete(baseUrl + "/1"))
         .andExpect(status().isNoContent());
