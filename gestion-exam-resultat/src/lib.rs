@@ -82,26 +82,64 @@ async fn handler_404(OriginalUri(uri): OriginalUri) -> impl IntoResponse {
 
 #[cfg(test)]
 mod test {
-    use std::sync::Arc;
-
+    use crate::{
+        app,
+        dao::interface::{Dao, MockDao},
+        exam::{api_error::ApiError, dao::ExamDao, dto::ExamDto, model::Exam, service},
+        AppState,
+    };
     use anyhow::{anyhow, Context, Result};
-    use axum::{http::StatusCode, Json};
+    use axum::{
+        body::Body,
+        http::{Request, StatusCode},
+        Json,
+    };
+    use http_body_util::BodyExt;
     use mockall::predicate::eq;
     use sqlx::postgres::PgPoolOptions;
+    use std::sync::Arc;
     use testcontainers::{
         core::{IntoContainerPort, WaitFor},
         runners::AsyncRunner,
         GenericImage, ImageExt,
     };
+    use tower::ServiceExt;
     use tracing::info;
-
-    use crate::{
-        dao::interface::{Dao, MockDao},
-        exam::{api_error::ApiError, dao::ExamDao, dto::ExamDto, model::Exam, service},
-    };
 
     #[tokio::test]
     async fn test_exam_controller() -> Result<()> {
+        let mut mock_dao: MockDao<Exam> = MockDao::new();
+        let exam = Exam::new(1, 1, 1);
+
+        {
+            let exam = exam.clone();
+            mock_dao
+                .expect_find_all()
+                .times(1)
+                .returning(move || Ok(vec![exam.clone()]));
+        }
+
+        let service = service::Service::new(Arc::new(mock_dao));
+
+        let app = app(AppState {
+            exam_service: service.into(),
+        });
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/api/v1/examens")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = response.into_body().collect().await.unwrap().to_bytes();
+        let expected = serde_json::to_string(&vec![exam])?;
+        assert_eq!(&body[..], expected.as_bytes());
+
         Ok(())
     }
 
