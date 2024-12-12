@@ -1,6 +1,7 @@
 package com.api.gestion_analyse.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -20,7 +21,7 @@ public class Analyse {
     @SequenceGenerator(name = "analyse_sequence", sequenceName = "analyse_sequence", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "analyse_sequence")
     private Long id;
-    @NotEmpty
+    @NotBlank
     private String nom;
     @Column(columnDefinition = "TEXT")
     private String description;

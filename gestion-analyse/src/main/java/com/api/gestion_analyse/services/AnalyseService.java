@@ -64,22 +64,23 @@ public class AnalyseService {
     @Transactional
     public ResponseEntity<ApiResponse> updateAnalyse(Long id, Analyse analyse) {
         Optional<Analyse> analyseOpt = analyseRepository.findById(id);
-        if (analyseOpt.isPresent()) {
-            Analyse analyseOld = analyseOpt.get();
-            if (analyse.getNom() != null && !analyse.getNom().isEmpty()) {
-                analyseOld.setNom(analyse.getNom());
-            }
-            if (analyse.getDescription() != null) {
-                analyseOld.setDescription(analyse.getDescription());
-            }
-            if (analyse.getFkIdLaboratoire() != null) {
-                // needs check here for foreign key
-                analyseOld.setFkIdLaboratoire(analyse.getFkIdLaboratoire());
-            }
+        return analyseOpt.map(analyseOld -> {
+
+            analyseOld.setNom(analyse.getNom() != null && !analyse.getNom().isBlank() ? analyse.getNom()
+                    : analyseOld.getNom());
+
+            analyseOld.setDescription(analyse.getDescription() != null ? analyse.getDescription()
+                    : analyseOld.getDescription());
+
+            // needs check here for foreign key
+            analyseOld.setFkIdLaboratoire(analyse.getFkIdLaboratoire() != null ? analyse.getFkIdLaboratoire()
+                    : analyseOld.getFkIdLaboratoire());
+
             return new ResponseEntity<>(new ApiResponse("Analyse updated successfully"), HttpStatus.OK);
-        } else {
+        }).orElseGet(() -> {
             return new ResponseEntity<>(new ApiResponse("Analyse not found"), HttpStatus.NOT_FOUND);
-        }
+        });
+
     }
 
     public ResponseEntity<ApiResponse> deleteAnalyse(Long id) {
