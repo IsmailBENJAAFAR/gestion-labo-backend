@@ -10,8 +10,12 @@ use dotenvy::dotenv;
 use exam::dao::ExamDao;
 use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
-use tokio::net::TcpListener;
+use tokio::{
+    net::TcpListener,
+    sync::mpsc::{Receiver, Sender},
+};
 use tower_http::cors::CorsLayer;
+use tracing::debug;
 
 mod dao;
 mod exam;
@@ -19,6 +23,8 @@ mod exam;
 #[derive(Clone)]
 pub struct AppState {
     pub exam_service: Arc<exam::service::Service>,
+    // TODO: Use a proper struct for sending message to queue
+    pub mess_queue_channel: Arc<Sender<String>>,
 }
 
 impl FromRef<AppState> for Arc<exam::service::Service> {
@@ -27,6 +33,8 @@ impl FromRef<AppState> for Arc<exam::service::Service> {
     }
 }
 
+// TODO: Add into AppState a channel that takes events to send to the message queue, in another
+// tokio task
 pub async fn run_app() -> anyhow::Result<()> {
     tracing_subscriber::fmt().init();
 
@@ -43,7 +51,12 @@ pub async fn run_app() -> anyhow::Result<()> {
 
     let exam_dao = ExamDao::new(pool);
     let exam_service = Arc::new(exam::service::Service::new(Arc::new(exam_dao)));
-    let state = AppState { exam_service };
+    let (tx, rx) = tokio::sync::mpsc::channel::<String>(1024);
+    run_message_queue_handler(rx);
+    let state = AppState {
+        exam_service,
+        mess_queue_channel: Arc::new(tx),
+    };
 
     let app = app(state);
     let addr = match cfg!(debug_assertions) {
@@ -57,7 +70,11 @@ pub async fn run_app() -> anyhow::Result<()> {
     Ok(())
 }
 
-pub fn app(state: AppState) -> Router {
+fn run_message_queue_handler(_rx: Receiver<String>) {
+    tokio::spawn(async move { debug!("TODO: handle message queues") });
+}
+
+fn app(state: AppState) -> Router {
     Router::new()
         .fallback(handler_404)
         .nest(
@@ -126,6 +143,8 @@ mod test {
 
         let app = app(AppState {
             exam_service: service.into(),
+            // message queue not meant to be tested here
+            mess_queue_channel: tokio::sync::mpsc::channel(1).0.into(),
         });
 
         let response = app
