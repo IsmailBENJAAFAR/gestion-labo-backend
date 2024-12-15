@@ -8,6 +8,7 @@ use axum::{
 };
 use dotenvy::dotenv;
 use exam::dao::ExamDao;
+use message_queue::QueueMessage;
 use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
 use tokio::{
@@ -15,16 +16,16 @@ use tokio::{
     sync::mpsc::{Receiver, Sender},
 };
 use tower_http::cors::CorsLayer;
-use tracing::debug;
 
 mod dao;
 mod exam;
+mod message_queue;
 
 #[derive(Clone)]
 pub struct AppState {
     pub exam_service: Arc<exam::service::Service>,
     // TODO: Use a proper struct for sending message to queue
-    pub mess_queue_channel: Arc<Sender<String>>,
+    pub mess_queue_channel: Arc<Sender<QueueMessage>>,
 }
 
 impl FromRef<AppState> for Arc<exam::service::Service> {
@@ -51,7 +52,7 @@ pub async fn run_app() -> anyhow::Result<()> {
 
     let exam_dao = ExamDao::new(pool);
     let exam_service = Arc::new(exam::service::Service::new(Arc::new(exam_dao)));
-    let (tx, rx) = tokio::sync::mpsc::channel::<String>(1024);
+    let (tx, rx) = tokio::sync::mpsc::channel::<QueueMessage>(1024);
     run_message_queue_handler(rx);
     let state = AppState {
         exam_service,
@@ -70,8 +71,9 @@ pub async fn run_app() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn run_message_queue_handler(_rx: Receiver<String>) {
-    tokio::spawn(async move { debug!("TODO: handle message queues") });
+fn run_message_queue_handler(rx: Receiver<QueueMessage>) {
+    message_queue::init_queue();
+    tokio::spawn(message_queue::run_queue(rx));
 }
 
 fn app(state: AppState) -> Router {
