@@ -24,18 +24,21 @@ mod message_queue;
 #[derive(Clone)]
 pub struct AppState {
     pub exam_service: Arc<exam::service::Service>,
-    // TODO: Use a proper struct for sending message to queue
     pub mess_queue_channel: Arc<Sender<QueueMessage>>,
 }
 
 impl FromRef<AppState> for Arc<exam::service::Service> {
     fn from_ref(input: &AppState) -> Self {
-        input.exam_service.clone()
+        Arc::clone(&input.exam_service)
     }
 }
 
-// TODO: Add into AppState a channel that takes events to send to the message queue, in another
-// tokio task
+impl FromRef<AppState> for Arc<Sender<QueueMessage>> {
+    fn from_ref(input: &AppState) -> Self {
+        Arc::clone(&input.mess_queue_channel)
+    }
+}
+
 pub async fn run_app() -> anyhow::Result<()> {
     tracing_subscriber::fmt().init();
 

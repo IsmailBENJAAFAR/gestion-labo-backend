@@ -11,8 +11,8 @@ pub enum QueueType {
 // TODO: remove this derive after implementing queue
 #[allow(dead_code)]
 pub struct QueueMessage {
-    msg_type: QueueType,
-    message: String,
+    pub msg_type: QueueType,
+    pub message: String,
 }
 
 pub fn init_queue() {}

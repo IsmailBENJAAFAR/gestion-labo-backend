@@ -5,8 +5,9 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use tokio::sync::mpsc::Sender;
 
-use crate::exam::dto::ExamDto;
+use crate::{exam::dto::ExamDto, message_queue::QueueMessage};
 
 use super::service;
 
@@ -30,7 +31,8 @@ pub async fn create_exam(
 
 pub async fn delete_exam(
     State(service): State<Arc<service::Service>>,
+    State(queue): State<Arc<Sender<QueueMessage>>>,
     Path(id): Path<i32>,
 ) -> impl IntoResponse {
-    service.delete_exam(id).await
+    service.delete_exam(id, queue).await
 }

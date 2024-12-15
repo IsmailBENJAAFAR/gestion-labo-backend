@@ -3,8 +3,10 @@ use std::sync::Arc;
 use anyhow::anyhow;
 use axum::http::StatusCode;
 use axum::Json;
+use tokio::sync::mpsc::Sender;
 
 use crate::dao::interface::Dao;
+use crate::message_queue::{QueueMessage, QueueType};
 
 use super::api_error::ApiError;
 use super::dto::ExamDto;
@@ -59,9 +61,22 @@ impl Service {
         Ok((StatusCode::OK, Json(exams)))
     }
 
-    pub async fn delete_exam(&self, id: i32) -> Result<StatusCode, ApiError> {
+    pub async fn delete_exam(
+        &self,
+        id: i32,
+        queue: Arc<Sender<QueueMessage>>,
+    ) -> Result<StatusCode, ApiError> {
         match self.dao.remove(id).await {
-            Ok(true) => Ok(StatusCode::NO_CONTENT),
+            Ok(true) => {
+                let queue_message = QueueMessage {
+                    msg_type: QueueType::Point,
+                    message: "delete exam".into(),
+                };
+                if let Err(e) = queue.send(queue_message).await {
+                    tracing::error!("{e}")
+                }
+                Ok(StatusCode::NO_CONTENT)
+            }
             Ok(false) => {
                 tracing::error!("attempt to delete exam with id: {id}");
                 Err(ApiError::with_status(
