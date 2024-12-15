@@ -9,7 +9,8 @@ use crate::dao::interface::Dao;
 use crate::message_queue::{QueueMessage, QueueType};
 
 use super::api_error::ApiError;
-use super::dto::ExamDto;
+use super::controller::get_exam;
+use super::dto::{CreateExamDto, UpdateExamDto};
 use super::model::Exam;
 
 pub struct Service {
@@ -21,7 +22,10 @@ impl Service {
         Service { dao }
     }
 
-    pub async fn create_exam(&self, exam: ExamDto) -> Result<(StatusCode, Json<Exam>), ApiError> {
+    pub async fn create_exam(
+        &self,
+        exam: CreateExamDto,
+    ) -> Result<(StatusCode, Json<Exam>), ApiError> {
         let exam = Exam::new(
             exam.fk_num_dossier,
             exam.fk_id_epreuve,
@@ -59,6 +63,32 @@ impl Service {
             }
         };
         Ok((StatusCode::OK, Json(exams)))
+    }
+
+    pub async fn update_exam(
+        &self,
+        id: i32,
+        exam_dto: UpdateExamDto,
+    ) -> Result<(StatusCode, Json<Exam>), ApiError> {
+        let (_, Json(exam)) = self.get_exam(id).await?;
+        let updated_exam = Exam::new(
+            exam_dto.fk_num_dossier.unwrap_or(exam.fk_num_dossier),
+            exam_dto.fk_id_epreuve.unwrap_or(exam.fk_id_epreuve),
+            exam_dto
+                .fk_id_test_analyse
+                .unwrap_or(exam.fk_id_test_analyse),
+        );
+
+        match self.dao.update(&updated_exam).await {
+            Ok(exam) => Ok((StatusCode::OK, Json(exam))),
+            Err(e) => {
+                tracing::error!("exam with id: {id}, hasn't been updated: {e}");
+                Err(ApiError::with_status(
+                    anyhow!("exam not found"),
+                    StatusCode::BAD_REQUEST,
+                ))
+            }
+        }
     }
 
     pub async fn delete_exam(

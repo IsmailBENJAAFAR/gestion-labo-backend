@@ -41,6 +41,21 @@ impl Dao<Exam> for ExamDao {
         Ok(id)
     }
 
+    async fn update(&self, data: &Exam) -> Result<Exam> {
+        let updated_at = chrono::Utc::now();
+        let res = sqlx::query("UPDATE exam SET fk_num_dossier = $1, fk_id_epreuve = $2, fk_id_test_analyse = $3, updated_at = $4 WHERE id = $5 RETURNING *")
+            .bind(data.fk_num_dossier)
+            .bind(data.fk_id_epreuve)
+            .bind(data.fk_id_test_analyse)
+            .bind(updated_at)
+            .fetch_one(&self.pool)
+            .await?;
+
+        let exam = Exam::try_from(res)?;
+
+        Ok(exam)
+    }
+
     async fn remove(&self, id: i32) -> Result<bool> {
         let res = sqlx::query("DELETE FROM exam WHERE id = $1")
             .bind(id)

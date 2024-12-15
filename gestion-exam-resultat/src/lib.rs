@@ -43,8 +43,8 @@ pub async fn run_app() -> anyhow::Result<()> {
     tracing_subscriber::fmt().init();
 
     match dotenv() {
-        Ok(f) => eprintln!(".env file: {f:?} loaded successfully."),
-        Err(_) => eprintln!("Warning: .env file not found."),
+        Ok(f) => tracing::info!(".env file: {f:?} loaded successfully."),
+        Err(_) => tracing::error!("Warning: .env file not found."),
     };
     let url = std::env::var("DATABASE_URL").context("Please set DATABASE_URL for database")?;
     let pool = PgPoolOptions::new()
@@ -91,7 +91,9 @@ fn app(state: AppState) -> Router {
                 )
                 .route(
                     "/examens/:id",
-                    get(exam::controller::get_exam).delete(exam::controller::delete_exam),
+                    get(exam::controller::get_exam)
+                        .patch(exam::controller::update_exam)
+                        .delete(exam::controller::delete_exam),
                 ),
         )
         .layer(CorsLayer::permissive())
@@ -110,7 +112,7 @@ mod test {
     use crate::{
         app,
         dao::interface::{Dao, MockDao},
-        exam::{api_error::ApiError, dao::ExamDao, dto::ExamDto, model::Exam, service},
+        exam::{api_error::ApiError, dao::ExamDao, dto::CreateExamDto, model::Exam, service},
         AppState,
     };
     use anyhow::{anyhow, Context, Result};
@@ -277,7 +279,7 @@ mod test {
         let (code, Json(data)) = service.get_exams().await.unwrap();
         assert_eq!((code, data.len()), (StatusCode::OK, 0));
 
-        let exam_dto = ExamDto::new(1, 1, 1);
+        let exam_dto = CreateExamDto::new(1, 1, 1);
         let (code, _) = service.create_exam(exam_dto).await.unwrap();
         assert_eq!(code, StatusCode::CREATED);
 
