@@ -213,7 +213,7 @@ mod test {
         assert!(res.is_err());
 
         let res = dao.insert(&Exam::new(1, 2, 3)).await.context("insert")?;
-        assert!(res);
+        assert_eq!(res, 1);
 
         let res = dao.find(1).await?;
         assert_eq!(
@@ -256,7 +256,7 @@ mod test {
 
         // Mocking the DAO
         mock.expect_find_all().times(1).returning(|| Ok(vec![]));
-        mock.expect_insert().return_once(|_exam: &Exam| Ok(true));
+        mock.expect_insert().return_once(|_exam: &Exam| Ok(1));
         {
             let exam = exam.clone();
             mock.expect_find_all()

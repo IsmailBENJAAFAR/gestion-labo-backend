@@ -1,5 +1,6 @@
 use anyhow::Result;
 use axum::async_trait;
+use sqlx::Row;
 use sqlx::{Pool, Postgres};
 
 use crate::{dao::interface::Dao, exam::model::Exam};
@@ -27,17 +28,17 @@ impl Dao<Exam> for ExamDao {
         Ok(exam)
     }
 
-    async fn insert(&self, data: &Exam) -> Result<bool> {
+    async fn insert(&self, data: &Exam) -> Result<i32> {
         let res =
-            sqlx::query("INSERT INTO exam (fk_num_dossier, fk_id_epreuve, fk_id_test_analyse, created_at) VALUES ($1, $2, $3, $4)")
+            sqlx::query("INSERT INTO exam (fk_num_dossier, fk_id_epreuve, fk_id_test_analyse, created_at) VALUES ($1, $2, $3, $4) RETURNING id")
                 .bind(data.fk_num_dossier)
                 .bind(data.fk_id_epreuve)
                 .bind(data.fk_id_test_analyse)
                 .bind(data.created_at)
-                .execute(&self.pool)
+                .fetch_one(&self.pool)
                 .await?;
-
-        Ok(res.rows_affected() == 1)
+        let id: i32 = res.try_get("id")?;
+        Ok(id)
     }
 
     async fn remove(&self, id: i32) -> Result<bool> {

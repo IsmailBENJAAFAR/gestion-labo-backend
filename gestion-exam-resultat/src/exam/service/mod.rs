@@ -26,14 +26,7 @@ impl Service {
             exam.fk_id_test_analyse,
         );
         match self.dao.insert(&exam).await {
-            Ok(true) => Ok((StatusCode::CREATED, Json(exam))),
-            Ok(false) => {
-                tracing::error!("exam wasn't created: {exam:?}");
-                Err(ApiError::with_status(
-                    anyhow!("Exam hasn't been created"),
-                    StatusCode::BAD_REQUEST,
-                ))
-            }
+            Ok(id) => Ok((StatusCode::CREATED, Json(Exam { id, ..exam }))),
             Err(e) => {
                 tracing::error!("exam wasn't created: {exam:?}, error: {e}");
                 Err(ApiError::new(anyhow!("error: couldn't create exam")))
