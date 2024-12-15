@@ -1,15 +1,11 @@
 use tokio::sync::mpsc::Receiver;
 
-// TODO: remove this derive after implementing queue
-#[allow(dead_code)]
 pub enum QueueType {
     // TODO: the point enum can contain more data related to the queue
     Point,
     Topic,
 }
 
-// TODO: remove this derive after implementing queue
-#[allow(dead_code)]
 pub struct QueueMessage {
     pub msg_type: QueueType,
     pub message: String,
