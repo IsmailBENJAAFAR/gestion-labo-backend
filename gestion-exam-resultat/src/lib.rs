@@ -244,6 +244,28 @@ mod test {
             (1, 2, 3)
         );
 
+        let mut updated_exam = Exam::new(4, 5, 6);
+        updated_exam.id = 1;
+        let res = dao.update(&updated_exam).await?;
+        assert_eq!(
+            (
+                res.fk_num_dossier,
+                res.fk_id_epreuve,
+                res.fk_id_test_analyse
+            ),
+            (4, 5, 6)
+        );
+
+        let res = dao.find(1).await?;
+        assert_eq!(
+            (
+                res.fk_num_dossier,
+                res.fk_id_epreuve,
+                res.fk_id_test_analyse
+            ),
+            (4, 5, 6)
+        );
+
         let res = dao.remove(1).await?;
         assert!(res);
 

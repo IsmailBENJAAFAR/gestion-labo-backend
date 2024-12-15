@@ -48,6 +48,7 @@ impl Dao<Exam> for ExamDao {
             .bind(data.fk_id_epreuve)
             .bind(data.fk_id_test_analyse)
             .bind(updated_at)
+            .bind(data.id)
             .fetch_one(&self.pool)
             .await?;
 

@@ -9,7 +9,6 @@ use crate::dao::interface::Dao;
 use crate::message_queue::{QueueMessage, QueueType};
 
 use super::api_error::ApiError;
-use super::controller::get_exam;
 use super::dto::{CreateExamDto, UpdateExamDto};
 use super::model::Exam;
 
