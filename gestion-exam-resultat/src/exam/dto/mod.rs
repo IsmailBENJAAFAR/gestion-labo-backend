@@ -29,3 +29,13 @@ impl CreateExamDto {
         }
     }
 }
+
+impl UpdateExamDto {
+    pub fn new(fk_num_dossier: i32, fk_id_epreuve: i32, fk_id_test_analyse: i32) -> UpdateExamDto {
+        UpdateExamDto {
+            fk_num_dossier: Some(fk_num_dossier),
+            fk_id_epreuve: Some(fk_id_epreuve),
+            fk_id_test_analyse: Some(fk_id_test_analyse),
+        }
+    }
+}

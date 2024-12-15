@@ -112,7 +112,13 @@ mod test {
     use crate::{
         app,
         dao::interface::{Dao, MockDao},
-        exam::{api_error::ApiError, dao::ExamDao, dto::CreateExamDto, model::Exam, service},
+        exam::{
+            api_error::ApiError,
+            dao::ExamDao,
+            dto::{CreateExamDto, UpdateExamDto},
+            model::Exam,
+            service,
+        },
         AppState,
     };
     use anyhow::{anyhow, Context, Result};
@@ -292,6 +298,28 @@ mod test {
                 .times(1)
                 .returning(move || Ok(vec![exam.clone()]));
         }
+        {
+            let exam = exam.clone();
+            mock.expect_find()
+                .with(eq(1))
+                .return_once(move |_f| Ok(exam.clone()));
+        }
+        {
+            let mut exam = exam.clone();
+            exam.id = 1;
+            exam.fk_num_dossier = 4;
+            exam.fk_id_epreuve = 5;
+            exam.fk_id_test_analyse = 6;
+            mock.expect_update()
+                .withf(|exam: &Exam| {
+                    (
+                        exam.fk_num_dossier,
+                        exam.fk_id_epreuve,
+                        exam.fk_id_test_analyse,
+                    ) == (4, 5, 6)
+                })
+                .return_once(move |_exam: &Exam| Ok(exam.clone()));
+        }
         mock.expect_find()
             .with(eq(2))
             .return_once(|_f| Err(anyhow!("error")));
@@ -301,9 +329,21 @@ mod test {
         let (code, Json(data)) = service.get_exams().await.unwrap();
         assert_eq!((code, data.len()), (StatusCode::OK, 0));
 
-        let exam_dto = CreateExamDto::new(1, 1, 1);
-        let (code, _) = service.create_exam(exam_dto).await.unwrap();
+        let exam_create_dto = CreateExamDto::new(1, 1, 1);
+        let (code, _) = service.create_exam(exam_create_dto).await.unwrap();
         assert_eq!(code, StatusCode::CREATED);
+
+        let exam_update_dto = UpdateExamDto::new(4, 5, 6);
+        let (code, Json(updated_exam)) = service.update_exam(1, exam_update_dto).await.unwrap();
+        assert_eq!(code, StatusCode::OK);
+        assert_eq!(
+            (
+                updated_exam.fk_num_dossier,
+                updated_exam.fk_id_epreuve,
+                updated_exam.fk_id_test_analyse
+            ),
+            (4, 5, 6)
+        );
 
         let (code, Json(data)) = service.get_exams().await.unwrap();
         assert_eq!(
