@@ -70,7 +70,8 @@ impl Service {
         exam_dto: UpdateExamDto,
     ) -> Result<(StatusCode, Json<Exam>), ApiError> {
         let (_, Json(exam)) = self.get_exam(id).await?;
-        let updated_exam = Exam::new(
+        let updated_exam = Exam::with_id(
+            id,
             exam_dto.fk_num_dossier.unwrap_or(exam.fk_num_dossier),
             exam_dto.fk_id_epreuve.unwrap_or(exam.fk_id_epreuve),
             exam_dto

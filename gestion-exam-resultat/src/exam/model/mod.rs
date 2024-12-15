@@ -27,6 +27,17 @@ impl Exam {
             updated_at: None,
         }
     }
+
+    pub fn with_id(id: i32, fk_num_dossier: i32, fk_id_epreuve: i32, fk_id_test_analyse: i32) -> Exam {
+        Exam {
+            id,
+            fk_num_dossier,
+            fk_id_epreuve,
+            fk_id_test_analyse,
+            created_at: chrono::Utc::now(),
+            updated_at: None,
+        }
+    }
 }
 
 impl TryFrom<PgRow> for Exam {

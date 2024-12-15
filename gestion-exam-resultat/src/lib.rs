@@ -313,10 +313,11 @@ mod test {
             mock.expect_update()
                 .withf(|exam: &Exam| {
                     (
+                        exam.id,
                         exam.fk_num_dossier,
                         exam.fk_id_epreuve,
                         exam.fk_id_test_analyse,
-                    ) == (4, 5, 6)
+                    ) == (1, 4, 5, 6)
                 })
                 .return_once(move |_exam: &Exam| Ok(exam.clone()));
         }
