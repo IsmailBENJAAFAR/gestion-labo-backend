@@ -9,7 +9,7 @@ use axum::{
 use dotenvy::dotenv;
 use exam::dao::ExamDao;
 use message_queue::QueueMessage;
-use sqlx::postgres::PgPoolOptions;
+use sqlx::{migrate::MigrateDatabase, postgres::PgPoolOptions};
 use std::sync::Arc;
 use tokio::{
     net::TcpListener,
@@ -47,11 +47,22 @@ pub async fn run_app() -> anyhow::Result<()> {
         Err(_) => tracing::error!("Warning: .env file not found."),
     };
     let url = std::env::var("DATABASE_URL").context("Please set DATABASE_URL for database")?;
+
+    if !sqlx::Postgres::database_exists(&url).await? {
+        if let Err(e) = sqlx::Postgres::create_database(&url).await {
+            tracing::error!("error creating database: {e}");
+        }
+    }
+
     let pool = PgPoolOptions::new()
         .max_connections(5)
         .connect(&url)
         .await
         .context("can't connect to database")?;
+
+    if let Err(e) = sqlx::migrate!("./migrations/").run(&pool).await {
+        tracing::error!("error migrating: {e}");
+    }
 
     let exam_dao = ExamDao::new(pool);
     let exam_service = Arc::new(exam::service::Service::new(Arc::new(exam_dao)));
