@@ -142,7 +142,6 @@ mod test {
 
     #[tokio::test]
     async fn test_exam_controller() -> Result<()> {
-        // TODO: Test all 5 routes
         let mut mock_dao: MockDao<Exam> = MockDao::new();
         let exam = Exam::new(1, 1, 1);
         {
@@ -160,6 +159,7 @@ mod test {
                 .with(eq(1))
                 .return_once(move |_| Ok(exam.clone()));
         }
+        mock_dao.expect_remove().return_once(|_| Ok(true));
 
         let service = service::Service::new(Arc::new(mock_dao));
         let (tx, _) = tokio::sync::mpsc::channel(1);
@@ -226,7 +226,25 @@ mod test {
         let post_exam_value: Value = serde_json::to_value(post_exam)?;
         assert_eq!(body.get("dossierId"), post_exam_value.get("dossierId"));
         assert_eq!(body.get("epreuveId"), post_exam_value.get("epreuveId"));
-        assert_eq!(body.get("testAnalyseId"), post_exam_value.get("testAnalyseId"));
+        assert_eq!(
+            body.get("testAnalyseId"),
+            post_exam_value.get("testAnalyseId")
+        );
+
+        let response = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .uri("/api/v1/examens/1")
+                    .method("DELETE")
+                    .header("Content-Type", "application/json")
+                    .body(Body::from(serde_json::to_string(&exam.clone())?))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::NO_CONTENT);
 
         Ok(())
     }
