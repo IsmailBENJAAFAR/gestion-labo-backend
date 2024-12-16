@@ -141,9 +141,9 @@ mod test {
 
     #[tokio::test]
     async fn test_exam_controller() -> Result<()> {
+        // TODO: Test all 5 routes
         let mut mock_dao: MockDao<Exam> = MockDao::new();
         let exam = Exam::new(1, 1, 1);
-
         {
             let exam = exam.clone();
             mock_dao
@@ -151,16 +151,23 @@ mod test {
                 .times(1)
                 .returning(move || Ok(vec![exam.clone()]));
         }
+        {
+            let exam = exam.clone();
+            mock_dao
+                .expect_find()
+                .with(eq(1))
+                .return_once(move |_| Ok(exam.clone()));
+        }
 
         let service = service::Service::new(Arc::new(mock_dao));
-
+        let (tx, _) = tokio::sync::mpsc::channel(1);
         let app = app(AppState {
             exam_service: service.into(),
-            // message queue not meant to be tested here
-            mess_queue_channel: tokio::sync::mpsc::channel(1).0.into(),
+            mess_queue_channel: Arc::new(tx),
         });
 
         let response = app
+            .clone()
             .oneshot(
                 Request::builder()
                     .uri("/api/v1/examens")
@@ -172,7 +179,23 @@ mod test {
 
         assert_eq!(response.status(), StatusCode::OK);
         let body = response.into_body().collect().await.unwrap().to_bytes();
-        let expected = serde_json::to_string(&vec![exam])?;
+        let expected = serde_json::to_string(&vec![exam.clone()])?;
+        assert_eq!(&body[..], expected.as_bytes());
+
+        let response = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .uri("/api/v1/examens/1")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = response.into_body().collect().await.unwrap().to_bytes();
+        let expected = serde_json::to_string(&exam)?;
         assert_eq!(&body[..], expected.as_bytes());
 
         Ok(())

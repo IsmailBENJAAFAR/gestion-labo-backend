@@ -6,7 +6,7 @@ use axum::Json;
 use tokio::sync::mpsc::Sender;
 
 use crate::dao::interface::Dao;
-use crate::message_queue::{QueueMessage, QueueType};
+use crate::message_queue::{QueueMessage, QueueType::Point};
 
 use super::api_error::ApiError;
 use super::dto::{CreateExamDto, UpdateExamDto};
@@ -99,7 +99,7 @@ impl Service {
         match self.dao.remove(id).await {
             Ok(true) => {
                 let queue_message = QueueMessage {
-                    msg_type: QueueType::Point,
+                    msg_type: Point,
                     message: "delete exam".into(),
                 };
                 if let Err(e) = queue.send(queue_message).await {
