@@ -151,6 +151,7 @@ mod test {
                 .times(1)
                 .returning(move || Ok(vec![exam.clone()]));
         }
+        mock_dao.expect_insert().return_once(move |_| Ok(1));
         {
             let exam = exam.clone();
             mock_dao
@@ -197,6 +198,20 @@ mod test {
         let body = response.into_body().collect().await.unwrap().to_bytes();
         let expected = serde_json::to_string(&exam)?;
         assert_eq!(&body[..], expected.as_bytes());
+
+        let response = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .uri("/api/v1/examens")
+                    .method("POST")
+                    .header("Content-Type", "application/json")
+                    .body(Body::from(serde_json::to_string(&exam.clone())?))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::CREATED);
 
         Ok(())
     }
