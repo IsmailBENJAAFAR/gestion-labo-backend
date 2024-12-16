@@ -13,6 +13,7 @@ pub struct Exam {
     pub fk_id_test_analyse: i32,
     #[serde(rename = "createdAt")]
     pub created_at: chrono::DateTime<chrono::Utc>,
+    #[serde(rename = "updatedAt")]
     pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
 }
 

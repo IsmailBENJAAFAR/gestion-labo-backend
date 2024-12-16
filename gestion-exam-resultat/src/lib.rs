@@ -129,6 +129,7 @@ mod test {
     };
     use http_body_util::BodyExt;
     use mockall::predicate::eq;
+    use serde_json::Value;
     use sqlx::postgres::PgPoolOptions;
     use std::sync::Arc;
     use testcontainers::{
@@ -211,7 +212,21 @@ mod test {
             )
             .await
             .unwrap();
+
+        let post_exam = Exam::with_id(
+            1,
+            exam.fk_num_dossier,
+            exam.fk_id_epreuve,
+            exam.fk_id_test_analyse,
+        );
+
         assert_eq!(response.status(), StatusCode::CREATED);
+        let body = response.into_body().collect().await.unwrap().to_bytes();
+        let body: Value = serde_json::from_slice(&body).unwrap();
+        let post_exam_value: Value = serde_json::to_value(post_exam)?;
+        assert_eq!(body.get("dossierId"), post_exam_value.get("dossierId"));
+        assert_eq!(body.get("epreuveId"), post_exam_value.get("epreuveId"));
+        assert_eq!(body.get("testAnalyseId"), post_exam_value.get("testAnalyseId"));
 
         Ok(())
     }
