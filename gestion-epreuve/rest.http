@@ -1,20 +1,19 @@
-POST http://localhost:8080/api/v1/epreuve
+POST http://localhost:8080/api/v1/epreuves
 Content-Type: application/json
 
 {
-	"dossierId": 2,
-	"epreuveId": 4,
-	"testAnalyseId": 3
+	"nom": "math",
+	"analyseId": 3
 }
 
 ###
 
-GET http://localhost:8080/api/v1/epreuve
+GET http://localhost:8080/api/v1/epreuves
 
 ###
 
-GET http://localhost:8080/api/v1/epreuve/2
+GET http://localhost:8080/api/v1/epreuves/2
 
 ###
 
-DELETE http://localhost:8080/api/v1/epreuve/2
+DELETE http://localhost:8080/api/v1/epreuves/2

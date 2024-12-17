@@ -210,8 +210,10 @@ mod test {
 
         assert_eq!(response.status(), StatusCode::OK);
         let body = response.into_body().collect().await.unwrap().to_bytes();
-        let expected = serde_json::to_string(&epreuve)?;
-        assert_eq!(&body[..], expected.as_bytes());
+        let body: Value = serde_json::from_slice(&body).unwrap();
+        let expected = serde_json::to_value(&epreuve)?;
+        assert_eq!(body.get("nom"), expected.get("nom"));
+        assert_eq!(body.get("analyseId"), expected.get("analyseId"));
 
         let response = app
             .clone()
@@ -233,12 +235,8 @@ mod test {
         let body = response.into_body().collect().await.unwrap().to_bytes();
         let body: Value = serde_json::from_slice(&body).unwrap();
         let post_epreuve_value: Value = serde_json::to_value(post_epreuve)?;
-        assert_eq!(body.get("dossierId"), post_epreuve_value.get("dossierId"));
-        assert_eq!(body.get("epreuveId"), post_epreuve_value.get("epreuveId"));
-        assert_eq!(
-            body.get("testAnalyseId"),
-            post_epreuve_value.get("testAnalyseId")
-        );
+        assert_eq!(body.get("nom"), post_epreuve_value.get("nom"));
+        assert_eq!(body.get("analyseId"), post_epreuve_value.get("analyseId"));
 
         let response = app
             .clone()

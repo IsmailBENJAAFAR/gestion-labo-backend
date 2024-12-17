@@ -3,14 +3,14 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CreateEpreuveDto {
     pub nom: String,
-    #[serde(rename = "testAnalyseId")]
+    #[serde(rename = "analyseId")]
     pub fk_id_analyse: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UpdateEpreuveDto {
     pub nom: Option<String>,
-    #[serde(rename = "testAnalyseId")]
+    #[serde(rename = "analyseId")]
     pub fk_id_analyse: Option<i32>,
 }
 
