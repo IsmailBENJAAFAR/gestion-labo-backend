@@ -1,9 +1,0 @@
-services:
-  db:
-    image: postgres:17.0
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_DB: epreuve_db
-      POSTGRES_USER: testuser
-      POSTGRES_PASSWORD: testpassword
