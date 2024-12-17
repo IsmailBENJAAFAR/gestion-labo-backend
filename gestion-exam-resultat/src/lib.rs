@@ -8,7 +8,7 @@ use axum::{
 };
 use dotenvy::dotenv;
 use exam::dao::ExamDao;
-use message_queue::QueueMessage;
+use message_queue::{QueueInstance, QueueMessage};
 use sqlx::{migrate::MigrateDatabase, postgres::PgPoolOptions};
 use std::sync::Arc;
 use tokio::{
@@ -86,8 +86,9 @@ pub async fn run_app() -> anyhow::Result<()> {
 }
 
 fn run_message_queue_handler(rx: Receiver<QueueMessage>) {
-    message_queue::init_queue();
-    tokio::spawn(message_queue::run_queue(rx));
+    tokio::spawn(async move {
+        QueueInstance::new().run(rx).await;
+    });
 }
 
 fn app(state: AppState) -> Router {

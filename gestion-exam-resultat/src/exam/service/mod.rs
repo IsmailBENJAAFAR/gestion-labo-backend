@@ -6,7 +6,7 @@ use axum::Json;
 use tokio::sync::mpsc::Sender;
 
 use crate::dao::interface::Dao;
-use crate::message_queue::{QueueMessage, QueueType::Point};
+use crate::message_queue::{QueueMessage, EventType::Point};
 
 use super::api_error::ApiError;
 use super::dto::{CreateExamDto, UpdateExamDto};
