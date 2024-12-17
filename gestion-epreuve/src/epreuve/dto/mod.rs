@@ -15,15 +15,18 @@ pub struct UpdateEpreuveDto {
 }
 
 impl CreateEpreuveDto {
-    pub fn new(nom: String, fk_id_analyse: i32) -> CreateEpreuveDto {
-        CreateEpreuveDto { nom, fk_id_analyse }
+    pub fn new(nom: &str, fk_id_analyse: i32) -> CreateEpreuveDto {
+        CreateEpreuveDto {
+            nom: nom.to_string(),
+            fk_id_analyse,
+        }
     }
 }
 
 impl UpdateEpreuveDto {
-    pub fn new(nom: String, fk_id_analyse: i32) -> UpdateEpreuveDto {
+    pub fn new(nom: &str, fk_id_analyse: i32) -> UpdateEpreuveDto {
         UpdateEpreuveDto {
-            nom: Some(nom),
+            nom: Some(nom.to_string()),
             fk_id_analyse: Some(fk_id_analyse),
         }
     }

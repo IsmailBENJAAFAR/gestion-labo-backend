@@ -6,7 +6,7 @@ use axum::Json;
 use tokio::sync::mpsc::Sender;
 
 use crate::dao::interface::Dao;
-use crate::message_queue::{QueueMessage, EventType::Point};
+use crate::message_queue::{EventType::Point, QueueMessage};
 
 use super::api_error::ApiError;
 use super::dto::{CreateEpreuveDto, UpdateEpreuveDto};
@@ -21,77 +21,70 @@ impl Service {
         Service { dao }
     }
 
-    pub async fn create_exam(
+    pub async fn create_epreuve(
         &self,
-        exam: CreateEpreuveDto,
+        epreuve: CreateEpreuveDto,
     ) -> Result<(StatusCode, Json<Epreuve>), ApiError> {
-        let exam = Epreuve::new(
-            exam.fk_num_dossier,
-            exam.fk_id_epreuve,
-            exam.fk_id_test_analyse,
-        );
-        match self.dao.insert(&exam).await {
-            Ok(id) => Ok((StatusCode::CREATED, Json(Epreuve { id, ..exam }))),
+        let epreuve = Epreuve::new(&epreuve.nom, epreuve.fk_id_analyse);
+        match self.dao.insert(&epreuve).await {
+            Ok(id) => Ok((StatusCode::CREATED, Json(Epreuve { id, ..epreuve }))),
             Err(e) => {
-                tracing::error!("exam wasn't created: {exam:?}, error: {e}");
-                Err(ApiError::new(anyhow!("error: couldn't create exam")))
+                tracing::error!("epreuve wasn't created: {epreuve:?}, error: {e}");
+                Err(ApiError::new(anyhow!("error: couldn't create epreuve")))
             }
         }
     }
 
-    pub async fn get_exam(&self, id: i32) -> Result<(StatusCode, Json<Epreuve>), ApiError> {
-        let exam = match self.dao.find(id).await {
-            Ok(exam) => exam,
+    pub async fn get_epreuve(&self, id: i32) -> Result<(StatusCode, Json<Epreuve>), ApiError> {
+        let epreuve = match self.dao.find(id).await {
+            Ok(epreuve) => epreuve,
             Err(e) => {
-                tracing::error!("exam not found with id: {id}, error: {e}");
+                tracing::error!("epreuve not found with id: {id}, error: {e}");
                 Err(ApiError::with_status(
-                    anyhow!("exam not found with id: {id}"),
+                    anyhow!("epreuve not found with id: {id}"),
                     StatusCode::NOT_FOUND,
                 ))?
             }
         };
-        Ok((StatusCode::OK, Json(exam)))
+        Ok((StatusCode::OK, Json(epreuve)))
     }
 
-    pub async fn get_exams(&self) -> Result<(StatusCode, Json<Vec<Epreuve>>), ApiError> {
-        let exams = match self.dao.find_all().await {
-            Ok(exams) => exams,
+    pub async fn get_epreuves(&self) -> Result<(StatusCode, Json<Vec<Epreuve>>), ApiError> {
+        let epreuves = match self.dao.find_all().await {
+            Ok(epreuves) => epreuves,
             Err(e) => {
-                tracing::error!("couldn't fetch exams: {e}");
-                Err(ApiError::new(anyhow!("couldn't fetch exams")))?
+                tracing::error!("couldn't fetch epreuves: {e}");
+                Err(ApiError::new(anyhow!("couldn't fetch epreuves")))?
             }
         };
-        Ok((StatusCode::OK, Json(exams)))
+        Ok((StatusCode::OK, Json(epreuves)))
     }
 
-    pub async fn update_exam(
+    pub async fn update_epreuve(
         &self,
         id: i32,
-        exam_dto: UpdateEpreuveDto,
+        epreuve_dto: UpdateEpreuveDto,
     ) -> Result<(StatusCode, Json<Epreuve>), ApiError> {
-        let (_, Json(exam)) = self.get_exam(id).await?;
-        let updated_exam = Epreuve::with_id(
+        let (_, Json(epreuve)) = self.get_epreuve(id).await?;
+        let updated_epreuve = Epreuve::with_id(
             id,
-            exam_dto.fk_num_dossier.unwrap_or(exam.fk_num_dossier),
-            exam_dto.fk_id_epreuve.unwrap_or(exam.fk_id_epreuve),
-            exam_dto
-                .fk_id_test_analyse
-                .unwrap_or(exam.fk_id_test_analyse),
+            &epreuve_dto.nom.unwrap_or(epreuve.nom),
+            epreuve_dto.fk_id_analyse.unwrap_or(epreuve.fk_id_analyse),
         );
 
-        match self.dao.update(&updated_exam).await {
-            Ok(exam) => Ok((StatusCode::OK, Json(exam))),
+        match self.dao.update(&updated_epreuve).await {
+            Ok(epreuve) => Ok((StatusCode::OK, Json(epreuve))),
             Err(e) => {
-                tracing::error!("exam with id: {id}, hasn't been updated: {e}");
+                tracing::error!("epreuve with id: {id}, hasn't been updated: {e}");
                 Err(ApiError::with_status(
-                    anyhow!("exam not found"),
+                    anyhow!("epreuve not found"),
                     StatusCode::BAD_REQUEST,
                 ))
             }
         }
     }
 
-    pub async fn delete_exam(
+    pub async fn delete_epreuve(
         &self,
         id: i32,
         queue: Arc<Sender<QueueMessage>>,
@@ -100,7 +93,7 @@ impl Service {
             Ok(true) => {
                 let queue_message = QueueMessage {
                     msg_type: Point,
-                    message: "delete exam".into(),
+                    message: "delete epreuve".into(),
                 };
                 if let Err(e) = queue.send(queue_message).await {
                     tracing::error!("{e}")
@@ -108,16 +101,16 @@ impl Service {
                 Ok(StatusCode::NO_CONTENT)
             }
             Ok(false) => {
-                tracing::error!("attempt to delete exam with id: {id}");
+                tracing::error!("attempt to delete epreuve with id: {id}");
                 Err(ApiError::with_status(
-                    anyhow!("error: examen has not been deleted"),
+                    anyhow!("error: epreuveen has not been deleted"),
                     StatusCode::BAD_REQUEST,
                 ))?
             }
             Err(e) => {
-                tracing::error!("failed to delete exam with id: {id}, error: {e}");
+                tracing::error!("failed to delete epreuve with id: {id}, error: {e}");
                 Err(ApiError::with_status(
-                    anyhow!("error: exam not found"),
+                    anyhow!("error: epreuve not found"),
                     StatusCode::BAD_REQUEST,
                 ))?
             }
