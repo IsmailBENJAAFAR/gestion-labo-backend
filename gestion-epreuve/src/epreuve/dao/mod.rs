@@ -3,62 +3,61 @@ use axum::async_trait;
 use sqlx::Row;
 use sqlx::{Pool, Postgres};
 
-use crate::{dao::interface::Dao, exam::model::Exam};
+use crate::{dao::interface::Dao, epreuve::model::Epreuve};
 
 #[derive(Clone)]
-pub struct ExamDao {
+pub struct EpreuveDao {
     pool: Pool<Postgres>,
 }
 
-impl ExamDao {
-    pub fn new(pool: Pool<Postgres>) -> ExamDao {
-        ExamDao { pool }
+impl EpreuveDao {
+    pub fn new(pool: Pool<Postgres>) -> EpreuveDao {
+        EpreuveDao { pool }
     }
 }
 
 #[async_trait]
-impl Dao<Exam> for ExamDao {
-    async fn find(&self, id: i32) -> Result<Exam> {
+impl Dao<Epreuve> for EpreuveDao {
+    async fn find(&self, id: i32) -> Result<Epreuve> {
         let res = sqlx::query("SELECT * from exam WHERE id = $1")
             .bind(id)
             .fetch_one(&self.pool)
             .await?;
-        let exam = Exam::try_from(res)?;
+        let exam = Epreuve::try_from(res)?;
 
         Ok(exam)
     }
 
-    async fn insert(&self, data: &Exam) -> Result<i32> {
-        let res =
-            sqlx::query("INSERT INTO exam (fk_num_dossier, fk_id_epreuve, fk_id_test_analyse, created_at) VALUES ($1, $2, $3, $4) RETURNING id")
-                .bind(data.fk_num_dossier)
-                .bind(data.fk_id_epreuve)
-                .bind(data.fk_id_test_analyse)
-                .bind(data.created_at)
-                .fetch_one(&self.pool)
-                .await?;
+    async fn insert(&self, data: &Epreuve) -> Result<i32> {
+        let res = sqlx::query(
+            "INSERT INTO epreuve (nom, fk_id_analyse, created_at) VALUES ($1, $2, $3) RETURNING id",
+        )
+        .bind(&data.nom)
+        .bind(data.fk_id_analyse)
+        .bind(data.created_at)
+        .fetch_one(&self.pool)
+        .await?;
         let id: i32 = res.try_get("id")?;
         Ok(id)
     }
 
-    async fn update(&self, data: &Exam) -> Result<Exam> {
+    async fn update(&self, data: &Epreuve) -> Result<Epreuve> {
         let updated_at = chrono::Utc::now();
-        let res = sqlx::query("UPDATE exam SET fk_num_dossier = $1, fk_id_epreuve = $2, fk_id_test_analyse = $3, updated_at = $4 WHERE id = $5 RETURNING *")
-            .bind(data.fk_num_dossier)
-            .bind(data.fk_id_epreuve)
-            .bind(data.fk_id_test_analyse)
+        let res = sqlx::query("UPDATE epreuve SET nom = $1, fk_id_analyse = $2, updated_at = $3 WHERE id = $4 RETURNING *")
+            .bind(&data.nom)
+            .bind(data.fk_id_analyse)
             .bind(updated_at)
             .bind(data.id)
             .fetch_one(&self.pool)
             .await?;
 
-        let exam = Exam::try_from(res)?;
+        let epreuve = Epreuve::try_from(res)?;
 
-        Ok(exam)
+        Ok(epreuve)
     }
 
     async fn remove(&self, id: i32) -> Result<bool> {
-        let res = sqlx::query("DELETE FROM exam WHERE id = $1")
+        let res = sqlx::query("DELETE FROM epreuve WHERE id = $1")
             .bind(id)
             .execute(&self.pool)
             .await?;
@@ -66,15 +65,15 @@ impl Dao<Exam> for ExamDao {
         Ok(res.rows_affected() == 1)
     }
 
-    async fn find_all(&self) -> Result<Vec<Exam>> {
+    async fn find_all(&self) -> Result<Vec<Epreuve>> {
         let res = sqlx::query("SELECT * FROM exam")
             .fetch_all(&self.pool)
             .await?;
-        let mut exams: Vec<Exam> = Vec::new();
+        let mut epreuves: Vec<Epreuve> = Vec::new();
         for entry in res {
-            exams.push(Exam::try_from(entry)?);
+            epreuves.push(Epreuve::try_from(entry)?);
         }
 
-        Ok(exams)
+        Ok(epreuves)
     }
 }

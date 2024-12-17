@@ -9,7 +9,7 @@ use tokio::sync::mpsc::Sender;
 
 use crate::{exam::dto::CreateExamDto, message_queue::QueueMessage};
 
-use super::{dto::UpdateExamDto, service};
+use super::{dto::UpdateEpreuveDto, service};
 
 pub async fn get_exams(State(service): State<Arc<service::Service>>) -> impl IntoResponse {
     service.get_exams().await
@@ -32,7 +32,7 @@ pub async fn create_exam(
 pub async fn update_exam(
     State(service): State<Arc<service::Service>>,
     Path(id): Path<i32>,
-    Json(data): Json<UpdateExamDto>,
+    Json(data): Json<UpdateEpreuveDto>,
 ) -> impl IntoResponse {
     service.update_exam(id, data).await
 }

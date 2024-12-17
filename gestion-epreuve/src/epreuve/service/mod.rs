@@ -9,29 +9,29 @@ use crate::dao::interface::Dao;
 use crate::message_queue::{QueueMessage, EventType::Point};
 
 use super::api_error::ApiError;
-use super::dto::{CreateExamDto, UpdateExamDto};
-use super::model::Exam;
+use super::dto::{CreateEpreuveDto, UpdateEpreuveDto};
+use super::model::Epreuve;
 
 pub struct Service {
-    pub dao: Arc<dyn Dao<Exam> + Sync + Send + 'static>,
+    pub dao: Arc<dyn Dao<Epreuve> + Sync + Send + 'static>,
 }
 
 impl Service {
-    pub fn new(dao: Arc<dyn Dao<Exam> + Sync + Send + 'static>) -> Service {
+    pub fn new(dao: Arc<dyn Dao<Epreuve> + Sync + Send + 'static>) -> Service {
         Service { dao }
     }
 
     pub async fn create_exam(
         &self,
-        exam: CreateExamDto,
-    ) -> Result<(StatusCode, Json<Exam>), ApiError> {
-        let exam = Exam::new(
+        exam: CreateEpreuveDto,
+    ) -> Result<(StatusCode, Json<Epreuve>), ApiError> {
+        let exam = Epreuve::new(
             exam.fk_num_dossier,
             exam.fk_id_epreuve,
             exam.fk_id_test_analyse,
         );
         match self.dao.insert(&exam).await {
-            Ok(id) => Ok((StatusCode::CREATED, Json(Exam { id, ..exam }))),
+            Ok(id) => Ok((StatusCode::CREATED, Json(Epreuve { id, ..exam }))),
             Err(e) => {
                 tracing::error!("exam wasn't created: {exam:?}, error: {e}");
                 Err(ApiError::new(anyhow!("error: couldn't create exam")))
@@ -39,7 +39,7 @@ impl Service {
         }
     }
 
-    pub async fn get_exam(&self, id: i32) -> Result<(StatusCode, Json<Exam>), ApiError> {
+    pub async fn get_exam(&self, id: i32) -> Result<(StatusCode, Json<Epreuve>), ApiError> {
         let exam = match self.dao.find(id).await {
             Ok(exam) => exam,
             Err(e) => {
@@ -53,7 +53,7 @@ impl Service {
         Ok((StatusCode::OK, Json(exam)))
     }
 
-    pub async fn get_exams(&self) -> Result<(StatusCode, Json<Vec<Exam>>), ApiError> {
+    pub async fn get_exams(&self) -> Result<(StatusCode, Json<Vec<Epreuve>>), ApiError> {
         let exams = match self.dao.find_all().await {
             Ok(exams) => exams,
             Err(e) => {
@@ -67,10 +67,10 @@ impl Service {
     pub async fn update_exam(
         &self,
         id: i32,
-        exam_dto: UpdateExamDto,
-    ) -> Result<(StatusCode, Json<Exam>), ApiError> {
+        exam_dto: UpdateEpreuveDto,
+    ) -> Result<(StatusCode, Json<Epreuve>), ApiError> {
         let (_, Json(exam)) = self.get_exam(id).await?;
-        let updated_exam = Exam::with_id(
+        let updated_exam = Epreuve::with_id(
             id,
             exam_dto.fk_num_dossier.unwrap_or(exam.fk_num_dossier),
             exam_dto.fk_id_epreuve.unwrap_or(exam.fk_id_epreuve),

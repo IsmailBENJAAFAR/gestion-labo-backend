@@ -1,41 +1,30 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct CreateExamDto {
-    #[serde(rename = "dossierId")]
-    pub fk_num_dossier: i32,
-    #[serde(rename = "epreuveId")]
-    pub fk_id_epreuve: i32,
+pub struct CreateEpreuveDto {
+    pub nom: String,
     #[serde(rename = "testAnalyseId")]
-    pub fk_id_test_analyse: i32,
+    pub fk_id_analyse: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct UpdateExamDto {
-    #[serde(rename = "dossierId")]
-    pub fk_num_dossier: Option<i32>,
-    #[serde(rename = "epreuveId")]
-    pub fk_id_epreuve: Option<i32>,
+pub struct UpdateEpreuveDto {
+    pub nom: Option<String>,
     #[serde(rename = "testAnalyseId")]
-    pub fk_id_test_analyse: Option<i32>,
+    pub fk_id_analyse: Option<i32>,
 }
 
-impl CreateExamDto {
-    pub fn new(fk_num_dossier: i32, fk_id_epreuve: i32, fk_id_test_analyse: i32) -> CreateExamDto {
-        CreateExamDto {
-            fk_num_dossier,
-            fk_id_epreuve,
-            fk_id_test_analyse,
-        }
+impl CreateEpreuveDto {
+    pub fn new(nom: String, fk_id_analyse: i32) -> CreateEpreuveDto {
+        CreateEpreuveDto { nom, fk_id_analyse }
     }
 }
 
-impl UpdateExamDto {
-    pub fn new(fk_num_dossier: i32, fk_id_epreuve: i32, fk_id_test_analyse: i32) -> UpdateExamDto {
-        UpdateExamDto {
-            fk_num_dossier: Some(fk_num_dossier),
-            fk_id_epreuve: Some(fk_id_epreuve),
-            fk_id_test_analyse: Some(fk_id_test_analyse),
+impl UpdateEpreuveDto {
+    pub fn new(nom: String, fk_id_analyse: i32) -> UpdateEpreuveDto {
+        UpdateEpreuveDto {
+            nom: Some(nom),
+            fk_id_analyse: Some(fk_id_analyse),
         }
     }
 }

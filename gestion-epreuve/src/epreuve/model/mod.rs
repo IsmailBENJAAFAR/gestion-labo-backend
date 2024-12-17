@@ -3,52 +3,46 @@ use sqlx::postgres::PgRow;
 use sqlx::Row;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub struct Exam {
+pub struct Epreuve {
     pub id: i32,
-    #[serde(rename = "dossierId")]
-    pub fk_num_dossier: i32,
-    #[serde(rename = "epreuveId")]
-    pub fk_id_epreuve: i32,
-    #[serde(rename = "testAnalyseId")]
-    pub fk_id_test_analyse: i32,
+    pub nom: String,
+    #[serde(rename = "analyseId")]
+    pub fk_id_analyse: i32,
     #[serde(rename = "createdAt")]
     pub created_at: chrono::DateTime<chrono::Utc>,
     #[serde(rename = "updatedAt")]
     pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
 }
 
-impl Exam {
-    pub fn new(fk_num_dossier: i32, fk_id_epreuve: i32, fk_id_test_analyse: i32) -> Exam {
-        Exam {
+impl Epreuve {
+    pub fn new(nom: &str, fk_id_analyse: i32) -> Epreuve {
+        Epreuve {
             id: 0,
-            fk_num_dossier,
-            fk_id_epreuve,
-            fk_id_test_analyse,
+            nom: nom.to_string(),
+            fk_id_analyse,
             created_at: chrono::Utc::now(),
             updated_at: None,
         }
     }
 
-    pub fn with_id(id: i32, fk_num_dossier: i32, fk_id_epreuve: i32, fk_id_test_analyse: i32) -> Exam {
-        Exam {
+    pub fn with_id(id: i32, nom: &str, fk_id_analyse: i32) -> Epreuve {
+        Epreuve {
             id,
-            fk_num_dossier,
-            fk_id_epreuve,
-            fk_id_test_analyse,
+            nom: nom.to_string(),
+            fk_id_analyse,
             created_at: chrono::Utc::now(),
             updated_at: None,
         }
     }
 }
 
-impl TryFrom<PgRow> for Exam {
+impl TryFrom<PgRow> for Epreuve {
     type Error = anyhow::Error;
     fn try_from(row: PgRow) -> std::result::Result<Self, Self::Error> {
-        Ok(Exam {
+        Ok(Epreuve {
             id: row.try_get("id")?,
-            fk_num_dossier: row.try_get("fk_num_dossier")?,
-            fk_id_epreuve: row.try_get("fk_id_epreuve")?,
-            fk_id_test_analyse: row.try_get("fk_id_test_analyse")?,
+            nom: row.try_get("nom")?,
+            fk_id_analyse: row.try_get("fk_id_analyse")?,
             created_at: row.try_get("created_at")?,
             updated_at: row.try_get("updated_at")?,
         })
