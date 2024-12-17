@@ -112,19 +112,21 @@ public class TestAnalyseService {
 
     @Test
     void testUpdateAnalyseWithValidId() {
-        Analyse analyseOld = new Analyse(1L, "xxMRIxx", new String(new byte[100]), 3L);
-        Optional<Analyse> analyse = Optional.of(new Analyse(null, "MRI", new String(new byte[1000]), 2L));
-        BDDMockito.when(analyseRepository.findById(analyseOld.getId())).thenReturn(analyse);
-        ResponseEntity<ApiResponse> response = analyseService.updateAnalyse(analyseOld.getId(), analyseOld);
-        assertEquals("Analyse updated successfully", response.getBody().getMessage());
+        Analyse analyseNew = new Analyse(null, "xxMRIxx", new String(new byte[100]), 3L);
+        Analyse analyse = new Analyse(1L, "MRI", new String(new byte[1000]), 2L);
+        BDDMockito.when(analyseRepository.findById(analyse.getId())).thenReturn(Optional.of(analyse));
+        ResponseEntity<ApiResponse> response = analyseService.updateAnalyse(analyse.getId(), analyseNew);
+        // analyse should be updated
+        assertEquals(new AnalyseDTO(analyse), response.getBody().getMessage());
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
     void testUpdateAnalyseWithNonValidId() {
-        Analyse analyseOld = new Analyse(1L, "xxMRIxx", new String(new byte[100]), 3L);
-        BDDMockito.when(analyseRepository.findById(analyseOld.getId())).thenReturn(Optional.empty());
-        ResponseEntity<ApiResponse> response = analyseService.updateAnalyse(analyseOld.getId(), analyseOld);
+        Analyse analyseNew = new Analyse(null, "xxMRIxx", new String(new byte[100]), 3L);
+        Long id = 1L;
+        BDDMockito.when(analyseRepository.findById(id)).thenReturn(Optional.empty());
+        ResponseEntity<ApiResponse> response = analyseService.updateAnalyse(id, analyseNew);
         assertEquals("Analyse not found", response.getBody().getMessage());
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }

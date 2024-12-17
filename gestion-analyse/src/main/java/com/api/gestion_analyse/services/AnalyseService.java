@@ -76,7 +76,7 @@ public class AnalyseService {
             analyseOld.setFkIdLaboratoire(analyse.getFkIdLaboratoire() != null ? analyse.getFkIdLaboratoire()
                     : analyseOld.getFkIdLaboratoire());
 
-            return new ResponseEntity<>(new ApiResponse("Analyse updated successfully"), HttpStatus.OK);
+            return new ResponseEntity<>(new ApiResponse(new AnalyseDTO(analyseOld)), HttpStatus.OK);
         }).orElseGet(() -> {
             return new ResponseEntity<>(new ApiResponse("Analyse not found"), HttpStatus.NOT_FOUND);
         });
