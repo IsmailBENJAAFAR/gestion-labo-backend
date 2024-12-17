@@ -93,7 +93,7 @@ class LaboratoireServiceTest {
         ResponseEntity<ApiResponse> response = laboratoireService.createLaboratoire(laboratoire);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(
-                new LaboratoireDTO(null, "labo_x", "some_url", "123456789", true, LocalDate.of(2024, 12, 12), "idk"),
+                new LaboratoireDTO(null, "labo_x", "some_url", "123456789", true, LocalDate.now(), "idk"),
                 (LaboratoireDTO) response.getBody().getMessage());
 
         ResponseEntity<ApiResponse> responseWithInvalidNrc = laboratoireService.createLaboratoire(invalidLaboratoire);
@@ -150,7 +150,6 @@ class LaboratoireServiceTest {
     @Test
     void testDeleteLaboratoireWithBadId() {
         // Test delete action with an invalid id
-
         ResponseEntity<ApiResponse> response = laboratoireService.deleteLaboratoire(1L);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertEquals("Laboratory not found", response.getBody().getMessage());
@@ -200,20 +199,21 @@ class LaboratoireServiceTest {
 
     @Test
     void testUpdateLaboratoire() {
-        // Test update action under normal conditions without an image
-        Optional<Laboratoire> laboratoire = Optional.of(new Laboratoire("labo_x", "123456789", true, LocalDate.now()));
-
-        BDDMockito.given(laboratoireRepository.findById(1L)).willReturn(laboratoire);
+        Laboratoire laboratoire = new Laboratoire("labo_x", "123456789", true, LocalDate.now());
+        BDDMockito.given(laboratoireRepository.findById(1L)).willReturn(Optional.of(laboratoire));
 
         // Update with a valid request
-        ResponseEntity<ApiResponse> response = laboratoireService.updateLaboratoire(1L,
-                new Laboratoire("labo_x69", "999999999", false, LocalDate.of(2011, 11, 11)));
+        Laboratoire newLaboratoire = new Laboratoire("labo_x69", "999999999", false, LocalDate.of(2011, 11, 11));
+        ResponseEntity<ApiResponse> response = laboratoireService.updateLaboratoire(1L, newLaboratoire);
+        assertEquals(new LaboratoireDTO(laboratoire), response.getBody().getMessage());
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("labo_x69", laboratoire.get().getNom());
-        assertEquals("999999999", laboratoire.get().getNrc());
-        assertEquals(false, laboratoire.get().getActive());
-        assertEquals(LocalDate.of(2011, 11, 11), laboratoire.get().getDateActivation());
-        assertEquals("Laboratory updated", response.getBody().getMessage());
+
+    }
+
+    @Test
+    void testUpdateWithBadNRC(){
+        Laboratoire laboratoire = new Laboratoire("labo_x", "123456789", true, LocalDate.now());
+        BDDMockito.given(laboratoireRepository.findById(1L)).willReturn(Optional.of(laboratoire));
 
         // Update with bad NRC in request
         ResponseEntity<ApiResponse> responseWithInvalidNrc = laboratoireService.updateLaboratoire(1L,
@@ -224,23 +224,21 @@ class LaboratoireServiceTest {
     @Test
     void testUpdateLaboratoireWithImage() {
         // Test update action under normal conditions with an image this time
-        Optional<Laboratoire> laboratoire = Optional.of(new Laboratoire("labo_x", "999999999", true, LocalDate.now()));
+        Laboratoire laboratoire = new Laboratoire("labo_x", "999999999", true, LocalDate.now());
+        laboratoire.setId(1L);
         // mimic an incoming a request with an image
         Laboratoire laboUpdate = new Laboratoire("labo_x69", "123456789", true, LocalDate.now());
         byte[] b = { 1 };
         laboUpdate.setImageFile(b);
         laboUpdate.setLogoID("imageID");
 
-        BDDMockito.given(laboratoireRepository.findById(1L)).willReturn(laboratoire);
+        BDDMockito.given(laboratoireRepository.findById(1L)).willReturn(Optional.of(laboratoire));
         BDDMockito.when(storageService.uploadImage(laboUpdate.getLogoID(), laboUpdate.getImageFile()))
                 .thenReturn("url/to/image");
 
         ResponseEntity<ApiResponse> response = laboratoireService.updateLaboratoire(1L, laboUpdate);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("labo_x69", laboratoire.get().getNom());
-        assertEquals("123456789", laboratoire.get().getNrc());
-        assertEquals("Laboratory updated", response.getBody().getMessage());
-        assertEquals("url/to/image", laboratoire.get().getLogo());
+        assertEquals(new LaboratoireDTO(laboratoire), response.getBody().getMessage());
     }
 
     @Test

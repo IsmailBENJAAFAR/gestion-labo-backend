@@ -94,7 +94,7 @@ public class LaboratoireService {
                 labo.setLogo(storageService.uploadImage(laboratoire.getLogoID(),
                         laboratoire.getImageFile()));
 
-            return new ResponseEntity<>(new ApiResponse("Laboratory updated"), HttpStatus.OK);
+            return new ResponseEntity<>(new ApiResponse(new LaboratoireDTO(labo)), HttpStatus.OK);
         }
         return new ResponseEntity<>(new ApiResponse("Laboratory not found"),
                 HttpStatus.NOT_FOUND);
