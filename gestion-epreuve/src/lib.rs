@@ -363,10 +363,10 @@ mod test {
             let mut epreuve = epreuve.clone();
             epreuve.id = 1;
             epreuve.nom = "info".to_string();
-            epreuve.fk_id_analyse = 2;
+            epreuve.fk_id_analyse = 6;
             mock.expect_update()
                 .withf(|epreuve: &Epreuve| {
-                    (epreuve.id, epreuve.nom.as_str(), epreuve.fk_id_analyse) == (1, "info", 2)
+                    (epreuve.id, epreuve.nom.as_str(), epreuve.fk_id_analyse) == (1, "info", 6)
                 })
                 .return_once(move |_epreuve: &Epreuve| Ok(epreuve.clone()));
         }
