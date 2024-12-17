@@ -7,7 +7,7 @@ use axum::{
     Router,
 };
 use dotenvy::dotenv;
-use exam::dao::ExamDao;
+use epreuve::dao::EpreuveDao;
 use message_queue::{QueueInstance, QueueMessage};
 use sqlx::{migrate::MigrateDatabase, postgres::PgPoolOptions};
 use std::sync::Arc;
@@ -23,13 +23,13 @@ mod message_queue;
 
 #[derive(Clone)]
 pub struct AppState {
-    pub exam_service: Arc<exam::service::Service>,
+    pub epreuve_service: Arc<epreuve::service::Service>,
     pub mess_queue_channel: Arc<Sender<QueueMessage>>,
 }
 
-impl FromRef<AppState> for Arc<exam::service::Service> {
+impl FromRef<AppState> for Arc<epreuve::service::Service> {
     fn from_ref(input: &AppState) -> Self {
-        Arc::clone(&input.exam_service)
+        Arc::clone(&input.epreuve_service)
     }
 }
 
@@ -64,12 +64,12 @@ pub async fn run_app() -> anyhow::Result<()> {
         tracing::error!("error migrating: {e}");
     }
 
-    let exam_dao = ExamDao::new(pool);
-    let exam_service = Arc::new(exam::service::Service::new(Arc::new(exam_dao)));
+    let epreuve_dao = EpreuveDao::new(pool);
+    let epreuve_service = Arc::new(epreuve::service::Service::new(Arc::new(epreuve_dao)));
     let (tx, rx) = tokio::sync::mpsc::channel::<QueueMessage>(1024);
     run_message_queue_handler(rx);
     let state = AppState {
-        exam_service,
+        epreuve_service,
         mess_queue_channel: Arc::new(tx),
     };
 
@@ -98,14 +98,15 @@ fn app(state: AppState) -> Router {
             "/api/v1",
             Router::new()
                 .route(
-                    "/examens",
-                    get(exam::controller::get_exams).post(exam::controller::create_exam),
+                    "/epreuves",
+                    get(epreuve::controller::get_epreuves)
+                        .post(epreuve::controller::create_epreuve),
                 )
                 .route(
-                    "/examens/:id",
-                    get(exam::controller::get_exam)
-                        .patch(exam::controller::update_exam)
-                        .delete(exam::controller::delete_exam),
+                    "/epreuves/:id",
+                    get(epreuve::controller::get_epreuve)
+                        .patch(epreuve::controller::update_epreuve)
+                        .delete(epreuve::controller::delete_epreuve),
                 ),
         )
         .layer(CorsLayer::permissive())
@@ -124,11 +125,11 @@ mod test {
     use crate::{
         app,
         dao::interface::{Dao, MockDao},
-        exam::{
+        epreuve::{
             api_error::ApiError,
-            dao::ExamDao,
-            dto::{CreateExamDto, UpdateExamDto},
-            model::Exam,
+            dao::EpreuveDao,
+            dto::{CreateEpreuveDto, UpdateEpreuveDto},
+            model::Epreuve,
             service,
         },
         AppState,
@@ -153,30 +154,30 @@ mod test {
     use tracing::info;
 
     #[tokio::test]
-    async fn test_exam_controller() -> Result<()> {
-        let mut mock_dao: MockDao<Exam> = MockDao::new();
-        let exam = Exam::new(1, 1, 1);
+    async fn test_epreuve_controller() -> Result<()> {
+        let mut mock_dao: MockDao<Epreuve> = MockDao::new();
+        let epreuve = Epreuve::new("math", 1);
         {
-            let exam = exam.clone();
+            let epreuve = epreuve.clone();
             mock_dao
                 .expect_find_all()
                 .times(1)
-                .returning(move || Ok(vec![exam.clone()]));
+                .returning(move || Ok(vec![epreuve.clone()]));
         }
         mock_dao.expect_insert().return_once(move |_| Ok(1));
         {
-            let exam = exam.clone();
+            let epreuve = epreuve.clone();
             mock_dao
                 .expect_find()
                 .with(eq(1))
-                .return_once(move |_| Ok(exam.clone()));
+                .return_once(move |_| Ok(epreuve.clone()));
         }
         mock_dao.expect_remove().return_once(|_| Ok(true));
 
         let service = service::Service::new(Arc::new(mock_dao));
         let (tx, _) = tokio::sync::mpsc::channel(1);
         let app = app(AppState {
-            exam_service: service.into(),
+            epreuve_service: service.into(),
             mess_queue_channel: Arc::new(tx),
         });
 
@@ -184,7 +185,7 @@ mod test {
             .clone()
             .oneshot(
                 Request::builder()
-                    .uri("/api/v1/examens")
+                    .uri("/api/v1/epreuves")
                     .body(Body::empty())
                     .unwrap(),
             )
@@ -193,14 +194,14 @@ mod test {
 
         assert_eq!(response.status(), StatusCode::OK);
         let body = response.into_body().collect().await.unwrap().to_bytes();
-        let expected = serde_json::to_string(&vec![exam.clone()])?;
+        let expected = serde_json::to_string(&vec![epreuve.clone()])?;
         assert_eq!(&body[..], expected.as_bytes());
 
         let response = app
             .clone()
             .oneshot(
                 Request::builder()
-                    .uri("/api/v1/examens/1")
+                    .uri("/api/v1/epreuves/1")
                     .body(Body::empty())
                     .unwrap(),
             )
@@ -209,48 +210,44 @@ mod test {
 
         assert_eq!(response.status(), StatusCode::OK);
         let body = response.into_body().collect().await.unwrap().to_bytes();
-        let expected = serde_json::to_string(&exam)?;
+        let expected = serde_json::to_string(&epreuve)?;
         assert_eq!(&body[..], expected.as_bytes());
 
         let response = app
             .clone()
             .oneshot(
                 Request::builder()
-                    .uri("/api/v1/examens")
+                    .uri("/api/v1/epreuves")
                     .method("POST")
                     .header("Content-Type", "application/json")
-                    .body(Body::from(serde_json::to_string(&exam.clone())?))
+                    .body(Body::from(serde_json::to_string(&epreuve.clone())?))
                     .unwrap(),
             )
             .await
             .unwrap();
 
-        let post_exam = Exam::with_id(
-            1,
-            exam.fk_num_dossier,
-            exam.fk_id_epreuve,
-            exam.fk_id_test_analyse,
-        );
+        let post_epreuve = Epreuve::with_id(1, &epreuve.nom, epreuve.fk_id_analyse);
 
+        // TODO: fix controller tests
         assert_eq!(response.status(), StatusCode::CREATED);
         let body = response.into_body().collect().await.unwrap().to_bytes();
         let body: Value = serde_json::from_slice(&body).unwrap();
-        let post_exam_value: Value = serde_json::to_value(post_exam)?;
-        assert_eq!(body.get("dossierId"), post_exam_value.get("dossierId"));
-        assert_eq!(body.get("epreuveId"), post_exam_value.get("epreuveId"));
+        let post_epreuve_value: Value = serde_json::to_value(post_epreuve)?;
+        assert_eq!(body.get("dossierId"), post_epreuve_value.get("dossierId"));
+        assert_eq!(body.get("epreuveId"), post_epreuve_value.get("epreuveId"));
         assert_eq!(
             body.get("testAnalyseId"),
-            post_exam_value.get("testAnalyseId")
+            post_epreuve_value.get("testAnalyseId")
         );
 
         let response = app
             .clone()
             .oneshot(
                 Request::builder()
-                    .uri("/api/v1/examens/1")
+                    .uri("/api/v1/epreuves/1")
                     .method("DELETE")
                     .header("Content-Type", "application/json")
-                    .body(Body::from(serde_json::to_string(&exam.clone())?))
+                    .body(Body::from(serde_json::to_string(&epreuve.clone())?))
                     .unwrap(),
             )
             .await
@@ -262,7 +259,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn test_exam_database() -> Result<()> {
+    async fn test_epreuve_database() -> Result<()> {
         info!("Starting database container");
         const PORT: u16 = 5432;
         const USER: &'static str = "user";
@@ -303,57 +300,32 @@ mod test {
             .await
             .context("can't connect to database")?;
 
-        let dao = ExamDao::new(pool);
+        let dao = EpreuveDao::new(pool);
 
         let res = dao.find(1).await;
         assert!(res.is_err());
 
-        let res = dao.insert(&Exam::new(1, 2, 3)).await.context("insert")?;
+        let res = dao
+            .insert(&Epreuve::new("math", 3))
+            .await
+            .context("insert")?;
         assert_eq!(res, 1);
 
         let res = dao.find(1).await?;
-        assert_eq!(
-            (
-                res.fk_num_dossier,
-                res.fk_id_epreuve,
-                res.fk_id_test_analyse
-            ),
-            (1, 2, 3)
-        );
+        assert_eq!((res.nom.as_str(), res.fk_id_analyse,), ("math", 3));
 
         let res = dao.find_all().await?;
         assert_eq!(res.len(), 1);
         let res = &res[0];
-        assert_eq!(
-            (
-                res.fk_num_dossier,
-                res.fk_id_epreuve,
-                res.fk_id_test_analyse
-            ),
-            (1, 2, 3)
-        );
+        assert_eq!((res.nom.as_str(), res.fk_id_analyse), ("math", 3));
 
-        let mut updated_exam = Exam::new(4, 5, 6);
-        updated_exam.id = 1;
-        let res = dao.update(&updated_exam).await?;
-        assert_eq!(
-            (
-                res.fk_num_dossier,
-                res.fk_id_epreuve,
-                res.fk_id_test_analyse
-            ),
-            (4, 5, 6)
-        );
+        let mut updated_epreuve = Epreuve::new("info", 6);
+        updated_epreuve.id = 1;
+        let res = dao.update(&updated_epreuve).await?;
+        assert_eq!((res.nom.as_str(), res.fk_id_analyse), ("info", 6));
 
         let res = dao.find(1).await?;
-        assert_eq!(
-            (
-                res.fk_num_dossier,
-                res.fk_id_epreuve,
-                res.fk_id_test_analyse
-            ),
-            (4, 5, 6)
-        );
+        assert_eq!((res.nom.as_str(), res.fk_id_analyse), ("info", 6));
 
         let res = dao.remove(1).await?;
         assert!(res);
@@ -368,81 +340,72 @@ mod test {
     }
 
     #[tokio::test]
-    async fn test_exam_service() {
-        let mut mock: MockDao<Exam> = MockDao::new();
-        let exam = Exam::new(1, 1, 1);
+    async fn test_epreuve_service() {
+        let mut mock: MockDao<Epreuve> = MockDao::new();
+        let epreuve = Epreuve::new("math", 1);
 
         // Mocking the DAO
         mock.expect_find_all().times(1).returning(|| Ok(vec![]));
-        mock.expect_insert().return_once(|_exam: &Exam| Ok(1));
+        mock.expect_insert().return_once(|_epreuve: &Epreuve| Ok(1));
         {
-            let exam = exam.clone();
+            let epreuve = epreuve.clone();
             mock.expect_find_all()
                 .times(1)
-                .returning(move || Ok(vec![exam.clone()]));
+                .returning(move || Ok(vec![epreuve.clone()]));
         }
         {
-            let exam = exam.clone();
+            let epreuve = epreuve.clone();
             mock.expect_find()
                 .with(eq(1))
-                .return_once(move |_f| Ok(exam.clone()));
+                .return_once(move |_f| Ok(epreuve.clone()));
         }
         {
-            let mut exam = exam.clone();
-            exam.id = 1;
-            exam.fk_num_dossier = 4;
-            exam.fk_id_epreuve = 5;
-            exam.fk_id_test_analyse = 6;
+            let mut epreuve = epreuve.clone();
+            epreuve.id = 1;
+            epreuve.nom = "info".to_string();
+            epreuve.fk_id_analyse = 2;
             mock.expect_update()
-                .withf(|exam: &Exam| {
-                    (
-                        exam.id,
-                        exam.fk_num_dossier,
-                        exam.fk_id_epreuve,
-                        exam.fk_id_test_analyse,
-                    ) == (1, 4, 5, 6)
+                .withf(|epreuve: &Epreuve| {
+                    (epreuve.id, epreuve.nom.as_str(), epreuve.fk_id_analyse) == (1, "info", 2)
                 })
-                .return_once(move |_exam: &Exam| Ok(exam.clone()));
+                .return_once(move |_epreuve: &Epreuve| Ok(epreuve.clone()));
         }
         mock.expect_find()
             .with(eq(2))
             .return_once(|_f| Err(anyhow!("error")));
 
         let service = service::Service::new(Arc::new(mock));
-        // Using the exams service with the MockDao object
-        let (code, Json(data)) = service.get_exams().await.unwrap();
+        // Using the epreuves service with the MockDao object
+        let (code, Json(data)) = service.get_epreuves().await.unwrap();
         assert_eq!((code, data.len()), (StatusCode::OK, 0));
 
-        let exam_create_dto = CreateExamDto::new(1, 1, 1);
-        let (code, _) = service.create_exam(exam_create_dto).await.unwrap();
+        let epreuve_create_dto = CreateEpreuveDto::new("math", 2);
+        let (code, _) = service.create_epreuve(epreuve_create_dto).await.unwrap();
         assert_eq!(code, StatusCode::CREATED);
 
-        let exam_update_dto = UpdateExamDto::new(4, 5, 6);
-        let (code, Json(updated_exam)) = service.update_exam(1, exam_update_dto).await.unwrap();
+        let epreuve_update_dto = UpdateEpreuveDto::new("info", 6);
+        let (code, Json(updated_epreuve)) =
+            service.update_epreuve(1, epreuve_update_dto).await.unwrap();
         assert_eq!(code, StatusCode::OK);
         assert_eq!(
-            (
-                updated_exam.fk_num_dossier,
-                updated_exam.fk_id_epreuve,
-                updated_exam.fk_id_test_analyse
-            ),
-            (4, 5, 6)
+            (updated_epreuve.nom.as_str(), updated_epreuve.fk_id_analyse),
+            ("info", 6)
         );
 
-        let (code, Json(data)) = service.get_exams().await.unwrap();
+        let (code, Json(data)) = service.get_epreuves().await.unwrap();
         assert_eq!(
             (code, serde_json::to_string(&data).unwrap()),
-            (StatusCode::OK, serde_json::to_string(&[exam]).unwrap())
+            (StatusCode::OK, serde_json::to_string(&[epreuve]).unwrap())
         );
 
         if let Err(ApiError {
             status: Some(status),
             ..
-        }) = service.get_exam(2).await
+        }) = service.get_epreuve(2).await
         {
             assert_eq!(StatusCode::NOT_FOUND, status);
         } else {
-            panic!("service.get_exam failed");
+            panic!("service.get_epreuve failed");
         }
     }
 }

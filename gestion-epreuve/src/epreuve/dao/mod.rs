@@ -19,13 +19,13 @@ impl EpreuveDao {
 #[async_trait]
 impl Dao<Epreuve> for EpreuveDao {
     async fn find(&self, id: i32) -> Result<Epreuve> {
-        let res = sqlx::query("SELECT * from exam WHERE id = $1")
+        let res = sqlx::query("SELECT * from epreuve WHERE id = $1")
             .bind(id)
             .fetch_one(&self.pool)
             .await?;
-        let exam = Epreuve::try_from(res)?;
+        let epreuve = Epreuve::try_from(res)?;
 
-        Ok(exam)
+        Ok(epreuve)
     }
 
     async fn insert(&self, data: &Epreuve) -> Result<i32> {
@@ -66,7 +66,7 @@ impl Dao<Epreuve> for EpreuveDao {
     }
 
     async fn find_all(&self) -> Result<Vec<Epreuve>> {
-        let res = sqlx::query("SELECT * FROM exam")
+        let res = sqlx::query("SELECT * FROM epreuve")
             .fetch_all(&self.pool)
             .await?;
         let mut epreuves: Vec<Epreuve> = Vec::new();

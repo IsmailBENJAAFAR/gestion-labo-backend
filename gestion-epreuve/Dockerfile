@@ -2,6 +2,6 @@ FROM ubuntu:24.04
 
 WORKDIR /app
 
-COPY ./target/release/gestion-exam-resultat /app
+COPY ./target/release/gestion-epreuve /app
 
-ENTRYPOINT [ "/app/gestion-exam-resultat"]
+ENTRYPOINT [ "/app/gestion-epreuve"]
