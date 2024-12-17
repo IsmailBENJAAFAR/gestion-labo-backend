@@ -212,9 +212,6 @@ class LaboratoireServiceTest {
 
     @Test
     void testUpdateWithBadNRC(){
-        Laboratoire laboratoire = new Laboratoire("labo_x", "123456789", true, LocalDate.now());
-        BDDMockito.given(laboratoireRepository.findById(1L)).willReturn(Optional.of(laboratoire));
-
         // Update with bad NRC in request
         ResponseEntity<ApiResponse> responseWithInvalidNrc = laboratoireService.updateLaboratoire(1L,
                 new Laboratoire("labo_x69", "99999999966666", true, LocalDate.now()));
