@@ -3,12 +3,15 @@ package com.api.gestion_analyse.services;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.stereotype.Service;
+
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
 import kong.unirest.UnirestException;
 import kong.unirest.json.JSONObject;
 
+@Service
 public class AnalyseExternalCommunicationService {
     public JSONObject getLaboWithId(Long id) {
         try {

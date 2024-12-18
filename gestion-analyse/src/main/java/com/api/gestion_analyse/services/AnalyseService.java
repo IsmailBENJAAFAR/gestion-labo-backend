@@ -3,6 +3,7 @@ package com.api.gestion_analyse.services;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import kong.unirest.json.JSONObject;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.api.gestion_analyse.DTO.AnalyseDTO;
+import com.api.gestion_analyse.DTO.AnalyseDTOExtended;
 import com.api.gestion_analyse.errors.ApiResponse;
 import com.api.gestion_analyse.models.Analyse;
 import com.api.gestion_analyse.repositores.AnalyseRepository;
@@ -44,7 +46,10 @@ public class AnalyseService {
     public AnalyseDTO getAnalyseById(Long id) {
         Optional<Analyse> analyse = analyseRepository.findById(id);
         if (analyse.isPresent()) {
-            return new AnalyseDTO(analyse.get());
+            Analyse fetchedAnalyse = analyse.get();
+            JSONObject laboratoire = analyseExternalCommunicationService
+                    .getLaboWithId(fetchedAnalyse.getFkIdLaboratoire());
+            return new AnalyseDTOExtended(fetchedAnalyse, laboratoire.getString("nom"));
         } else {
             throw new EntityNotFoundException("Analyse not found");
         }
