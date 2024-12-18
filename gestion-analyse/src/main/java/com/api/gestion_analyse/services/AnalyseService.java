@@ -22,9 +22,12 @@ import java.util.Optional;
 public class AnalyseService {
 
     private final AnalyseRepository analyseRepository;
+    private final AnalyseExternalCommunicationService analyseExternalCommunicationService;
     private final Validator validator;
 
-    public AnalyseService(AnalyseRepository analyseRepository) {
+    public AnalyseService(AnalyseRepository analyseRepository,
+            AnalyseExternalCommunicationService analyseExternalCommunicationService) {
+        this.analyseExternalCommunicationService = analyseExternalCommunicationService;
         this.analyseRepository = analyseRepository;
         this.validator = Validation.buildDefaultValidatorFactory().getValidator();
     }

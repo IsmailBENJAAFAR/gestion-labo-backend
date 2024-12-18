@@ -9,7 +9,7 @@ import kong.unirest.Unirest;
 import kong.unirest.UnirestException;
 import kong.unirest.json.JSONObject;
 
-public class ExternalCommunicationService {
+public class AnalyseExternalCommunicationService {
     public JSONObject getLaboWithId(Long id) {
         try {
             HttpResponse<JsonNode> resp = Unirest.get("http://gestionlabo:8080/api/v1/laboratoires/" + id).asJson();

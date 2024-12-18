@@ -33,12 +33,15 @@ public class TestAnalyseService {
     @Mock
     private AnalyseRepository analyseRepository;
 
+    @Mock
+    private AnalyseExternalCommunicationService analyseExternalCommunicationService;
+
     @LocalServerPort
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16");
 
     @BeforeEach
     void setup() {
-        this.analyseService = new AnalyseService(analyseRepository);
+        this.analyseService = new AnalyseService(analyseRepository, analyseExternalCommunicationService);
     }
 
     @BeforeAll
