@@ -13,6 +13,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -25,14 +28,19 @@ public class Laboratoire {
     @SequenceGenerator(name = "laboratoire_sequence", sequenceName = "laboratoire_sequence", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "laboratoire_sequence")
     private Long id;
+    @NotEmpty
     private String nom;
     private String logo;
+    @NotEmpty
+    @Size(max = 9, min = 9, message = "NRC should be exactly 9 characters long")
     private String nrc;
+    @NotNull
     private Boolean active = false;
+    @NotNull
     private LocalDate dateActivation;
     private String logoID;
     @CreationTimestamp
-    private Date CreatedAt;
+    private Date createdAt;
     @UpdateTimestamp
     private Date updatedAt;
     @Transient
