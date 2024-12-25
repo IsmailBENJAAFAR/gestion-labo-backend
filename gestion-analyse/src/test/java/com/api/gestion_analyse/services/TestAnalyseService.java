@@ -96,6 +96,8 @@ public class TestAnalyseService {
     @Test
     void testCreateValidAnalyse() {
         Analyse analyse = new Analyse(null, "MRI", new String(new byte[1000]), 2L);
+        JSONObject laboObjectMap = new JSONObject(Map.of("nom", "labo"));
+        BDDMockito.when(analyseExternalCommunicationService.getLaboWithId(2L)).thenReturn(laboObjectMap);
         BDDMockito.when(analyseRepository.save(analyse)).thenReturn(analyse);
         ResponseEntity<ApiResponse> response = analyseService.createAnalyse(analyse);
         assertEquals(analyse, (Analyse) response.getBody().getMessage());
@@ -113,6 +115,8 @@ public class TestAnalyseService {
     @Test
     void testCreateValidAnalyseWithJPAError() {
         Analyse analyse = new Analyse(null, "MRI", new String(new byte[1000]), 2L);
+        JSONObject laboObjectMap = new JSONObject(Map.of("nom", "labo"));
+        BDDMockito.when(analyseExternalCommunicationService.getLaboWithId(2L)).thenReturn(laboObjectMap);
         BDDMockito.when(analyseRepository.save(analyse)).thenThrow(new EntityNotFoundException("rip me"));
         ResponseEntity<ApiResponse> response = analyseService.createAnalyse(analyse);
         assertEquals("There has been an error when creating this analyse", response.getBody().getMessage());
@@ -120,13 +124,25 @@ public class TestAnalyseService {
     }
 
     @Test
+    void testCreateWithNonValidAnalyseLaboFkId() {
+        Analyse analyse = new Analyse(null, "MRI", new String(new byte[1000]), 2L);
+        BDDMockito.when(analyseExternalCommunicationService.getLaboWithId(2L)).thenReturn(null);
+        ResponseEntity<ApiResponse> response = analyseService.createAnalyse(analyse);
+        assertEquals("Invalid laboratoire id in request", response.getBody().getMessage());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
     void testUpdateAnalyseWithValidId() {
         Analyse analyseNew = new Analyse(null, "xxMRIxx", new String(new byte[100]), 3L);
-        Analyse analyse = new Analyse(1L, "MRI", new String(new byte[1000]), 2L);
-        BDDMockito.when(analyseRepository.findById(analyse.getId())).thenReturn(Optional.of(analyse));
-        ResponseEntity<ApiResponse> response = analyseService.updateAnalyse(analyse.getId(), analyseNew);
-        // analyse should be updated
-        assertEquals(new AnalyseDTO(analyse), response.getBody().getMessage());
+        Analyse analyseOld = new Analyse(1L, "MRI", new String(new byte[1000]), 2L);
+        JSONObject laboObjectMap = new JSONObject(Map.of("nom", "labo"));
+        BDDMockito.when(analyseExternalCommunicationService.getLaboWithId(analyseNew.getFkIdLaboratoire()))
+                .thenReturn(laboObjectMap);
+        BDDMockito.when(analyseRepository.findById(analyseOld.getId())).thenReturn(Optional.of(analyseOld));
+        ResponseEntity<ApiResponse> response = analyseService.updateAnalyse(analyseOld.getId(), analyseNew);
+        // analyseOld should be updated
+        assertEquals(new AnalyseDTO(analyseOld), response.getBody().getMessage());
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -134,10 +150,24 @@ public class TestAnalyseService {
     void testUpdateAnalyseWithNonValidId() {
         Analyse analyseNew = new Analyse(null, "xxMRIxx", new String(new byte[100]), 3L);
         Long id = 1L;
+        JSONObject laboObjectMap = new JSONObject(Map.of("nom", "labo"));
+        BDDMockito.when(analyseExternalCommunicationService.getLaboWithId(analyseNew.getFkIdLaboratoire()))
+                .thenReturn(laboObjectMap);
         BDDMockito.when(analyseRepository.findById(id)).thenReturn(Optional.empty());
         ResponseEntity<ApiResponse> response = analyseService.updateAnalyse(id, analyseNew);
         assertEquals("Analyse not found", response.getBody().getMessage());
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    void testUpdateAnalyseWithNonValidLaboFkId() {
+        Analyse analyseNew = new Analyse(null, "xxMRIxx", new String(new byte[100]), 3L);
+        Long id = 1L;
+        BDDMockito.when(analyseExternalCommunicationService.getLaboWithId(analyseNew.getFkIdLaboratoire()))
+                .thenReturn(null);
+        ResponseEntity<ApiResponse> response = analyseService.updateAnalyse(id, analyseNew);
+        assertEquals("Invalid laboratoire id in request", response.getBody().getMessage());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test

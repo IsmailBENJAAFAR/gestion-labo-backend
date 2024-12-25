@@ -67,6 +67,11 @@ public class AnalyseService {
         if (!validator.validate(analyse).isEmpty()) {
             return new ResponseEntity<>(new ApiResponse("Invalid request"), HttpStatus.BAD_REQUEST);
         }
+        JSONObject laboratoireMap = analyseExternalCommunicationService.getLaboWithId(analyse.getFkIdLaboratoire());
+        if ((laboratoireMap == null) || (laboratoireMap.isEmpty())) {
+            return new ResponseEntity<>(new ApiResponse("Invalid laboratoire id in request"),
+                    HttpStatus.BAD_REQUEST);
+        }
         try {
             Analyse createdAnalyse = analyseRepository.save(analyse);
             return new ResponseEntity<>(new ApiResponse(createdAnalyse),
@@ -80,6 +85,13 @@ public class AnalyseService {
     @Transactional
     public ResponseEntity<ApiResponse> updateAnalyse(Long id, Analyse analyse) {
         Optional<Analyse> analyseOpt = analyseRepository.findById(id);
+
+        JSONObject laboratoireMap = analyseExternalCommunicationService.getLaboWithId(analyse.getFkIdLaboratoire());
+        if ((laboratoireMap == null) || (laboratoireMap.isEmpty())) {
+            return new ResponseEntity<>(new ApiResponse("Invalid laboratoire id in request"),
+                    HttpStatus.BAD_REQUEST);
+        }
+
         return analyseOpt.map(analyseOld -> {
 
             analyseOld.setNom(analyse.getNom() != null && !analyse.getNom().isBlank() ? analyse.getNom()
@@ -101,6 +113,7 @@ public class AnalyseService {
 
     public ResponseEntity<ApiResponse> deleteAnalyse(Long id) {
         Optional<Analyse> analyse = analyseRepository.findById(id);
+        // TODO : Needs to add a check into the testAnalyse MS and the epreuve MS
         if (analyse.isPresent()) {
             analyseRepository.delete(analyse.get());
             return new ResponseEntity<>(new ApiResponse("Analyse deleted successfully"), HttpStatus.NO_CONTENT);

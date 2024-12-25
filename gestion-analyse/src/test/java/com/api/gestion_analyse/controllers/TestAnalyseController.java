@@ -7,7 +7,6 @@ import com.api.gestion_analyse.models.Analyse;
 import com.api.gestion_analyse.services.AnalyseExternalCommunicationService;
 import com.api.gestion_analyse.services.AnalyseService;
 import jakarta.persistence.EntityNotFoundException;
-import kong.unirest.json.JSONObject;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
