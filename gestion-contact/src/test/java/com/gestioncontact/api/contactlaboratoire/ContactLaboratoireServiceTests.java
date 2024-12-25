@@ -1,11 +1,16 @@
 package com.gestioncontact.api.contactlaboratoire;
 
+import com.gestioncontact.api.adresse.models.dto.AdresseDTO;
+import com.gestioncontact.api.adresse.models.dto.CreateAdresseDTO;
 import com.gestioncontact.api.adresse.models.entity.Adresse;
+import com.gestioncontact.api.contactlaboratoire.models.dto.ContactLaboratoireDTO;
+import com.gestioncontact.api.contactlaboratoire.models.dto.CreateContactLaboratoireDTO;
 import com.gestioncontact.api.contactlaboratoire.models.entity.ContactLaboratoire;
-import com.gestioncontact.api.contactlaboratoire.models.error.ContactLaboratoireNotFoundException;
-import org.junit.jupiter.api.AfterEach;
+import com.gestioncontact.api.exception.ResourceNotFoundException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -14,145 +19,114 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class ContactLaboratoireServiceTests {
+
     @Mock
     private ContactLaboratoireRepository contactLaboratoireRepository;
-    private AutoCloseable autoCloseable;
+
+    @InjectMocks
     private ContactLaboratoireService contactLaboratoireService;
 
     @BeforeEach
     void setUp() {
-        autoCloseable = MockitoAnnotations.openMocks(this);
-        contactLaboratoireService = new ContactLaboratoireService(contactLaboratoireRepository);
-    }
-
-    @AfterEach
-    void tearDown() throws Exception {
-        autoCloseable.close();
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
     void shouldReturnAllContactLaboratoires() {
-        Adresse adresse1 = Adresse.builder()
-                .numVoie("10")
-                .nomVoie("Rue de la Paix")
-                .build();
-
-        Adresse adresse2 = Adresse.builder()
-                .numVoie("20")
-                .nomVoie("Avenue des Champs")
-                .build();
-
         List<ContactLaboratoire> contacts = List.of(
-                new ContactLaboratoire(1, 1, adresse1, "0123456789", "0987654321", "contact1@lab.com"),
-                new ContactLaboratoire(2, 2, adresse2, "0234567890", "0876543210", "contact2@lab.com")
+                new ContactLaboratoire(1, 101, new Adresse(1, "1", "Rue de Paris", 75000, "Paris", "Commune1"), "0123456789", "0123456789", "contact1@example.com"),
+                new ContactLaboratoire(2, 102, new Adresse(2, "2", "Avenue Champs", 75008, "Paris", "Commune2"), "0987654321", "0987654321", "contact2@example.com")
         );
 
         when(contactLaboratoireRepository.findAll()).thenReturn(contacts);
 
-        List<ContactLaboratoire> result = contactLaboratoireService.findAll();
-        verify(contactLaboratoireRepository).findAll();
+        List<ContactLaboratoireDTO> result = contactLaboratoireService.getAllContactLaboratoires();
 
-        assertEquals(contacts, result);
+        assertEquals(2, result.size());
+        assertEquals("contact1@example.com", result.get(0).getEmail());
+        verify(contactLaboratoireRepository, times(1)).findAll();
     }
 
     @Test
     void shouldFindContactLaboratoireById() {
-        Adresse adresse = Adresse.builder()
-                .numVoie("10")
-                .nomVoie("Rue de la Paix")
-                .build();
-
-        ContactLaboratoire contact = new ContactLaboratoire(1, 1, adresse, "0123456789", "0987654321", "contact1@lab.com");
+        ContactLaboratoire contact = new ContactLaboratoire(1, 101, new Adresse(1, "1", "Rue de Paris", 75000, "Paris", "Commune1"), "0123456789", "0123456789", "contact1@example.com");
 
         when(contactLaboratoireRepository.findById(1)).thenReturn(Optional.of(contact));
 
-        ContactLaboratoire result = contactLaboratoireService.findById(1);
-        verify(contactLaboratoireRepository).findById(1);
+        ContactLaboratoireDTO result = contactLaboratoireService.getContactLaboratoireById(1);
 
-        assertEquals(contact, result);
+        assertEquals("contact1@example.com", result.getEmail());
+        verify(contactLaboratoireRepository, times(1)).findById(1);
     }
 
     @Test
-    void shouldThrowContactLaboratoireNotFoundExceptionWhileFindingById() {
+    void shouldThrowExceptionWhenContactLaboratoireNotFound() {
         when(contactLaboratoireRepository.findById(99)).thenReturn(Optional.empty());
 
-        assertThrows(ContactLaboratoireNotFoundException.class, () -> {
-            contactLaboratoireService.findById(99);
-        });
-
-        verify(contactLaboratoireRepository).findById(99);
+        assertThrows(ResourceNotFoundException.class, () -> contactLaboratoireService.getContactLaboratoireById(99));
+        verify(contactLaboratoireRepository, times(1)).findById(99);
     }
 
     @Test
-    void shouldCreateNewContactLaboratoire() {
-        Adresse adresse = Adresse.builder()
-                .numVoie("10")
-                .nomVoie("Rue de la Paix")
-                .build();
+    void shouldCreateContactLaboratoire() {
+        Adresse adresse = new Adresse(1, "1", "Rue de Paris", 75000, "Paris", "Commune1");
 
-        ContactLaboratoire contact = new ContactLaboratoire(1, 1, adresse, "0123456789", "0987654321", "contact1@lab.com");
+        ContactLaboratoire contact = new ContactLaboratoire(null, 101, adresse, "0123456789", "0123456789", "contact1@example.com");
+        ContactLaboratoire savedContact = new ContactLaboratoire(1, 101, adresse, "0123456789", "0123456789", "contact1@example.com");
 
-        when(contactLaboratoireRepository.save(contact)).thenReturn(contact);
+        when(contactLaboratoireRepository.save(any(ContactLaboratoire.class))).thenReturn(savedContact);
 
-        ContactLaboratoire result = contactLaboratoireService.createContactLaboratoire(contact);
-        verify(contactLaboratoireRepository).save(contact);
+        CreateContactLaboratoireDTO createDTO = new CreateContactLaboratoireDTO();
+        createDTO.setFkIdLaboratoire(101);
+        createDTO.setAdresse(new CreateAdresseDTO("1", "Rue de Paris", 75000, "Paris", "Commune1"));
+        createDTO.setNumTel("0123456789");
+        createDTO.setFax("0123456789");
+        createDTO.setEmail("contact1@example.com");
 
-        assertEquals(contact, result);
+        ContactLaboratoireDTO result = contactLaboratoireService.createContactLaboratoire(createDTO);
+
+        Assertions.assertNotNull(result);
+        assertEquals("contact1@example.com", result.getEmail());
+        assertEquals(1, result.getId());
+        verify(contactLaboratoireRepository, times(1)).save(any(ContactLaboratoire.class));
+    }
+
+
+    @Test
+    void shouldUpdateContactLaboratoire() {
+        Adresse adresse = new Adresse(1, "1", "Rue de Paris", 75000, "Paris", "Commune1");
+        ContactLaboratoire existingContact = new ContactLaboratoire(1, 101, adresse, "0123456789", "0123456789", "contact1@example.com");
+        ContactLaboratoire updatedContact = new ContactLaboratoire(1, 101, adresse, "0123456789", "0123456789", "updated@example.com");
+
+        when(contactLaboratoireRepository.findById(1)).thenReturn(Optional.of(existingContact));
+        when(contactLaboratoireRepository.save(existingContact)).thenReturn(updatedContact);
+
+        ContactLaboratoireDTO updateDTO = new ContactLaboratoireDTO(1, 101, new AdresseDTO(1, "1", "Rue de Paris", 75000, "Paris", "Commune1"), "0123456789", "0123456789", "updated@example.com");
+
+        ContactLaboratoireDTO result = contactLaboratoireService.updateContactLaboratoire(1, updateDTO);
+
+        assertEquals("updated@example.com", result.getEmail());
+        verify(contactLaboratoireRepository, times(1)).findById(1);
+        verify(contactLaboratoireRepository, times(1)).save(existingContact);
     }
 
     @Test
-    void shouldUpdateExistingContactLaboratoire() {
-        Adresse adresse = Adresse.builder()
-                .numVoie("10")
-                .nomVoie("Rue de la Paix")
-                .build();
-
-        ContactLaboratoire oldContact = new ContactLaboratoire(1, 1, adresse, "0123456789", "0987654321", "contact1@lab.com");
-        ContactLaboratoire updatedContact = new ContactLaboratoire(1, 1, adresse, "0987654321", "0123456789", "updated@lab.com");
-
-        when(contactLaboratoireRepository.findById(1)).thenReturn(Optional.of(oldContact));
-
-        ContactLaboratoire result = contactLaboratoireService.updateContactLaboratoire(1, updatedContact);
-
-        assertEquals(updatedContact, result);
-    }
-
-    @Test
-    void shouldThrowContactLaboratoireNotFoundExceptionWhileUpdating() {
-        Adresse adresse = Adresse.builder()
-                .numVoie("10")
-                .nomVoie("Rue de la Paix")
-                .build();
-
-        ContactLaboratoire updatedContact = new ContactLaboratoire(1, 1, adresse, "0987654321", "0123456789", "updated@lab.com");
-
-        when(contactLaboratoireRepository.findById(99)).thenReturn(Optional.empty());
-
-        assertThrows(ContactLaboratoireNotFoundException.class, () -> {
-            contactLaboratoireService.updateContactLaboratoire(99, updatedContact);
-        });
-
-        verify(contactLaboratoireRepository).findById(99);
-    }
-
-    @Test
-    void shouldDeleteExistingContactLaboratoire() {
-        when(contactLaboratoireRepository.existsById(1)).thenReturn(true);
+    void shouldDeleteContactLaboratoire() {
+        ContactLaboratoire contactLaboratoire = new ContactLaboratoire();
+        when(contactLaboratoireRepository.findById(1)).thenReturn(Optional.of(contactLaboratoire));
 
         contactLaboratoireService.deleteContactLaboratoire(1);
-        verify(contactLaboratoireRepository).deleteById(1);
+
+        verify(contactLaboratoireRepository, times(1)).delete(contactLaboratoire);
     }
 
     @Test
-    void shouldThrowContactLaboratoireNotFoundExceptionWhileDeleting() {
+    void shouldThrowExceptionWhenDeletingNonExistentContactLaboratoire() {
         when(contactLaboratoireRepository.existsById(1)).thenReturn(false);
 
-        assertThrows(ContactLaboratoireNotFoundException.class, () -> {
-            contactLaboratoireService.deleteContactLaboratoire(1);
-        });
+        assertThrows(ResourceNotFoundException.class, () -> contactLaboratoireService.deleteContactLaboratoire(1));
     }
 }

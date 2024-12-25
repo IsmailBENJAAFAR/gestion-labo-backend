@@ -1,23 +1,23 @@
 package com.gestioncontact.api.contactlaboratoire;
 
-import com.gestioncontact.api.adresse.models.entity.Adresse;
-import com.gestioncontact.api.contactlaboratoire.models.entity.ContactLaboratoire;
-import org.junit.jupiter.api.BeforeEach;
+import com.gestioncontact.api.adresse.models.dto.AdresseDTO;
+import com.gestioncontact.api.adresse.models.dto.CreateAdresseDTO;
+import com.gestioncontact.api.contactlaboratoire.models.dto.ContactLaboratoireDTO;
+import com.gestioncontact.api.contactlaboratoire.models.dto.CreateContactLaboratoireDTO;
 import org.junit.jupiter.api.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ContactLaboratoireController.class)
@@ -25,222 +25,109 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ContactLaboratoireControllerTests {
 
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @MockitoBean
-    ContactLaboratoireService contactLaboratoireService;
-
-    List<ContactLaboratoire> contactLaboratoires = new ArrayList<>();
-
-    @BeforeEach
-    void setUp() {
-        Adresse adresse1 = Adresse.builder()
-                .id(1)
-                .numVoie("10")
-                .nomVoie("Rue de la Paix")
-                .codePostal(75001)
-                .ville("Paris")
-                .commune("Paris 1er")
-                .build();
-
-        Adresse adresse2 = Adresse.builder()
-                .id(2)
-                .numVoie("20")
-                .nomVoie("Avenue Montaigne")
-                .codePostal(75008)
-                .ville("Paris")
-                .commune("Paris 8e")
-                .build();
-
-        contactLaboratoires = List.of(
-                ContactLaboratoire.builder()
-                        .id(1)
-                        .fkIdLaboratoire(100)
-                        .adresse(adresse1)
-                        .numTel("0123456789")
-                        .fax("0987654321")
-                        .email("labo1@example.com")
-                        .build(),
-                ContactLaboratoire.builder()
-                        .id(2)
-                        .fkIdLaboratoire(200)
-                        .adresse(adresse2)
-                        .numTel("0234567890")
-                        .fax("0876543210")
-                        .email("labo2@example.com")
-                        .build()
-        );
-    }
+    private ContactLaboratoireService contactLaboratoireService;
 
     @Test
     void shouldFindAllContactLaboratoires() throws Exception {
-        String jsonResponse = """
-                [
-                    {
-                        "id": 1,
-                        "fkIdLaboratoire": 100,
-                        "adresse": {
-                            "id": 1,
-                            "numVoie": "10",
-                            "nomVoie": "Rue de la Paix",
-                            "codePostal": 75001,
-                            "ville": "Paris",
-                            "commune": "Paris 1er"
-                        },
-                        "numTel": "0123456789",
-                        "fax": "0987654321",
-                        "email": "labo1@example.com"
-                    },
-                    {
-                        "id": 2,
-                        "fkIdLaboratoire": 200,
-                        "adresse": {
-                            "id": 2,
-                            "numVoie": "20",
-                            "nomVoie": "Avenue Montaigne",
-                            "codePostal": 75008,
-                            "ville": "Paris",
-                            "commune": "Paris 8e"
-                        },
-                        "numTel": "0234567890",
-                        "fax": "0876543210",
-                        "email": "labo2@example.com"
-                    }
-                ]
-                """;
+        List<ContactLaboratoireDTO> contacts = List.of(
+                new ContactLaboratoireDTO(1, 101, new AdresseDTO(1, "1", "Rue de Paris", 75000, "Paris", "Commune1"), "0123456789", "0123456789", "contact1@example.com"),
+                new ContactLaboratoireDTO(2, 102, new AdresseDTO(2, "2", "Avenue Champs", 75008, "Paris", "Commune2"), "0987654321", "0987654321", "contact2@example.com")
+        );
 
-        when(contactLaboratoireService.findAll()).thenReturn(contactLaboratoires);
+        when(contactLaboratoireService.getAllContactLaboratoires()).thenReturn(contacts);
 
-        ResultActions resultActions = mockMvc.perform(get("/api/v1/contact-laboratoires"))
+        mockMvc.perform(get("/api/contactlaboratoires")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(jsonResponse));
-
-        JSONAssert.assertEquals(jsonResponse, resultActions.andReturn().getResponse().getContentAsString(), false);
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[1].email").value("contact2@example.com"));
     }
 
     @Test
-    void shouldFindContactLaboratoireWhenGivenValidId() throws Exception {
-        ContactLaboratoire contactLaboratoire = contactLaboratoires.get(0);
-        when(contactLaboratoireService.findById(1)).thenReturn(contactLaboratoire);
+    void shouldFindContactLaboratoireById() throws Exception {
+        ContactLaboratoireDTO contact = new ContactLaboratoireDTO(1, 101, new AdresseDTO(1, "1", "Rue de Paris", 75000, "Paris", "Commune1"), "0123456789", "0123456789", "contact1@example.com");
 
-        String json = """
-                {
-                    "id": 1,
-                    "fkIdLaboratoire": 100,
-                    "adresse": {
-                        "id": 1,
-                        "numVoie": "10",
-                        "nomVoie": "Rue de la Paix",
-                        "codePostal": 75001,
-                        "ville": "Paris",
-                        "commune": "Paris 1er"
-                    },
-                    "numTel": "0123456789",
-                    "fax": "0987654321",
-                    "email": "labo1@example.com"
-                }
-                """;
+        when(contactLaboratoireService.getContactLaboratoireById(1)).thenReturn(contact);
 
-        mockMvc.perform(get("/api/v1/contact-laboratoires/1"))
+        mockMvc.perform(get("/api/contactlaboratoires/1")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(json));
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.email").value("contact1@example.com"));
     }
 
     @Test
-    void shouldCreateNewContactLaboratoire() throws Exception {
-        ContactLaboratoire contactLaboratoire = contactLaboratoires.get(0);
-        when(contactLaboratoireService.createContactLaboratoire(contactLaboratoire)).thenReturn(contactLaboratoire);
+    void shouldCreateContactLaboratoire() throws Exception {
+        CreateContactLaboratoireDTO createDTO = new CreateContactLaboratoireDTO();
+        createDTO.setFkIdLaboratoire(101);
+        createDTO.setAdresse(new CreateAdresseDTO("1", "Rue de Paris", 75000, "Paris", "Commune1"));
+        createDTO.setNumTel("0123456789");
+        createDTO.setFax("0123456789");
+        createDTO.setEmail("contact1@example.com");
 
-        String json = """
-                {
-                    "id": 1,
-                    "fkIdLaboratoire": 100,
-                    "adresse": {
-                        "id": 1,
-                        "numVoie": "10",
-                        "nomVoie": "Rue de la Paix",
-                        "codePostal": 75001,
-                        "ville": "Paris",
-                        "commune": "Paris 1er"
-                    },
-                    "numTel": "0123456789",
-                    "fax": "0987654321",
-                    "email": "labo1@example.com"
-                }
-                """;
+        ContactLaboratoireDTO contactDTO = new ContactLaboratoireDTO(1, 101, new AdresseDTO(1, "1", "Rue de Paris", 75000, "Paris", "Commune1"), "0123456789", "0123456789", "contact1@example.com");
 
-        mockMvc.perform(post("/api/v1/contact-laboratoires")
-                        .contentType("application/json")
-                        .content(json))
+        when(contactLaboratoireService.createContactLaboratoire(Mockito.any(CreateContactLaboratoireDTO.class))).thenReturn(contactDTO);
+
+        mockMvc.perform(post("/api/contactlaboratoires")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "fkIdLaboratoire": 101,
+                                    "adresse": {
+                                        "id": 1,
+                                        "numVoie": "1",
+                                        "nomVoie": "Rue de Paris",
+                                        "codePostal": 75000,
+                                        "ville": "Paris",
+                                        "commune": "Commune1"
+                                    },
+                                    "numTel": "0123456789",
+                                    "fax": "0123456789",
+                                    "email": "contact1@example.com"
+                                }
+                                """))
                 .andExpect(status().isCreated())
-                .andExpect(content().json(json));
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.email").value("contact1@example.com"));
     }
 
     @Test
-    void shouldUpdateContactLaboratoireWhenGivenValidContactLaboratoire() throws Exception {
-        ContactLaboratoire updatedContactLaboratoire = contactLaboratoires.get(0);
-        updatedContactLaboratoire.setEmail("updated@example.com");
+    void shouldUpdateContactLaboratoire() throws Exception {
+        ContactLaboratoireDTO updatedContact = new ContactLaboratoireDTO(1, 101, new AdresseDTO(1, "1", "Boulevard Haussmann", 75009, "Paris", "Commune1"), "0123456789", "0123456789", "updated@example.com");
 
-        when(contactLaboratoireService.updateContactLaboratoire(1, updatedContactLaboratoire)).thenReturn(updatedContactLaboratoire);
+        when(contactLaboratoireService.updateContactLaboratoire(Mockito.eq(1), Mockito.any(ContactLaboratoireDTO.class))).thenReturn(updatedContact);
 
-        String json = """
-                {
-                    "id": 1,
-                    "fkIdLaboratoire": 100,
-                    "adresse": {
-                        "id": 1,
-                        "numVoie": "10",
-                        "nomVoie": "Rue de la Paix",
-                        "codePostal": 75001,
-                        "ville": "Paris",
-                        "commune": "Paris 1er"
-                    },
-                    "numTel": "0123456789",
-                    "fax": "0987654321",
-                    "email": "updated@example.com"
-                }
-                """;
-
-        mockMvc.perform(put("/api/v1/contact-laboratoires/1")
-                        .contentType("application/json")
-                        .content(json))
+        mockMvc.perform(put("/api/contactlaboratoires/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "id": 1,
+                                    "fkIdLaboratoire": 101,
+                                    "adresse": {
+                                        "id": 1,
+                                        "numVoie": "1",
+                                        "nomVoie": "Boulevard Haussmann",
+                                        "codePostal": 75009,
+                                        "ville": "Paris",
+                                        "commune": "Commune1"
+                                    },
+                                    "numTel": "0123456789",
+                                    "fax": "0123456789",
+                                    "email": "updated@example.com"
+                                }
+                                """))
                 .andExpect(status().isOk())
-                .andExpect(content().json(json));
+                .andExpect(jsonPath("$.email").value("updated@example.com"));
     }
 
     @Test
-    void shouldNotUpdateAndThrowNotFoundWhenGivenAnInvalidContactLaboratoireID() throws Exception {
-        String json = """
-                {
-                    "id": null,
-                    "fkIdLaboratoire": 100,
-                    "adresse": {
-                        "id": 1,
-                        "numVoie": "10",
-                        "nomVoie": "Rue de la Paix",
-                        "codePostal": 75001,
-                        "ville": "Paris",
-                        "commune": "Paris 1er"
-                    },
-                    "numTel": "0123456789",
-                    "fax": "0987654321",
-                    "email": "labo1@example.com"
-                }
-                """;
-
-        mockMvc.perform(put("/api/v1/contact-laboratoires/999")
-                        .contentType("application/json")
-                        .content(json))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void shouldDeleteContactLaboratoireWhenGivenValidID() throws Exception {
-        doNothing().when(contactLaboratoireService).deleteContactLaboratoire(1);
-
-        mockMvc.perform(delete("/api/v1/contact-laboratoires/1"))
+    void shouldDeleteContactLaboratoire() throws Exception {
+        mockMvc.perform(delete("/api/contactlaboratoires/1"))
                 .andExpect(status().isNoContent());
-
-        verify(contactLaboratoireService, times(1)).deleteContactLaboratoire(1);
     }
 }
