@@ -42,6 +42,8 @@ class LaboratoireServiceTest {
     private StorageService storageService;
     @Mock
     private LaboratoireRepository laboratoireRepository;
+    @Mock
+    private LaboratoireExternalService laboratoireExternalService;
 
     @LocalServerPort
     // Configuring the testcontainer
@@ -50,7 +52,8 @@ class LaboratoireServiceTest {
 
     @BeforeEach
     void setup() {
-        this.laboratoireService = new LaboratoireService(laboratoireRepository, storageService);
+        this.laboratoireService = new LaboratoireService(laboratoireRepository, storageService,
+                laboratoireExternalService);
     }
 
     @BeforeAll
@@ -211,7 +214,7 @@ class LaboratoireServiceTest {
     }
 
     @Test
-    void testUpdateWithBadNRC(){
+    void testUpdateWithBadNRC() {
         // Update with bad NRC in request
         ResponseEntity<ApiResponse> responseWithInvalidNrc = laboratoireService.updateLaboratoire(1L,
                 new Laboratoire("labo_x69", "99999999966666", true, LocalDate.now()));

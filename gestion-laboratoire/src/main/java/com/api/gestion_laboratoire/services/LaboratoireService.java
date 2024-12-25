@@ -24,11 +24,14 @@ public class LaboratoireService {
 
     private final LaboratoireRepository laboratoireRepository;
     private final StorageService storageService;
+    private final LaboratoireExternalService laboratoireExternalService;
     private final Validator validator;
 
-    public LaboratoireService(LaboratoireRepository laboratoireRepository, StorageService storageService) {
+    public LaboratoireService(LaboratoireRepository laboratoireRepository, StorageService storageService,
+            LaboratoireExternalService laboratoireExternalService) {
         this.laboratoireRepository = laboratoireRepository;
         this.storageService = storageService;
+        this.laboratoireExternalService = laboratoireExternalService;
         this.validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
