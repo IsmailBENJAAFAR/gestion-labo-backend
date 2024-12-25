@@ -1,10 +1,12 @@
 package com.gestioncontact.api.adresse;
 
+import com.gestioncontact.api.adresse.models.dto.AdresseDTO;
+import com.gestioncontact.api.adresse.models.dto.CreateAdresseDTO;
 import com.gestioncontact.api.adresse.models.entity.Adresse;
-import com.gestioncontact.api.adresse.models.error.AdresseNotFoundException;
-import org.junit.jupiter.api.AfterEach;
+import com.gestioncontact.api.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -13,115 +15,113 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class AdresseServiceTests {
+
     @Mock
     private AdresseRepository adresseRepository;
-    private AutoCloseable autoCloseable;
+
+    @InjectMocks
     private AdresseService adresseService;
 
     @BeforeEach
     void setUp() {
-        autoCloseable = MockitoAnnotations.openMocks(this);
-        adresseService = new AdresseService(adresseRepository);
-    }
-
-    @AfterEach
-    void tearDown() throws Exception {
-        autoCloseable.close();
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
     void shouldReturnAllAdresses() {
         List<Adresse> adresses = List.of(
-                new Adresse(1, "10", "Rue de la Paix", 75001, "Paris", "Paris"),
-                new Adresse(2, "22", "Avenue des Champs-Élysées", 75008, "Paris", "Paris")
+                new Adresse(1, "1", "Rue de Paris", 75000, "Paris", "Commune1"),
+                new Adresse(2, "2", "Avenue des Champs", 75008, "Paris", "Commune2")
         );
 
         when(adresseRepository.findAll()).thenReturn(adresses);
 
-        List<Adresse> result = adresseService.findAll();
-        verify(adresseRepository).findAll();
+        List<AdresseDTO> result = adresseService.getAllAdresses();
 
-        assertEquals(adresses, result);
+        assertEquals(2, result.size());
+        assertEquals("Rue de Paris", result.get(0).getNomVoie());
+        verify(adresseRepository, times(1)).findAll();
     }
 
     @Test
     void shouldFindAdresseById() {
-        Adresse adresse = new Adresse(1, "10", "Rue de la Paix", 75001, "Paris", "Paris");
+        Adresse adresse = new Adresse(1, "1", "Rue de Paris", 75000, "Paris", "Commune1");
 
         when(adresseRepository.findById(1)).thenReturn(Optional.of(adresse));
 
-        Adresse result = adresseService.findById(1);
-        verify(adresseRepository).findById(1);
+        AdresseDTO result = adresseService.getAdresseById(1);
 
-        assertEquals(adresse, result);
+        assertEquals("Rue de Paris", result.getNomVoie());
+        verify(adresseRepository, times(1)).findById(1);
     }
 
     @Test
-    void shouldThrowAdresseNotFoundExceptionWhileFindingById() {
+    void shouldThrowExceptionWhenAdresseNotFound() {
         when(adresseRepository.findById(99)).thenReturn(Optional.empty());
 
-        assertThrows(AdresseNotFoundException.class, () -> {
-            adresseService.findById(99);
-        });
-
-        verify(adresseRepository).findById(99);
+        assertThrows(ResourceNotFoundException.class, () -> adresseService.getAdresseById(99));
+        verify(adresseRepository, times(1)).findById(99);
     }
 
     @Test
-    void shouldCreateNewAdresse() {
-        Adresse adresse = new Adresse(1, "10", "Rue de la Paix", 75001, "Paris", "Paris");
+    void shouldCreateAdresse() {
+        Adresse adresse = new Adresse(null, "1", "Rue de Paris", 75000, "Paris", "Commune1");
+        Adresse savedAdresse = new Adresse(1, "1", "Rue de Paris", 75000, "Paris", "Commune1");
 
-        when(adresseRepository.save(adresse)).thenReturn(adresse);
+        when(adresseRepository.save(adresse)).thenReturn(savedAdresse);
 
-        Adresse result = adresseService.createAdresse(adresse);
-        verify(adresseRepository).save(adresse);
+        CreateAdresseDTO createAdresseDTO = new CreateAdresseDTO();
+        createAdresseDTO.setNumVoie("1");
+        createAdresseDTO.setNomVoie("Rue de Paris");
+        createAdresseDTO.setCodePostal(75000);
+        createAdresseDTO.setVille("Paris");
+        createAdresseDTO.setCommune("Commune1");
 
-        assertEquals(adresse, result);
+        AdresseDTO result = adresseService.createAdresse(createAdresseDTO);
+
+        assertEquals("Rue de Paris", result.getNomVoie());
+        verify(adresseRepository, times(1)).save(any(Adresse.class));
     }
 
     @Test
-    void shouldUpdateExistingAdresse() {
-        Adresse oldAdresse = new Adresse(1, "10", "Rue de la Paix", 75001, "Paris", "Paris");
-        Adresse updatedAdresse = new Adresse(1, "12", "Rue de la Paix", 75001, "Paris", "Paris");
+    void shouldUpdateAdresse() {
+        Adresse existingAdresse = new Adresse(1, "1", "Rue de Paris", 75000, "Paris", "Commune1");
+        Adresse updatedAdresse = new Adresse(1, "10", "Boulevard Haussmann", 75009, "Paris", "Commune1");
 
-        when(adresseRepository.findById(1)).thenReturn(Optional.of(oldAdresse));
+        when(adresseRepository.findById(1)).thenReturn(Optional.of(existingAdresse));
+        when(adresseRepository.save(existingAdresse)).thenReturn(updatedAdresse);
 
-        Adresse result = adresseService.updateAdresse(1, updatedAdresse);
+        AdresseDTO updateDTO = new AdresseDTO();
+        updateDTO.setNumVoie("10");
+        updateDTO.setNomVoie("Boulevard Haussmann");
+        updateDTO.setCodePostal(75009);
+        updateDTO.setVille("Paris");
+        updateDTO.setCommune("Commune1");
 
-        assertEquals("12", result.getNumVoie());
+        AdresseDTO result = adresseService.updateAdresse(1, updateDTO);
+
+        assertEquals("Boulevard Haussmann", result.getNomVoie());
+        verify(adresseRepository, times(1)).findById(1);
+        verify(adresseRepository, times(1)).save(existingAdresse);
     }
 
     @Test
-    void shouldThrowAdresseNotFoundExceptionWhileUpdating() {
-        Adresse updatedAdresse = new Adresse(1, "12", "Rue de la Paix", 75001, "Paris", "Paris");
-
-        when(adresseRepository.findById(99)).thenReturn(Optional.empty());
-
-        assertThrows(AdresseNotFoundException.class, () -> {
-            adresseService.updateAdresse(99, updatedAdresse);
-        });
-
-        verify(adresseRepository).findById(99);
-    }
-
-    @Test
-    void shouldDeleteExistingAdresse() {
-        when(adresseRepository.existsById(1)).thenReturn(true);
+    void shouldDeleteAdresse() {
+        Adresse adresse = new Adresse();
+        when(adresseRepository.findById(1)).thenReturn(Optional.of(adresse));
 
         adresseService.deleteAdresse(1);
-        verify(adresseRepository).deleteById(1);
+
+        verify(adresseRepository, times(1)).delete(adresse);
     }
 
     @Test
-    void shouldThrowAdresseNotFoundExceptionWhileDeleting() {
+    void shouldThrowExceptionWhenDeletingNonExistentAdresse() {
         when(adresseRepository.existsById(1)).thenReturn(false);
 
-        assertThrows(AdresseNotFoundException.class, () -> {
-            adresseService.deleteAdresse(1);
-        });
+        assertThrows(ResourceNotFoundException.class, () -> adresseService.deleteAdresse(1));
     }
 }

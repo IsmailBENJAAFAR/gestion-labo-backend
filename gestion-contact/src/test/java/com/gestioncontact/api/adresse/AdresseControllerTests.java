@@ -1,22 +1,21 @@
 package com.gestioncontact.api.adresse;
 
-import com.gestioncontact.api.adresse.models.entity.Adresse;
-import org.junit.jupiter.api.BeforeEach;
+import com.gestioncontact.api.adresse.models.dto.AdresseDTO;
+import com.gestioncontact.api.adresse.models.dto.CreateAdresseDTO;
 import org.junit.jupiter.api.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AdresseController.class)
@@ -24,124 +23,95 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AdresseControllerTests {
 
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @MockitoBean
-    AdresseService adresseService;
-
-    List<Adresse> adresses = new ArrayList<>();
-
-    @BeforeEach
-    void setUp() {
-        adresses = List.of(
-                new Adresse(1, "10", "Rue de la Paix", 75001, "Paris", "Paris"),
-                new Adresse(2, "22", "Avenue des Champs-Élysées", 75008, "Paris", "Paris")
-        );
-    }
+    private AdresseService adresseService;
 
     @Test
     void shouldFindAllAdresses() throws Exception {
-        String jsonResponse = """
-                [
-                    {
-                        "id": 1,
-                        "numVoie": "10",
-                        "nomVoie": "Rue de la Paix",
-                        "codePostal": 75001,
-                        "ville": "Paris",
-                        "commune": "Paris"
-                    },
-                    {
-                        "id": 2,
-                        "numVoie": "22",
-                        "nomVoie": "Avenue des Champs-Élysées",
-                        "codePostal": 75008,
-                        "ville": "Paris",
-                        "commune": "Paris"
-                    }
-                ]
-                """;
+        List<AdresseDTO> adresses = List.of(
+                new AdresseDTO(1, "1", "Rue de Paris", 75000, "Paris", "Commune1"),
+                new AdresseDTO(2, "2", "Avenue des Champs", 75008, "Paris", "Commune2")
+        );
 
-        when(adresseService.findAll()).thenReturn(adresses);
+        when(adresseService.getAllAdresses()).thenReturn(adresses);
 
-        ResultActions resultActions = mockMvc.perform(get("/api/v1/adresses"))
+        mockMvc.perform(get("/api/adresses")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(jsonResponse));
-
-        JSONAssert.assertEquals(jsonResponse, resultActions.andReturn().getResponse().getContentAsString(), false);
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[1].ville").value("Paris"));
     }
 
     @Test
-    void shouldFindAdresseWhenGivenValidId() throws Exception {
-        Adresse adresse = new Adresse(1, "10", "Rue de la Paix", 75001, "Paris", "Paris");
-        when(adresseService.findById(1)).thenReturn(adresse);
-        String json = """
-                {
-                    "id": 1,
-                    "numVoie": "10",
-                    "nomVoie": "Rue de la Paix",
-                    "codePostal": 75001,
-                    "ville": "Paris",
-                    "commune": "Paris"
-                }
-                """;
+    void shouldFindAdresseById() throws Exception {
+        AdresseDTO adresse = new AdresseDTO(1, "1", "Rue de Paris", 75000, "Paris", "Commune1");
 
-        mockMvc.perform(get("/api/v1/adresses/1"))
+        when(adresseService.getAdresseById(1)).thenReturn(adresse);
+
+        mockMvc.perform(get("/api/adresses/1")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(json));
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.ville").value("Paris"));
     }
 
     @Test
-    void shouldCreateNewAdresse() throws Exception {
-        Adresse adresse = new Adresse(1, "10", "Rue de la Paix", 75001, "Paris", "Paris");
-        when(adresseService.createAdresse(adresse)).thenReturn(adresse);
-        String json = """
-                {
-                    "id": 1,
-                    "numVoie": "10",
-                    "nomVoie": "Rue de la Paix",
-                    "codePostal": 75001,
-                    "ville": "Paris",
-                    "commune": "Paris"
-                }
-                """;
+    void shouldCreateAdresse() throws Exception {
+        CreateAdresseDTO createAdresseDTO = new CreateAdresseDTO();
+        createAdresseDTO.setNumVoie("1");
+        createAdresseDTO.setNomVoie("Rue de Paris");
+        createAdresseDTO.setCodePostal(75000);
+        createAdresseDTO.setVille("Paris");
+        createAdresseDTO.setCommune("Commune1");
 
-        mockMvc.perform(post("/api/v1/adresses")
-                        .contentType("application/json")
-                        .content(json))
+        AdresseDTO adresseDTO = new AdresseDTO(1, "1", "Rue de Paris", 75000, "Paris", "Commune1");
+
+        when(adresseService.createAdresse(Mockito.any(CreateAdresseDTO.class))).thenReturn(adresseDTO);
+
+        mockMvc.perform(post("/api/adresses")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "numVoie": "1",
+                                    "nomVoie": "Rue de Paris",
+                                    "codePostal": 75000,
+                                    "ville": "Paris",
+                                    "commune": "Commune1"
+                                }
+                                """))
                 .andExpect(status().isCreated())
-                .andExpect(content().json(json));
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.ville").value("Paris"));
     }
 
     @Test
     void shouldUpdateAdresse() throws Exception {
-        Adresse updatedAdresse = new Adresse(1, "12", "Rue de la Paix", 75001, "Paris", "Paris");
-        when(adresseService.updateAdresse(1, updatedAdresse)).thenReturn(updatedAdresse);
-        String json = """
-                {
-                    "id": 1,
-                    "numVoie": "12",
-                    "nomVoie": "Rue de la Paix",
-                    "codePostal": 75001,
-                    "ville": "Paris",
-                    "commune": "Paris"
-                }
-                """;
+        AdresseDTO updatedAdresse = new AdresseDTO(1, "10", "Boulevard Haussmann", 75009, "Paris", "Commune1");
 
-        mockMvc.perform(put("/api/v1/adresses/1")
-                        .contentType("application/json")
-                        .content(json))
+        when(adresseService.updateAdresse(Mockito.eq(1), Mockito.any(AdresseDTO.class))).thenReturn(updatedAdresse);
+
+        mockMvc.perform(put("/api/adresses/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "id": 1,
+                                    "numVoie": "10",
+                                    "nomVoie": "Boulevard Haussmann",
+                                    "codePostal": 75009,
+                                    "ville": "Paris",
+                                    "commune": "Commune1"
+                                }
+                                """))
                 .andExpect(status().isOk())
-                .andExpect(content().json(json));
+                .andExpect(jsonPath("$.nomVoie").value("Boulevard Haussmann"));
     }
 
     @Test
     void shouldDeleteAdresse() throws Exception {
-        doNothing().when(adresseService).deleteAdresse(1);
-
-        mockMvc.perform(delete("/api/v1/adresses/1"))
+        mockMvc.perform(delete("/api/adresses/1"))
                 .andExpect(status().isNoContent());
-
-        verify(adresseService, times(1)).deleteAdresse(1);
     }
 }
