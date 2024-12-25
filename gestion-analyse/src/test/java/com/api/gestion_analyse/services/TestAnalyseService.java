@@ -4,10 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.api.gestion_analyse.errors.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;
+import kong.unirest.json.JSONObject;
+
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
@@ -22,6 +25,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import com.api.gestion_analyse.DTO.AnalyseDTO;
+import com.api.gestion_analyse.DTO.AnalyseDTOExtended;
 import com.api.gestion_analyse.models.Analyse;
 import com.api.gestion_analyse.repositores.AnalyseRepository;
 
@@ -75,9 +79,11 @@ public class TestAnalyseService {
     @Test
     void testGetAnalyseByValidId() {
         Optional<Analyse> analyse = Optional.of(new Analyse(1L, "MRI", new String(new byte[1000]), 2L));
+        JSONObject laboObjectMap = new JSONObject(Map.of("nom", "labo"));
+        BDDMockito.when(analyseExternalCommunicationService.getLaboWithId(2L)).thenReturn(laboObjectMap);
         BDDMockito.when(analyseRepository.findById(analyse.get().getId())).thenReturn(analyse);
-        AnalyseDTO analyseDTO = analyseService.getAnalyseById(analyse.get().getId());
-        assertEquals(new AnalyseDTO(analyse.get()), analyseDTO);
+        AnalyseDTOExtended analyseDTOExtended = analyseService.getAnalyseById(analyse.get().getId());
+        assertEquals(new AnalyseDTOExtended(analyse.get(), "labo"), analyseDTOExtended);
     }
 
     @Test

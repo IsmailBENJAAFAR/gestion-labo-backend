@@ -3,6 +3,7 @@ package com.api.gestion_analyse.services;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import kong.unirest.UnirestException;
 import kong.unirest.json.JSONObject;
 
 import org.springframework.http.HttpStatus;
@@ -43,13 +44,20 @@ public class AnalyseService {
         return listAnalyseDTO;
     }
 
-    public AnalyseDTO getAnalyseById(Long id) {
+    public AnalyseDTOExtended getAnalyseById(Long id) {
         Optional<Analyse> analyse = analyseRepository.findById(id);
         if (analyse.isPresent()) {
             Analyse fetchedAnalyse = analyse.get();
             JSONObject laboratoire = analyseExternalCommunicationService
                     .getLaboWithId(fetchedAnalyse.getFkIdLaboratoire());
+
+            if (laboratoire == null)
+                throw new UnirestException("Could not communicate with the laboratoire service");
+            else if (laboratoire.isEmpty())
+                throw new EntityNotFoundException("Analyse not found");
+
             return new AnalyseDTOExtended(fetchedAnalyse, laboratoire.getString("nom"));
+
         } else {
             throw new EntityNotFoundException("Analyse not found");
         }

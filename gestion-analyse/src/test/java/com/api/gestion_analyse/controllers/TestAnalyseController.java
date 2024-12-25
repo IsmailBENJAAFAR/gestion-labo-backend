@@ -1,10 +1,14 @@
 package com.api.gestion_analyse.controllers;
 
 import com.api.gestion_analyse.DTO.AnalyseDTO;
+import com.api.gestion_analyse.DTO.AnalyseDTOExtended;
 import com.api.gestion_analyse.errors.ApiResponse;
 import com.api.gestion_analyse.models.Analyse;
+import com.api.gestion_analyse.services.AnalyseExternalCommunicationService;
 import com.api.gestion_analyse.services.AnalyseService;
 import jakarta.persistence.EntityNotFoundException;
+import kong.unirest.json.JSONObject;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -18,6 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -33,6 +38,9 @@ class TestAnalyseController {
 
         @MockBean
         AnalyseService analyseService;
+
+        @MockBean
+        AnalyseExternalCommunicationService analyseExternalCommunicationService;
 
         Analyse analyse;
         String baseUrl = "/api/v1/analyses";
@@ -67,13 +75,17 @@ class TestAnalyseController {
 
         @Test
         void shouldFindAnalyseWhenGivenValidId() throws Exception {
-                when(analyseService.getAnalyseById(1L)).thenReturn(new AnalyseDTO(analyse));
+
+                
+                when(analyseService.getAnalyseById(1L)).thenReturn(new AnalyseDTOExtended(analyse, "labo"));
+
                 String json = """
                                 {
                                         "id": 1,
                                         "nom": "MRI",
                                         "description": "MRI something something",
-                                        "fkIdLaboratoire": 3
+                                        "fkIdLaboratoire": 3,
+                                        "laboratoireName": "labo"
                                 }
                                 """;
 
@@ -87,12 +99,12 @@ class TestAnalyseController {
                 when(analyseService.getAnalyseById(1L)).thenThrow(new EntityNotFoundException("Analyse Not found"));
 
                 String errRespJson = """
-                    {"message": "Analyse Not found"}
-                """;
+                                    {"message": "Analyse Not found"}
+                                """;
 
                 mockMvc.perform(get(baseUrl + "/1"))
-                        .andExpect(status().isNotFound())
-                        .andExpect(content().json(errRespJson));
+                                .andExpect(status().isNotFound())
+                                .andExpect(content().json(errRespJson));
         }
 
         @Test
