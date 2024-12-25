@@ -1,45 +1,48 @@
 package com.gestiondossier.api.patient;
 
-import com.gestiondossier.api.patient.models.entity.Patient;
-import com.gestiondossier.api.patient.models.error.PatientNotFoundException;
+import com.gestiondossier.api.patient.models.dto.CreatePatientDTO;
+import com.gestiondossier.api.patient.models.dto.PatientDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("api/v1/patients")
+@RequestMapping("/api/patients")
 @RequiredArgsConstructor
 public class PatientController {
+
     private final PatientService patientService;
 
-    @GetMapping
-    public List<Patient> findAll() {
-        return patientService.findAll();
+    @PostMapping
+    public ResponseEntity<PatientDTO> createPatient(@RequestBody CreatePatientDTO createPatientDTO) {
+        PatientDTO patientDTO = patientService.createPatient(createPatientDTO);
+        return new ResponseEntity<>(patientDTO, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public Patient findById(@PathVariable("id") Integer patientId) {
-        return Optional.ofNullable(patientService.findById(patientId)).orElseThrow(PatientNotFoundException::new);
+    public ResponseEntity<PatientDTO> getPatientById(@PathVariable Integer id) {
+        PatientDTO patientDTO = patientService.getPatientById(id);
+        return ResponseEntity.ok(patientDTO);
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Patient createPatient(@RequestBody Patient patient) {
-        return patientService.createPatient(patient);
+    @GetMapping
+    public ResponseEntity<List<PatientDTO>> getAllPatients() {
+        List<PatientDTO> patients = patientService.getAllPatients();
+        return ResponseEntity.ok(patients);
     }
 
     @PutMapping("/{id}")
-    public Patient updatePatient(@PathVariable("id") Integer id, @RequestBody Patient patient) {
-        return Optional.ofNullable(patientService.updatePatient(id, patient)).orElseThrow(PatientNotFoundException::new);
+    public ResponseEntity<PatientDTO> updatePatient(@PathVariable Integer id, @RequestBody PatientDTO patientDTO) {
+        PatientDTO updatedPatient = patientService.updatePatient(id, patientDTO);
+        return ResponseEntity.ok(updatedPatient);
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
-    public void deletePatient(@PathVariable("id") Integer patientId) {
-        patientService.deletePatient(patientId);
+    public ResponseEntity<Void> deletePatient(@PathVariable Integer id) {
+        patientService.deletePatient(id);
+        return ResponseEntity.noContent().build();
     }
-
 }
