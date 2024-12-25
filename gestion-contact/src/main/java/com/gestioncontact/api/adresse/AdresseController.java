@@ -1,44 +1,48 @@
 package com.gestioncontact.api.adresse;
 
-import com.gestioncontact.api.adresse.models.entity.Adresse;
-import com.gestioncontact.api.adresse.models.error.AdresseNotFoundException;
+import com.gestioncontact.api.adresse.models.dto.AdresseDTO;
+import com.gestioncontact.api.adresse.models.dto.CreateAdresseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("api/v1/adresses")
+@RequestMapping("/api/adresses")
 @RequiredArgsConstructor
 public class AdresseController {
+
     private final AdresseService adresseService;
 
-    @GetMapping
-    public List<Adresse> findAll() {
-        return adresseService.findAll();
+    @PostMapping
+    public ResponseEntity<AdresseDTO> createAdresse(@RequestBody CreateAdresseDTO createAdresseDTO) {
+        AdresseDTO adresseDTO = adresseService.createAdresse(createAdresseDTO);
+        return new ResponseEntity<>(adresseDTO, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public Adresse findById(@PathVariable("id") Integer adresseId) {
-        return Optional.ofNullable(adresseService.findById(adresseId)).orElseThrow(AdresseNotFoundException::new);
+    public ResponseEntity<AdresseDTO> getAdresseById(@PathVariable Integer id) {
+        AdresseDTO adresseDTO = adresseService.getAdresseById(id);
+        return ResponseEntity.ok(adresseDTO);
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Adresse createAdresse(@RequestBody Adresse adresse) {
-        return adresseService.createAdresse(adresse);
+    @GetMapping
+    public ResponseEntity<List<AdresseDTO>> getAllAdresses() {
+        List<AdresseDTO> adresses = adresseService.getAllAdresses();
+        return ResponseEntity.ok(adresses);
     }
 
     @PutMapping("/{id}")
-    public Adresse updateAdresse(@PathVariable("id") Integer id, @RequestBody Adresse adresse) {
-        return Optional.ofNullable(adresseService.updateAdresse(id, adresse)).orElseThrow(AdresseNotFoundException::new);
+    public ResponseEntity<AdresseDTO> updateAdresse(@PathVariable Integer id, @RequestBody AdresseDTO adresseDTO) {
+        AdresseDTO updatedAdresse = adresseService.updateAdresse(id, adresseDTO);
+        return ResponseEntity.ok(updatedAdresse);
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
-    public void deleteAdresse(@PathVariable("id") Integer adresseId) {
-        adresseService.deleteAdresse(adresseId);
+    public ResponseEntity<Void> deleteAdresse(@PathVariable Integer id) {
+        adresseService.deleteAdresse(id);
+        return ResponseEntity.noContent().build();
     }
 }
