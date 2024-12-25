@@ -1,0 +1,14 @@
+# Disclamer 🚩: This is mainly for local dev
+
+services:
+  rabbit-mq:
+    build:
+      context: ./dockerfiles
+      dockerfile: ./rabbitmq/Dockerfile
+    image: rabbitmq:3.13.7-management-alpine
+    ports:
+      - "56721:56721"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=pwd
