@@ -1,44 +1,48 @@
 package com.gestioncontact.api.contactlaboratoire;
 
-import com.gestioncontact.api.contactlaboratoire.models.entity.ContactLaboratoire;
-import com.gestioncontact.api.contactlaboratoire.models.error.ContactLaboratoireNotFoundException;
+import com.gestioncontact.api.contactlaboratoire.models.dto.ContactLaboratoireDTO;
+import com.gestioncontact.api.contactlaboratoire.models.dto.CreateContactLaboratoireDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("api/v1/contact-laboratoires")
+@RequestMapping("/api/contactlaboratoires")
 @RequiredArgsConstructor
 public class ContactLaboratoireController {
+
     private final ContactLaboratoireService contactLaboratoireService;
 
-    @GetMapping
-    public List<ContactLaboratoire> findAll() {
-        return contactLaboratoireService.findAll();
+    @PostMapping
+    public ResponseEntity<ContactLaboratoireDTO> createContactLaboratoire(@RequestBody CreateContactLaboratoireDTO createContactLaboratoireDTO) {
+        ContactLaboratoireDTO contactLaboratoireDTO = contactLaboratoireService.createContactLaboratoire(createContactLaboratoireDTO);
+        return new ResponseEntity<>(contactLaboratoireDTO, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public ContactLaboratoire findById(@PathVariable("id") Integer contactLaboratoireId) {
-        return Optional.ofNullable(contactLaboratoireService.findById(contactLaboratoireId)).orElseThrow(ContactLaboratoireNotFoundException::new);
+    public ResponseEntity<ContactLaboratoireDTO> getContactLaboratoireById(@PathVariable Integer id) {
+        ContactLaboratoireDTO contactLaboratoireDTO = contactLaboratoireService.getContactLaboratoireById(id);
+        return ResponseEntity.ok(contactLaboratoireDTO);
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public ContactLaboratoire createContactLaboratoire(@RequestBody ContactLaboratoire contactLaboratoire) {
-        return contactLaboratoireService.createContactLaboratoire(contactLaboratoire);
+    @GetMapping
+    public ResponseEntity<List<ContactLaboratoireDTO>> getAllContactLaboratoires() {
+        List<ContactLaboratoireDTO> contactLaboratoires = contactLaboratoireService.getAllContactLaboratoires();
+        return ResponseEntity.ok(contactLaboratoires);
     }
 
     @PutMapping("/{id}")
-    public ContactLaboratoire updateContactLaboratoire(@PathVariable("id") Integer id, @RequestBody ContactLaboratoire contactLaboratoire) {
-        return Optional.ofNullable(contactLaboratoireService.updateContactLaboratoire(id, contactLaboratoire)).orElseThrow(ContactLaboratoireNotFoundException::new);
+    public ResponseEntity<ContactLaboratoireDTO> updateContactLaboratoire(@PathVariable Integer id, @RequestBody ContactLaboratoireDTO contactLaboratoireDTO) {
+        ContactLaboratoireDTO updatedContact = contactLaboratoireService.updateContactLaboratoire(id, contactLaboratoireDTO);
+        return ResponseEntity.ok(updatedContact);
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
-    public void deleteContactLaboratoire(@PathVariable("id") Integer contactLaboratoireId) {
-        contactLaboratoireService.deleteContactLaboratoire(contactLaboratoireId);
+    public ResponseEntity<Void> deleteContactLaboratoire(@PathVariable Integer id) {
+        contactLaboratoireService.deleteContactLaboratoire(id);
+        return ResponseEntity.noContent().build();
     }
 }
