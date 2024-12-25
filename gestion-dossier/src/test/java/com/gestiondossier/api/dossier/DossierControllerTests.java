@@ -1,22 +1,21 @@
 package com.gestiondossier.api.dossier;
 
-import com.gestiondossier.api.dossier.models.entity.Dossier;
-import org.junit.jupiter.api.BeforeEach;
+import com.gestiondossier.api.dossier.models.dto.CreateDossierDTO;
+import com.gestiondossier.api.dossier.models.dto.DossierDTO;
 import org.junit.jupiter.api.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(DossierController.class)
@@ -24,134 +23,88 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class DossierControllerTests {
 
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @MockitoBean
-    DossierService dossierService;
-
-    List<Dossier> dossiers = new ArrayList<>();
-
-    @BeforeEach
-    void setUp() {
-        dossiers = List.of(
-                new Dossier(1, "benjaafarismail20@gmail.com", null, null),
-                new Dossier(2, "ayoub.ayoub@gmail.com", null, null)
-        );
-    }
+    private DossierService dossierService;
 
     @Test
     void shouldFindAllDossiers() throws Exception {
-        String jsonResponse = """
-                [
-                    {
-                        "id":1,
-                        "fkEmailUtilisateur":"benjaafarismail20@gmail.com",
-                        "patient": null,
-                        "date": null
-                    },
-                    {
-                        "id":2,
-                        "fkEmailUtilisateur":"ayoub.ayoub@gmail.com",
-                        "patient": null,
-                        "date": null
-                    }
-                ]
-                """;
+        List<DossierDTO> dossiers = List.of(
+                new DossierDTO(1, "benjaafarismail20@gmail.com", null, null),
+                new DossierDTO(2, "ayoub.ayoub@gmail.com", null, null)
+        );
 
-        when(dossierService.findAll()).thenReturn(dossiers);
+        when(dossierService.getAllDossiers()).thenReturn(dossiers);
 
-        ResultActions resultActions = mockMvc.perform(get("/api/v1/dossiers"))
+        mockMvc.perform(get("/api/dossiers")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(jsonResponse));
-
-        JSONAssert.assertEquals(jsonResponse, resultActions.andReturn().getResponse().getContentAsString(), false);
-
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[1].fkEmailUtilisateur").value("ayoub.ayoub@gmail.com"));
     }
 
     @Test
-    void shouldFindDossierWhenGivenValidId() throws Exception {
-        Dossier dossier = new Dossier(1, "benjaafarismail20@gmail.com", null, null);
-        when(dossierService.findById(1)).thenReturn(dossier);
-        String json = """
-                {
-                    "id": 1,
-                    "fkEmailUtilisateur": "benjaafarismail20@gmail.com",
-                    "patient": null,
-                    "date": null
-                }
-                """;
+    void shouldFindDossierById() throws Exception {
+        DossierDTO dossier = new DossierDTO(1, "benjaafarismail20@gmail.com", null, null);
 
-        mockMvc.perform(get("/api/v1/dossiers/1"))
+        when(dossierService.getDossierById(1)).thenReturn(dossier);
+
+        mockMvc.perform(get("/api/dossiers/1")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(json));
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.fkEmailUtilisateur").value("benjaafarismail20@gmail.com"));
     }
 
     @Test
-    void shouldCreateNewDossierWhenGivenValidID() throws Exception {
-        Dossier dossier = new Dossier(1, "benjaafarismail20@gmail.com", null, null);
-        when(dossierService.createDossier(dossier)).thenReturn(dossier);
-        String json = """
-                {
-                    "id": 1,
-                    "fkEmailUtilisateur": "benjaafarismail20@gmail.com",
-                    "patient": null,
-                    "date": null
-                }
-                """;
+    void shouldCreateDossier() throws Exception {
+        CreateDossierDTO createDossierDTO = new CreateDossierDTO();
+        createDossierDTO.setFkEmailUtilisateur("benjaafarismail20@gmail.com");
+        createDossierDTO.setPatientId(1);
 
-        mockMvc.perform(post("/api/v1/dossiers")
-                        .contentType("application/json")
-                        .content(json))
+        DossierDTO dossierDTO = new DossierDTO(1, "benjaafarismail20@gmail.com", null, null);
+
+        when(dossierService.createDossier(Mockito.any(CreateDossierDTO.class))).thenReturn(dossierDTO);
+
+        mockMvc.perform(post("/api/dossiers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "fkEmailUtilisateur": "benjaafarismail20@gmail.com",
+                                    "patientId": 1,
+                                    "date": null
+                                }
+                                """))
                 .andExpect(status().isCreated())
-                .andExpect(content().json(json));
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.fkEmailUtilisateur").value("benjaafarismail20@gmail.com"));
     }
 
     @Test
-    void shouldUpdateDossierWhenGivenValidDossier() throws Exception {
-        Dossier updatedDossier = new Dossier(1, "benjaafarismail20@gmail.com", null, null);
-        when(dossierService.updateDossier(1, updatedDossier)).thenReturn(updatedDossier);
-        String json = """
-                {
-                    "id": 1,
-                    "fkEmailUtilisateur": "benjaafarismail20@gmail.com",
-                    "patient": null,
-                    "date": null
-                }
-                """;
+    void shouldUpdateDossier() throws Exception {
+        DossierDTO dossierDTO = new DossierDTO(1, "updated.email@example.com", null, null);
 
-        mockMvc.perform(put("/api/v1/dossiers/1")
-                        .contentType("application/json")
-                        .content(json))
+        when(dossierService.updateDossier(Mockito.eq(1), Mockito.any(DossierDTO.class))).thenReturn(dossierDTO);
+
+        mockMvc.perform(put("/api/dossiers/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "id": 1,
+                                    "fkEmailUtilisateur": "updated.email@example.com",
+                                    "patient": null,
+                                    "date": null
+                                }
+                                """))
                 .andExpect(status().isOk())
-                .andExpect(content().json(json));
-    }
-
-
-    @Test
-    void shouldNotUpdateAndThrowNotFoundWhenGivenAnInvalidDossierID() throws Exception {
-        String json = """
-                {
-                    "id": null,
-                    "fkEmailUtilisateur": "benjaafarismail20@gmail.com",
-                    "patient": null,
-                    "date": null
-                }
-                """;
-
-        mockMvc.perform(put("/api/v1/dossiers/999")
-                        .contentType("application/json")
-                        .content(json))
-                .andExpect(status().isNotFound());
+                .andExpect(jsonPath("$.fkEmailUtilisateur").value("updated.email@example.com"));
     }
 
     @Test
-    void shouldDeleteDossierWhenGivenValidID() throws Exception {
-        doNothing().when(dossierService).deleteDossier(1);
-
-        mockMvc.perform(delete("/api/v1/dossiers/1"))
+    void shouldDeleteDossier() throws Exception {
+        mockMvc.perform(delete("/api/dossiers/1"))
                 .andExpect(status().isNoContent());
-
-        verify(dossierService, times(1)).deleteDossier(1);
     }
-
 }

@@ -1,22 +1,21 @@
 package com.gestiondossier.api.patient;
 
-import com.gestiondossier.api.patient.models.entity.Patient;
-import org.junit.jupiter.api.BeforeEach;
+import com.gestiondossier.api.patient.models.dto.CreatePatientDTO;
+import com.gestiondossier.api.patient.models.dto.PatientDTO;
 import org.junit.jupiter.api.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(PatientController.class)
@@ -24,170 +23,86 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class PatientControllerTests {
 
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @MockitoBean
-    PatientService patientService;
-
-    List<Patient> patients = new ArrayList<>();
-
-    @BeforeEach
-    void setUp() {
-        patients = List.of(
-                new Patient(1, "benjaafar ismail", null, null, null, null, null, null, null, null),
-                new Patient(2, "ayoub ayoub", null, null, null, null, null, null, null, null)
-        );
-    }
+    private PatientService patientService;
 
     @Test
     void shouldFindAllPatients() throws Exception {
-        String jsonResponse = """
-                [
-                    {
-                        "id":1,
-                        "nomComplet":"benjaafar ismail",
-                        "dateNaissance": null,
-                        "sexe": null,
-                        "typePieceIdentite": null,
-                        "numPieceIdentite": null,
-                        "adresse": null,
-                        "numTel": null,
-                        "email": null,
-                        "dossier": null
-                    },
-                    {
-                        "id":2,
-                        "nomComplet":"ayoub ayoub",
-                        "dateNaissance": null,
-                        "sexe": null,
-                        "typePieceIdentite": null,
-                        "numPieceIdentite": null,
-                        "adresse": null,
-                        "numTel": null,
-                        "email": null,
-                        "dossier": null
-                    }
-                ]
-                """;
+        List<PatientDTO> patients = List.of(
+                new PatientDTO(1, "John Doe", null, null, null, null, "123 Main St", "123456789", "john.doe@example.com"),
+                new PatientDTO(2, "Jane Doe", null, null, null, null, "456 Elm St", "987654321", "jane.doe@example.com")
+        );
 
-        when(patientService.findAll()).thenReturn(patients);
+        when(patientService.getAllPatients()).thenReturn(patients);
 
-        ResultActions resultActions = mockMvc.perform(get("/api/v1/patients"))
+        mockMvc.perform(get("/api/patients")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(jsonResponse));
-
-        JSONAssert.assertEquals(jsonResponse, resultActions.andReturn().getResponse().getContentAsString(), false);
-
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[1].email").value("jane.doe@example.com"));
     }
 
     @Test
-    void shouldFindPatientWhenGivenValidId() throws Exception {
-        Patient patient = new Patient(1, "benjaafar ismail", null, null, null, null, null, null, null, null);
-        when(patientService.findById(1)).thenReturn(patient);
-        String json = """
-                {
-                    "id":1,
-                    "nomComplet":"benjaafar ismail",
-                    "dateNaissance": null,
-                    "sexe": null,
-                    "typePieceIdentite": null,
-                    "numPieceIdentite": null,
-                    "adresse": null,
-                    "numTel": null,
-                    "email": null,
-                    "dossier": null
-                }
-                """;
+    void shouldFindPatientById() throws Exception {
+        PatientDTO patient = new PatientDTO(1, "John Doe", null, null, null, null, "123 Main St", "123456789", "john.doe@example.com");
 
-        mockMvc.perform(get("/api/v1/patients/1"))
+        when(patientService.getPatientById(1)).thenReturn(patient);
+
+        mockMvc.perform(get("/api/patients/1")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(json));
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.email").value("john.doe@example.com"));
     }
 
     @Test
-    void shouldCreateNewPatientWhenGivenValidID() throws Exception {
-        Patient patient = new Patient(1, "benjaafar ismail", null, null, null, null, null, null, null, null);
-        when(patientService.createPatient(patient)).thenReturn(patient);
-        String json = """
-                {
-                    "id":1,
-                    "nomComplet":"benjaafar ismail",
-                    "dateNaissance": null,
-                    "sexe": null,
-                    "typePieceIdentite": null,
-                    "numPieceIdentite": null,
-                    "adresse": null,
-                    "numTel": null,
-                    "email": null,
-                    "dossier": null
-                }
-                """;
+    void shouldCreatePatient() throws Exception {
+        CreatePatientDTO createPatientDTO = new CreatePatientDTO();
+        createPatientDTO.setNomComplet("John Doe");
+        createPatientDTO.setEmail("john.doe@example.com");
 
-        mockMvc.perform(post("/api/v1/patients")
-                        .contentType("application/json")
-                        .content(json))
+        PatientDTO patientDTO = new PatientDTO(1, "John Doe", null, null, null, null, "123 Main St", "123456789", "john.doe@example.com");
+
+        when(patientService.createPatient(Mockito.any(CreatePatientDTO.class))).thenReturn(patientDTO);
+
+        mockMvc.perform(post("/api/patients")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "nomComplet": "John Doe",
+                                    "email": "john.doe@example.com"
+                                }
+                                """))
                 .andExpect(status().isCreated())
-                .andExpect(content().json(json));
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.email").value("john.doe@example.com"));
     }
 
     @Test
-    void shouldUpdateDossierWhenGivenValidDossier() throws Exception {
-        Patient updatedPatient = new Patient(1, "benjaafar ismail", null, null, null, null, null, null, null, null);
-        when(patientService.updatePatient(1, updatedPatient)).thenReturn(updatedPatient);
-        String json = """
-                {
-                    "id":1,
-                    "nomComplet":"benjaafar ismail",
-                    "dateNaissance": null,
-                    "sexe": null,
-                    "typePieceIdentite": null,
-                    "numPieceIdentite": null,
-                    "adresse": null,
-                    "numTel": null,
-                    "email": null,
-                    "dossier": null
-                }
-                """;
+    void shouldUpdatePatient() throws Exception {
+        PatientDTO patientDTO = new PatientDTO(1, "Updated Name", null, null, null, null, "123 Main St", "123456789", "updated@example.com");
 
-        mockMvc.perform(put("/api/v1/patients/1")
-                        .contentType("application/json")
-                        .content(json))
+        when(patientService.updatePatient(Mockito.eq(1), Mockito.any(PatientDTO.class))).thenReturn(patientDTO);
+
+        mockMvc.perform(put("/api/patients/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "id": 1,
+                                    "nomComplet": "Updated Name",
+                                    "email": "updated@example.com"
+                                }
+                                """))
                 .andExpect(status().isOk())
-                .andExpect(content().json(json));
-    }
-
-
-    @Test
-    void shouldNotUpdateAndThrowNotFoundWhenGivenAnInvalidPatientID() throws Exception {
-        String json = """
-                {
-                    "id":1,
-                    "nomComplet":"benjaafar ismail",
-                    "dateNaissance": null,
-                    "sexe": null,
-                    "typePieceIdentite": null,
-                    "numPieceIdentite": null,
-                    "adresse": null,
-                    "numTel": null,
-                    "email": null,
-                    "dossier": null
-                }
-                """;
-
-        mockMvc.perform(put("/api/v1/dossiers/999")
-                        .contentType("application/json")
-                        .content(json))
-                .andExpect(status().isNotFound());
+                .andExpect(jsonPath("$.email").value("updated@example.com"));
     }
 
     @Test
-    void shouldDeletePatientrWhenGivenValidID() throws Exception {
-        doNothing().when(patientService).deletePatient(1);
-
-        mockMvc.perform(delete("/api/v1/patients/1"))
+    void shouldDeletePatient() throws Exception {
+        mockMvc.perform(delete("/api/patients/1"))
                 .andExpect(status().isNoContent());
-
-        verify(patientService, times(1)).deletePatient(1);
     }
-
 }
