@@ -113,8 +113,18 @@ public class AnalyseService {
 
     public ResponseEntity<ApiResponse> deleteAnalyse(Long id) {
         Optional<Analyse> analyse = analyseRepository.findById(id);
-        // TODO : Needs to add a check into the testAnalyse MS and the epreuve MS
         if (analyse.isPresent()) {
+            // TODO : Needs to add a check into the testAnalyse MS and the epreuve MS
+            /* NOTE: this is just a placeholder
+             * map<String,String> hasDependencies = analyseExternalCommunicationService.checkDependencies(analyse.getId());
+             *   if (!hasDependencies.isEmpty()) {
+             *       return new ResponseEntity<>(new ApiResponse("laboratoire had dependencies on" + hasDependencies.keys()),
+             *               HttpStatus.BAD_REQUEST);
+             * }
+             * else{
+             *      delete
+             * }
+             */
             analyseRepository.delete(analyse.get());
             return new ResponseEntity<>(new ApiResponse("Analyse deleted successfully"), HttpStatus.NO_CONTENT);
         } else {
