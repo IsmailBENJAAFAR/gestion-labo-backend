@@ -1,45 +1,48 @@
 package com.gestiondossier.api.dossier;
 
-import com.gestiondossier.api.dossier.models.entity.Dossier;
-import com.gestiondossier.api.dossier.models.error.DossierNotFoundException;
+import com.gestiondossier.api.dossier.models.dto.CreateDossierDTO;
+import com.gestiondossier.api.dossier.models.dto.DossierDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("api/v1/dossiers")
+@RequestMapping("/api/dossiers")
 @RequiredArgsConstructor
 public class DossierController {
+
     private final DossierService dossierService;
 
-    @GetMapping
-    public List<Dossier> findAll() {
-        return dossierService.findAll();
+    @PostMapping
+    public ResponseEntity<DossierDTO> createDossier(@RequestBody CreateDossierDTO createDossierDTO) {
+        DossierDTO dossierDTO = dossierService.createDossier(createDossierDTO);
+        return new ResponseEntity<>(dossierDTO, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public Dossier findById(@PathVariable("id") Integer dossierId) {
-        return Optional.ofNullable(dossierService.findById(dossierId)).orElseThrow(DossierNotFoundException::new);
+    public ResponseEntity<DossierDTO> getDossierById(@PathVariable Integer id) {
+        DossierDTO dossierDTO = dossierService.getDossierById(id);
+        return ResponseEntity.ok(dossierDTO);
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Dossier createDossier(@RequestBody Dossier dossier) {
-        return dossierService.createDossier(dossier);
+    @GetMapping
+    public ResponseEntity<List<DossierDTO>> getAllDossiers() {
+        List<DossierDTO> dossiers = dossierService.getAllDossiers();
+        return ResponseEntity.ok(dossiers);
     }
 
     @PutMapping("/{id}")
-    public Dossier updateDossier(@PathVariable("id") Integer id, @RequestBody Dossier dossier) {
-        return Optional.ofNullable(dossierService.updateDossier(id, dossier)).orElseThrow(DossierNotFoundException::new);
+    public ResponseEntity<DossierDTO> updateDossier(@PathVariable Integer id, @RequestBody DossierDTO dossierDTO) {
+        DossierDTO updatedDossier = dossierService.updateDossier(id, dossierDTO);
+        return ResponseEntity.ok(updatedDossier);
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
-    public void deleteDossier(@PathVariable("id") Integer dossierId) {
-        dossierService.deleteDossier(dossierId);
+    public ResponseEntity<Void> deleteDossier(@PathVariable Integer id) {
+        dossierService.deleteDossier(id);
+        return ResponseEntity.noContent().build();
     }
-
 }
