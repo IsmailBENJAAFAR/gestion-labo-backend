@@ -43,7 +43,7 @@ public class AppConfig {
                              Queue fromUserQueue) {
         return BindingBuilder.bind(fromUserQueue)
                 .to(topicExchange)
-                .with("should.i.delete.*");
+                .with("should.i.utilisatuer.delete.labo");
     }
 
     @Bean
@@ -51,7 +51,7 @@ public class AppConfig {
                              Queue fromContactQueue) {
         return BindingBuilder.bind(fromContactQueue)
                 .to(topicExchange)
-                .with("should.i.delete.*");
+                .with("should.i.contact.delete.labo");
     }
 
     @Bean
@@ -59,6 +59,6 @@ public class AppConfig {
                              Queue fromAnalyseQueue) {
         return BindingBuilder.bind(fromAnalyseQueue)
                 .to(topicExchange)
-                .with("should.i.delete.*");
+                .with("should.i.analyse.delete.labo");
     }
 }
