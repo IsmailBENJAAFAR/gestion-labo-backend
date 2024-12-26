@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/gestion-contact.main.iml" filepath="$PROJECT_DIR$/.idea/modules/gestion-contact.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/gestion-dossier.main.iml" filepath="$PROJECT_DIR$/.idea/modules/gestion-dossier.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/gestion-utilisateur.main.iml" filepath="$PROJECT_DIR$/.idea/modules/gestion-utilisateur.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/gestionLaboBackend.iml" filepath="$PROJECT_DIR$/.idea/gestionLaboBackend.iml" />
     </modules>
   </component>
