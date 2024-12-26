@@ -46,9 +46,10 @@ public class LaboratoireService {
     public LaboratoireDTO getLaboratoiresById(Long id) throws EntityNotFoundException {
         Optional<Laboratoire> optionalLaboratoire = laboratoireRepository.findById(id);
         if (optionalLaboratoire.isPresent())
-            return new LaboratoireDTO(optionalLaboratoire.get());
+            {laboratoireExternalService.sendReqToDependencies(id);
+            return new LaboratoireDTO(optionalLaboratoire.get());}
         else
-            throw new EntityNotFoundException("Laboratory Not found");
+            {throw new EntityNotFoundException("Laboratory Not found");}
     }
 
     public ResponseEntity<ApiResponse> createLaboratoire(Laboratoire laboratoire) {
