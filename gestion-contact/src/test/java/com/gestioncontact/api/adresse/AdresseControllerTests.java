@@ -37,7 +37,7 @@ class AdresseControllerTests {
 
         when(adresseService.getAllAdresses()).thenReturn(adresses);
 
-        mockMvc.perform(get("/api/adresses")
+        mockMvc.perform(get("/api/v1/adresses")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
@@ -51,7 +51,7 @@ class AdresseControllerTests {
 
         when(adresseService.getAdresseById(1)).thenReturn(adresse);
 
-        mockMvc.perform(get("/api/adresses/1")
+        mockMvc.perform(get("/api/v1/adresses/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -71,7 +71,7 @@ class AdresseControllerTests {
 
         when(adresseService.createAdresse(Mockito.any(CreateAdresseDTO.class))).thenReturn(adresseDTO);
 
-        mockMvc.perform(post("/api/adresses")
+        mockMvc.perform(post("/api/v1/adresses")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -93,7 +93,7 @@ class AdresseControllerTests {
 
         when(adresseService.updateAdresse(Mockito.eq(1), Mockito.any(AdresseDTO.class))).thenReturn(updatedAdresse);
 
-        mockMvc.perform(put("/api/adresses/1")
+        mockMvc.perform(put("/api/v1/adresses/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -111,7 +111,7 @@ class AdresseControllerTests {
 
     @Test
     void shouldDeleteAdresse() throws Exception {
-        mockMvc.perform(delete("/api/adresses/1"))
+        mockMvc.perform(delete("/api/v1/adresses/1"))
                 .andExpect(status().isNoContent());
     }
 }

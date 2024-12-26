@@ -39,7 +39,7 @@ class ContactLaboratoireControllerTests {
 
         when(contactLaboratoireService.getAllContactLaboratoires()).thenReturn(contacts);
 
-        mockMvc.perform(get("/api/contactlaboratoires")
+        mockMvc.perform(get("/api/v1/contactlaboratoires")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
@@ -53,7 +53,7 @@ class ContactLaboratoireControllerTests {
 
         when(contactLaboratoireService.getContactLaboratoireById(1)).thenReturn(contact);
 
-        mockMvc.perform(get("/api/contactlaboratoires/1")
+        mockMvc.perform(get("/api/v1/contactlaboratoires/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -73,7 +73,7 @@ class ContactLaboratoireControllerTests {
 
         when(contactLaboratoireService.createContactLaboratoire(Mockito.any(CreateContactLaboratoireDTO.class))).thenReturn(contactDTO);
 
-        mockMvc.perform(post("/api/contactlaboratoires")
+        mockMvc.perform(post("/api/v1/contactlaboratoires")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -102,7 +102,7 @@ class ContactLaboratoireControllerTests {
 
         when(contactLaboratoireService.updateContactLaboratoire(Mockito.eq(1), Mockito.any(ContactLaboratoireDTO.class))).thenReturn(updatedContact);
 
-        mockMvc.perform(put("/api/contactlaboratoires/1")
+        mockMvc.perform(put("/api/v1/contactlaboratoires/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -127,7 +127,7 @@ class ContactLaboratoireControllerTests {
 
     @Test
     void shouldDeleteContactLaboratoire() throws Exception {
-        mockMvc.perform(delete("/api/contactlaboratoires/1"))
+        mockMvc.perform(delete("/api/v1/contactlaboratoires/1"))
                 .andExpect(status().isNoContent());
     }
 }
