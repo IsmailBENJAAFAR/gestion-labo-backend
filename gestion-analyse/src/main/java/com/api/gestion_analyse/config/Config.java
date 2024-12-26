@@ -1,0 +1,30 @@
+package com.api.gestion_analyse.config;
+
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.TopicExchange;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class Config {
+
+    @Bean
+    public TopicExchange topicExchange() {
+        return new TopicExchange("mainExchange");
+    }
+
+    @Bean
+    public Queue fromLaboratoireQueue() {
+        return new Queue("fromUserQueue");
+    }
+
+    @Bean
+    public Binding bindingToAnalyse(TopicExchange topicExchange,
+                             Queue fromLaboratoireQueue) {
+        return BindingBuilder.bind(fromLaboratoireQueue)
+                .to(topicExchange)
+                .with("labo.delete.*");
+    }
+}
