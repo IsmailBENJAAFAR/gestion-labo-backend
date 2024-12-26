@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/contactlaboratoires")
+@RequestMapping("/api/v1/contactlaboratoires")
 @RequiredArgsConstructor
 public class ContactLaboratoireController {
 
