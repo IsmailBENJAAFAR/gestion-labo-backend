@@ -37,7 +37,7 @@ class DossierControllerTests {
 
         when(dossierService.getAllDossiers()).thenReturn(dossiers);
 
-        mockMvc.perform(get("/api/dossiers")
+        mockMvc.perform(get("/api/v1/dossiers")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
@@ -51,7 +51,7 @@ class DossierControllerTests {
 
         when(dossierService.getDossierById(1)).thenReturn(dossier);
 
-        mockMvc.perform(get("/api/dossiers/1")
+        mockMvc.perform(get("/api/v1/dossiers/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -68,7 +68,7 @@ class DossierControllerTests {
 
         when(dossierService.createDossier(Mockito.any(CreateDossierDTO.class))).thenReturn(dossierDTO);
 
-        mockMvc.perform(post("/api/dossiers")
+        mockMvc.perform(post("/api/v1/dossiers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -88,7 +88,7 @@ class DossierControllerTests {
 
         when(dossierService.updateDossier(Mockito.eq(1), Mockito.any(DossierDTO.class))).thenReturn(dossierDTO);
 
-        mockMvc.perform(put("/api/dossiers/1")
+        mockMvc.perform(put("/api/v1/dossiers/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -104,7 +104,7 @@ class DossierControllerTests {
 
     @Test
     void shouldDeleteDossier() throws Exception {
-        mockMvc.perform(delete("/api/dossiers/1"))
+        mockMvc.perform(delete("/api/v1/dossiers/1"))
                 .andExpect(status().isNoContent());
     }
 }

@@ -37,7 +37,7 @@ class PatientControllerTests {
 
         when(patientService.getAllPatients()).thenReturn(patients);
 
-        mockMvc.perform(get("/api/patients")
+        mockMvc.perform(get("/api/v1/patients")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
@@ -51,7 +51,7 @@ class PatientControllerTests {
 
         when(patientService.getPatientById(1)).thenReturn(patient);
 
-        mockMvc.perform(get("/api/patients/1")
+        mockMvc.perform(get("/api/v1/patients/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -68,7 +68,7 @@ class PatientControllerTests {
 
         when(patientService.createPatient(Mockito.any(CreatePatientDTO.class))).thenReturn(patientDTO);
 
-        mockMvc.perform(post("/api/patients")
+        mockMvc.perform(post("/api/v1/patients")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -87,7 +87,7 @@ class PatientControllerTests {
 
         when(patientService.updatePatient(Mockito.eq(1), Mockito.any(PatientDTO.class))).thenReturn(patientDTO);
 
-        mockMvc.perform(put("/api/patients/1")
+        mockMvc.perform(put("/api/v1/patients/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -102,7 +102,7 @@ class PatientControllerTests {
 
     @Test
     void shouldDeletePatient() throws Exception {
-        mockMvc.perform(delete("/api/patients/1"))
+        mockMvc.perform(delete("/api/v1/patients/1"))
                 .andExpect(status().isNoContent());
     }
 }
