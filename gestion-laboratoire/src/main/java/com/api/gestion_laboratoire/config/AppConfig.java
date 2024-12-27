@@ -5,13 +5,23 @@ import org.springframework.context.annotation.Configuration;
 
 import com.cloudinary.Cloudinary;
 
+import java.util.List;
+
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.support.converter.SimpleMessageConverter;
 
 @Configuration
 public class AppConfig {
+
+    @Bean
+    public SimpleMessageConverter converter() {
+        SimpleMessageConverter converter = new SimpleMessageConverter();
+        converter.setAllowedListPatterns(List.of("java.util.*", "java.lang.Boolean"));
+        return converter;
+    }
 
     @Bean
     public Cloudinary cloudinary() {
