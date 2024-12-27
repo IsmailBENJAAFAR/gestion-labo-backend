@@ -56,11 +56,11 @@ public class AnalyseExternalCommunicationService {
     public void checkDependencyWithLabo(Long id){
         for (Analyse analyse : analyseRepository.findAll()) {
             if (analyse.getFkIdLaboratoire().equals(id)) {
-                rabbitTemplate.convertAndSend(topicExchange.getName(), "should.i.analyse.delete.labo",true);
+                rabbitTemplate.convertAndSend(topicExchange.getName(), "should.i.analyse.delete.labo",1);
                 return;
             }
         }
-        rabbitTemplate.convertAndSend(topicExchange.getName(), "should.i.analyse.delete.labo",false);
+        rabbitTemplate.convertAndSend(topicExchange.getName(), "should.i.analyse.delete.labo",0);
     }
 
     @RabbitListener(queues = "#{fromLaboratoireAnalyseQueue2.name}")
