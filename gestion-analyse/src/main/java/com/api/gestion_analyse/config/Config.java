@@ -16,8 +16,8 @@ public class Config {
     }
 
     @Bean
-    public Queue fromLaboratoireQueue() {
-        return new Queue("fromUserQueue");
+    public Queue fromLaboratoireAnalyseQueue() {
+        return new Queue("fromLaboratoireAnalyseQueue");
     }
 
     @Bean
