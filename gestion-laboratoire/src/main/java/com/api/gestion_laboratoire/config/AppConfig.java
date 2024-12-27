@@ -24,54 +24,28 @@ public class AppConfig {
     }
 
     @Bean
-    public Queue fromUserQueue() {
-        return new Queue("fromUserQueue");
+    public Queue fromDependenciesQueue() {
+        return new Queue("fromDependenciesQueue");
     }
 
     @Bean
-    public Queue fromAnalyseQueue() {
-        return new Queue("fromAnalyseQueue");
-    }
-
-    @Bean
-    public Queue fromContactQueue() {
-        return new Queue("fromContactQueue");
-    }
-
-    @Bean
-    public Queue fromAnalyseCreateQueue() {
-        return new Queue("fromAnalyseCreateQueue");
-    }
-
-    @Bean
-    public Binding utilisateurBindingToDeleteLabo(TopicExchange topicExchange,
-            Queue fromUserQueue) {
-        return BindingBuilder.bind(fromUserQueue)
+    public Binding dependencyBinding(TopicExchange topicExchange,
+            Queue fromDependenciesQueue) {
+        return BindingBuilder.bind(fromDependenciesQueue)
                 .to(topicExchange)
-                .with("should.i.utilisatuer.delete.labo");
+                .with("should.i.delete.labo");
     }
 
     @Bean
-    public Binding contactBindingToDeleteLabo(TopicExchange topicExchange,
-            Queue fromContactQueue) {
-        return BindingBuilder.bind(fromContactQueue)
+    public Queue fromDeletionEventsQueue() {
+        return new Queue("fromDeletionEventsQueue");
+    }
+
+    @Bean
+    public Binding bindingToDeleteLabo(TopicExchange topicExchange,
+            Queue fromDeletionEventsQueue) {
+        return BindingBuilder.bind(fromDeletionEventsQueue)
                 .to(topicExchange)
                 .with("should.i.contact.delete.labo");
-    }
-
-    @Bean
-    public Binding analyseBindingToDeleteLabo(TopicExchange topicExchange,
-            Queue fromAnalyseQueue) {
-        return BindingBuilder.bind(fromAnalyseQueue)
-                .to(topicExchange)
-                .with("should.i.analyse.delete.labo");
-    }
-
-    @Bean
-    public Binding laboBindingToCreateAnalyse(TopicExchange topicExchange,
-            Queue fromAnalyseCreateQueue) {
-        return BindingBuilder.bind(fromAnalyseCreateQueue)
-                .to(topicExchange)
-                .with("check.labo.id.analyse");
     }
 }

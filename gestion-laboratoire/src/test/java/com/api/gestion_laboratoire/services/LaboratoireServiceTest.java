@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.naming.CommunicationException;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -184,7 +186,7 @@ class LaboratoireServiceTest {
     }
 
     @Test
-    void testGetLaboratoiresById() {
+    void testGetLaboratoiresById() throws EntityNotFoundException, CommunicationException {
         // Test get by id action under normal conditions
         Optional<Laboratoire> laboratoire = Optional.of(new Laboratoire("labo_x", "123456789", true, LocalDate.now()));
 
