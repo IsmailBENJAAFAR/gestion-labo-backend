@@ -47,10 +47,10 @@ public class LaboratoireService {
 
     public LaboratoireDTO getLaboratoiresById(Long id) throws EntityNotFoundException, CommunicationException {
         Optional<Laboratoire> optionalLaboratoire = laboratoireRepository.findById(id);
-        if (optionalLaboratoire.isPresent())
-            // {laboratoireExternalService.areThereDependencies(id);
+        if (optionalLaboratoire.isPresent()) {
+            System.out.println(laboratoireEventsService.canDeleteLaboratoire(id));
             return new LaboratoireDTO(optionalLaboratoire.get());
-        else {
+        } else {
             throw new EntityNotFoundException("Laboratory Not found");
         }
     }
