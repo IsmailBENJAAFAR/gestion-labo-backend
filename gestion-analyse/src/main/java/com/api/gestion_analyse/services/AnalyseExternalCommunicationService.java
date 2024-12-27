@@ -33,15 +33,15 @@ public class AnalyseExternalCommunicationService {
 
 //    @RabbitListener(queues = "#{fromLaboratoireAnalyseQueue.name}")
     public void checkDependencyWithLabo(Long id){
-        Map<Long,Integer> map = new HashMap<>();
+        Map<Long,Boolean> map = new HashMap<>();
         for (Analyse analyse : analyseRepository.findAll()) {
             if (analyse.getFkIdLaboratoire().equals(id)) {
-                map.put(id, 1);
+                map.put(id, true);
                 rabbitTemplate.convertAndSend(topicExchange.getName(), "should.i.delete.labo",map);
                 return;
             }
         }
-        map.put(id, 0);
+        map.put(id, false);
         rabbitTemplate.convertAndSend(topicExchange.getName(), "should.i.delete.labo",map);
     }
 }
