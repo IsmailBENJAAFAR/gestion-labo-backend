@@ -21,9 +21,22 @@ public class Config {
     }
 
     @Bean
+    public Queue fromLaboratoireAnalyseQueue2() {
+        return new Queue("fromLaboratoireAnalyseQueue2");
+    }
+
+    @Bean
     public Binding bindingToAnalyse(TopicExchange topicExchange,
-                             Queue fromLaboratoireQueue) {
-        return BindingBuilder.bind(fromLaboratoireQueue)
+                             Queue fromLaboratoireAnalyseQueue) {
+        return BindingBuilder.bind(fromLaboratoireAnalyseQueue)
+                .to(topicExchange)
+                .with("labo.delete.*");
+    }
+
+    @Bean
+    public Binding bindingToAnalyse2(TopicExchange topicExchange,
+                                    Queue fromLaboratoireAnalyseQueue2) {
+        return BindingBuilder.bind(fromLaboratoireAnalyseQueue2)
                 .to(topicExchange)
                 .with("labo.delete.*");
     }
