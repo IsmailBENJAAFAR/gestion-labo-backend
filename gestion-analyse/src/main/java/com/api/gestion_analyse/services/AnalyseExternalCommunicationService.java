@@ -31,20 +31,17 @@ public class AnalyseExternalCommunicationService {
         this.topicExchange = topicExchange;
     }
 
-    @RabbitListener(queues = "#{fromLaboratoireAnalyseQueue.name}")
+//    @RabbitListener(queues = "#{fromLaboratoireAnalyseQueue.name}")
     public void checkDependencyWithLabo(Long id){
+        Map<Long,Integer> map = new HashMap<>();
         for (Analyse analyse : analyseRepository.findAll()) {
             if (analyse.getFkIdLaboratoire().equals(id)) {
-                rabbitTemplate.convertAndSend(topicExchange.getName(), "should.i.analyse.delete.labo",1);
+                map.put(id, 1);
+                rabbitTemplate.convertAndSend(topicExchange.getName(), "should.i.delete.labo",map);
                 return;
             }
         }
-        rabbitTemplate.convertAndSend(topicExchange.getName(), "should.i.analyse.delete.labo",0);
-    }
-
-    public Integer checkLaboId(Long id){
-        Integer laboId = (Integer) rabbitTemplate.convertSendAndReceive(topicExchange.getName(),"check.labo.id.analyse",id);
-        System.out.println(laboId);
-        return laboId;
+        map.put(id, 0);
+        rabbitTemplate.convertAndSend(topicExchange.getName(), "should.i.delete.labo",map);
     }
 }

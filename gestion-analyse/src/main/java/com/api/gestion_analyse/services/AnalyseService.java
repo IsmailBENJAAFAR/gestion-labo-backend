@@ -48,11 +48,11 @@ public class AnalyseService {
         Optional<Analyse> analyse = analyseRepository.findById(id);
         if (analyse.isPresent()) {
             Analyse fetchedAnalyse = analyse.get();
-
-            if (laboratoire == null)
-                throw new UnirestException("Could not communicate with the laboratoire service");
-            else if (laboratoire.isEmpty())
-                throw new EntityNotFoundException("Analyse not found");
+            analyseExternalCommunicationService.checkDependencyWithLabo(id);
+//            if (laboratoire == null)
+//                throw new UnirestException("Could not communicate with the laboratoire service");
+//            else if (laboratoire.isEmpty())
+//                throw new EntityNotFoundException("Analyse not found");
 
             return new AnalyseDTO(fetchedAnalyse);
 
@@ -65,11 +65,11 @@ public class AnalyseService {
         if (!validator.validate(analyse).isEmpty()) {
             return new ResponseEntity<>(new ApiResponse("Invalid request"), HttpStatus.BAD_REQUEST);
         }
-        JSONObject laboratoireMap = analyseExternalCommunicationService.getLaboWithId(analyse.getFkIdLaboratoire());
-        if ((laboratoireMap == null) || (laboratoireMap.isEmpty())) {
-            return new ResponseEntity<>(new ApiResponse("Invalid laboratoire id in request"),
-                    HttpStatus.BAD_REQUEST);
-        }
+//        JSONObject laboratoireMap = analyseExternalCommunicationService.getLaboWithId(analyse.getFkIdLaboratoire());
+//        if ((laboratoireMap == null) || (laboratoireMap.isEmpty())) {
+//            return new ResponseEntity<>(new ApiResponse("Invalid laboratoire id in request"),
+//                    HttpStatus.BAD_REQUEST);
+//        }
         try {
             Analyse createdAnalyse = analyseRepository.save(analyse);
             return new ResponseEntity<>(new ApiResponse(createdAnalyse),
@@ -84,11 +84,11 @@ public class AnalyseService {
     public ResponseEntity<ApiResponse> updateAnalyse(Long id, Analyse analyse) {
         Optional<Analyse> analyseOpt = analyseRepository.findById(id);
 
-        JSONObject laboratoireMap = analyseExternalCommunicationService.getLaboWithId(analyse.getFkIdLaboratoire());
-        if ((laboratoireMap == null) || (laboratoireMap.isEmpty())) {
-            return new ResponseEntity<>(new ApiResponse("Invalid laboratoire id in request"),
-                    HttpStatus.BAD_REQUEST);
-        }
+//        JSONObject laboratoireMap = analyseExternalCommunicationService.getLaboWithId(analyse.getFkIdLaboratoire());
+//        if ((laboratoireMap == null) || (laboratoireMap.isEmpty())) {
+//            return new ResponseEntity<>(new ApiResponse("Invalid laboratoire id in request"),
+//                    HttpStatus.BAD_REQUEST);
+//        }
 
         return analyseOpt.map(analyseOld -> {
 
