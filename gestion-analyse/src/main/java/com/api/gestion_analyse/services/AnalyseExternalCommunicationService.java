@@ -26,30 +26,9 @@ public class AnalyseExternalCommunicationService {
     public AnalyseExternalCommunicationService(RabbitTemplate rabbitTemplate, TopicExchange topicExchange, AnalyseRepository analyseRepository) {
         this.analyseRepository = analyseRepository;
         this.rabbitTemplate = rabbitTemplate;
+        this.rabbitTemplate.setReceiveTimeout(4000);
+        this.rabbitTemplate.setReplyTimeout(3000);
         this.topicExchange = topicExchange;
-    }
-
-    public JSONObject getLaboWithId(Long id) {
-        try {
-            HttpResponse<JsonNode> resp = Unirest.get("http://gestionlabo:8080/api/v1/laboratoires/" + id).asJson();
-            return resp.isSuccess() ? resp.getBody().getObject() : new JSONObject();
-        } catch (UnirestException e) {
-            return null;
-        }
-    }
-
-    public Map<Long, JSONObject> getAllLabos() {
-        Map<Long, JSONObject> map = new HashMap<>();
-        try {
-            HttpResponse<JsonNode> resp = Unirest.get("http://gestionlabo:8080/api/v1/laboratoires").asJson();
-            for (Object labo : resp.getBody().getArray()) {
-                JSONObject parsedLabo = (JSONObject) labo;
-                map.put(parsedLabo.getLong("id"), parsedLabo);
-            }
-            return map;
-        } catch (UnirestException e) {
-            return null;
-        }
     }
 
     @RabbitListener(queues = "#{fromLaboratoireAnalyseQueue.name}")
@@ -61,5 +40,11 @@ public class AnalyseExternalCommunicationService {
             }
         }
         rabbitTemplate.convertAndSend(topicExchange.getName(), "should.i.analyse.delete.labo",0);
+    }
+
+    public Integer checkLaboId(Long id){
+        Integer laboId = (Integer) rabbitTemplate.convertSendAndReceive(topicExchange.getName(),"check.labo.id.analyse",id);
+        System.out.println(laboId);
+        return laboId;
     }
 }

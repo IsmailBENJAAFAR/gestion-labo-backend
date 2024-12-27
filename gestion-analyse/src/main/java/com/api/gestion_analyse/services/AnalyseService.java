@@ -44,19 +44,17 @@ public class AnalyseService {
         return listAnalyseDTO;
     }
 
-    public AnalyseDTOExtended getAnalyseById(Long id) {
+    public AnalyseDTO getAnalyseById(Long id) {
         Optional<Analyse> analyse = analyseRepository.findById(id);
         if (analyse.isPresent()) {
             Analyse fetchedAnalyse = analyse.get();
-            JSONObject laboratoire = analyseExternalCommunicationService
-                    .getLaboWithId(fetchedAnalyse.getFkIdLaboratoire());
 
             if (laboratoire == null)
                 throw new UnirestException("Could not communicate with the laboratoire service");
             else if (laboratoire.isEmpty())
                 throw new EntityNotFoundException("Analyse not found");
 
-            return new AnalyseDTOExtended(fetchedAnalyse, laboratoire.getString("nom"));
+            return new AnalyseDTO(fetchedAnalyse);
 
         } else {
             throw new EntityNotFoundException("Analyse not found");
