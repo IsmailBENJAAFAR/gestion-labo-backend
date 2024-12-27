@@ -31,7 +31,7 @@ public class AnalyseExternalCommunicationService {
         this.topicExchange = topicExchange;
     }
 
-//    @RabbitListener(queues = "#{fromLaboratoireAnalyseQueue.name}")
+    @RabbitListener(queues = "#{fromLaboratoireAnalyseQueue.name}")
     public void checkDependencyWithLabo(Long id){
         Map<Long,Boolean> map = new HashMap<>();
         for (Analyse analyse : analyseRepository.findAll()) {
