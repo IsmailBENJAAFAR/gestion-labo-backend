@@ -4,11 +4,11 @@ on:
   push:
     branches: [ master ]
     paths:
-      - 'gestion-contact/**'
+      - 'gestion-dossier/**'
   pull_request:
     branches: [ master ]
     paths:
-      - 'gestion-contact/**'
+      - 'gestion-dossier/**'
 
 jobs:
   compile:
@@ -31,7 +31,7 @@ jobs:
 
       - name: Compile project
         run: |
-          cd gestion-contact
+          cd gestion-dossier
           chmod +x ./gradlew
           ./gradlew compileJava
           ./gradlew compileTestJava
@@ -57,7 +57,7 @@ jobs:
 
       - name: Running Unit Tests
         run: |
-          cd gestion-contact
+          cd gestion-dossier
           chmod +x ./gradlew
           ./gradlew test
 
@@ -66,7 +66,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: gestion-contact/build/reports/tests/
+          path: gestion-dossier/build/reports/tests/
 
   Build-Analyze:
     runs-on: self-hosted
@@ -102,7 +102,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
-          cd gestion-contact
+          cd gestion-dossier
           ./gradlew build
           ./gradlew sonar
         shell: powershell
@@ -111,7 +111,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-jar
-          path: gestion-contact/build/libs/*.jar
+          path: gestion-dossier/build/libs/*.jar
 
   integration-tests:
     runs-on: ubuntu-latest
@@ -121,7 +121,7 @@ jobs:
       - name: Integration Tests
         run: |
           # Add Integration test steps here
-          echo "Integration tests for gestion-contact"
+          echo "Integration tests for gestion-dossier"
 
   performance-tests:
     runs-on: ubuntu-latest
@@ -130,7 +130,7 @@ jobs:
       - name: Performance Tests
         run: |
           # Add Performance test steps here
-          echo "Performance tests for gestion-contact"
+          echo "Performance tests for gestion-dossier"
 
   containerize:
     runs-on: ubuntu-latest
@@ -143,7 +143,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: app-jar
-          path: gestion-contact/build/libs/
+          path: gestion-dossier/build/libs/
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -157,13 +157,13 @@ jobs:
       - name: Build and Push Docker image
         uses: docker/build-push-action@v4
         with:
-          context: ./gestion-contact
+          context: ./gestion-dossier
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/gestion-contact:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/gestion-contact:${{ github.sha }}
-          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/gestion-contact:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/gestion-contact:buildcache,mode=max
+            ${{ secrets.DOCKERHUB_USERNAME }}/gestion-dossier:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/gestion-dossier:${{ github.sha }}
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/gestion-dossier:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/gestion-dossier:buildcache,mode=max
 
   deploy:
     needs: containerize
@@ -174,7 +174,7 @@ jobs:
       - name: Deploy to production
         run: |
           # Add deployment steps here
-          echo "Deploying gestion-contact to production"
+          echo "Deploying gestion-dossier to production"
 
   e2e-tests:
     needs: deploy
@@ -184,4 +184,4 @@ jobs:
       - name: E2E Tests
         run: |
           # Add E2E test steps here
-          echo "E2E tests for gestion-contact"
+          echo "E2E tests for gestion-dossier"
