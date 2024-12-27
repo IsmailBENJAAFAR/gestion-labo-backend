@@ -23,36 +23,36 @@ public class LaboratoireExternalService {
         this.laboratoireRepository = laboratoireRepository;
     }
 
-    public boolean areThereDependencies(Long id) throws CommunicationException {
-        rabbitTemplate.convertAndSend(topicExchange.getName(), "labo.delete.this", id, message -> {
-            message.getMessageProperties().setExpiration(String.valueOf(0));
-            return message;
-        });
-        Boolean isAnalyseDependant = isDependant("fromAnalyseQueue");
-        if (isAnalyseDependant == null)
-            throw new CommunicationException("couldn't communicate with analyse service");
+    // public boolean areThereDependencies(Long id) throws CommunicationException {
+    //     rabbitTemplate.convertAndSend(topicExchange.getName(), "labo.delete.this", id, message -> {
+    //         message.getMessageProperties().setExpiration(String.valueOf(0));
+    //         return message;
+    //     });
+    //     Boolean isAnalyseDependant = isDependant("fromAnalyseQueue");
+    //     if (isAnalyseDependant == null)
+    //         throw new CommunicationException("couldn't communicate with analyse service");
 
-        Boolean isContactDependent = isDependant("fromContactQueue");
-        if (isContactDependent == null)
-            throw new CommunicationException("couldn't communicate with contact service");
-        System.out.println(isAnalyseDependant + "<||>" + isContactDependent);
+    //     Boolean isContactDependent = isDependant("fromContactQueue");
+    //     if (isContactDependent == null)
+    //         throw new CommunicationException("couldn't communicate with contact service");
+    //     System.out.println(isAnalyseDependant + "<||>" + isContactDependent);
 
-        return isContactDependent || isAnalyseDependant;
-    }
+    //     return isContactDependent || isAnalyseDependant;
+    // }
 
-    private Boolean isDependant(String serviceQueueName) throws CommunicationException {
-        Integer isDependant = (Integer) rabbitTemplate.receiveAndConvert(serviceQueueName, 3000);
-        if (isDependant == null)
-            return null;
-        else if (isDependant == 1)
-            return true;
-        else
-            return false;
-    }
+    // private Boolean isDependant(String serviceQueueName) throws CommunicationException {
+    //     Integer isDependant = (Integer) rabbitTemplate.receiveAndConvert(serviceQueueName, 3000);
+    //     if (isDependant == null)
+    //         return null;
+    //     else if (isDependant == 1)
+    //         return true;
+    //     else
+    //         return false;
+    // }
 
-    @RabbitListener(queues = "fromAnalyseCreateQueue")
-    public Integer getLaboId(Long id) {
-        return laboratoireRepository.findById(id).isPresent() ? 1 : 0;
-    }
+    // @RabbitListener(queues = "fromAnalyseCreateQueue")
+    // public Integer getLaboId(Long id) {
+    //     return laboratoireRepository.findById(id).isPresent() ? 1 : 0;
+    // }
 
 }
