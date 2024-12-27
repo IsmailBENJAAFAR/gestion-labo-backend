@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.naming.CommunicationException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -43,10 +45,10 @@ public class LaboratoireService {
         return labos;
     }
 
-    public LaboratoireDTO getLaboratoiresById(Long id) throws EntityNotFoundException {
+    public LaboratoireDTO getLaboratoiresById(Long id) throws EntityNotFoundException, CommunicationException {
         Optional<Laboratoire> optionalLaboratoire = laboratoireRepository.findById(id);
         if (optionalLaboratoire.isPresent())
-            {laboratoireExternalService.sendReqToDependencies(id);
+            {laboratoireExternalService.areThereDependencies(id);
             return new LaboratoireDTO(optionalLaboratoire.get());}
         else
             {throw new EntityNotFoundException("Laboratory Not found");}

@@ -1,5 +1,7 @@
 package com.api.gestion_laboratoire.services;
 
+import javax.naming.CommunicationException;
+
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -8,25 +10,48 @@ import org.springframework.stereotype.Service;
 @Service
 public class LaboratoireExternalService {
 
-    RabbitTemplate rabbitTemplate;
-    TopicExchange topicExchange;
+    private final RabbitTemplate rabbitTemplate;
+    private final TopicExchange topicExchange;
 
     public LaboratoireExternalService(RabbitTemplate rabbitTemplate, TopicExchange topicExchange) {
         this.rabbitTemplate = rabbitTemplate;
         this.topicExchange = topicExchange;
     }
+    
+    public boolean areThereDependencies(Long id) throws CommunicationException {
+        rabbitTemplate.convertAndSend(topicExchange.getName(), "labo.delete.this", id, message -> {
+            message.getMessageProperties().setExpiration(String.valueOf(0));
+            return message;
+        });
+        Boolean isAnalyseDependant = isDependant("fromAnalyseQueue");
+        if (isAnalyseDependant == null)
+            throw new CommunicationException("couldn't communicate with analyse service");
 
-    public void sendReqToDependencies(Long id) {
-        rabbitTemplate.convertAndSend(topicExchange.getName(), "labo.delete.this", id);
+        Boolean isContactDependent = isDependant("fromContactQueue");
+        if (isContactDependent == null)
+            throw new CommunicationException("couldn't communicate with contact service");
+        System.out.println(isAnalyseDependant +"<||>"+ isContactDependent);
+
+        return isContactDependent || isAnalyseDependant;
     }
 
-    @RabbitListener(queues = "fromAnalyseQueue")
-    public void getLaboDeletionResponseFromAnalyse(int response) {
-        if (response == 0) {
-            System.out.println("no dependency");
-        } else if (response == -1) {
-            System.out.println("THERE IS dependency");
-        }
+    private Boolean isDependant(String serviceQueueName) throws CommunicationException {
+        Integer isDependant = (Integer) rabbitTemplate.receiveAndConvert(serviceQueueName, 3000);
+        if (isDependant == null)
+            return null;
+        else if (isDependant == 1)
+            return true;
+        else
+            return false;
     }
+
+    // @RabbitListener(queues = "fromAnalyseQueue")
+    // public void getLaboDeletionResponseFromAnalyse(int response) {
+    // if (response == 0) {
+    // System.out.println("no dependency");
+    // } else if (response == -1) {
+    // System.out.println("THERE IS dependency");
+    // }
+    // }
 
 }

@@ -2,6 +2,8 @@ package com.api.gestion_laboratoire.controllers;
 
 import java.util.List;
 
+import javax.naming.CommunicationException;
+
 import com.api.gestion_laboratoire.errors.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.api.gestion_laboratoire.dto.LaboratoireDTO;
 import com.api.gestion_laboratoire.models.Laboratoire;
 import com.api.gestion_laboratoire.services.LaboratoireService;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @RestController
 @RequestMapping(path = "api/v1/laboratoires")
@@ -37,7 +41,7 @@ public class LaboratoireController {
     }
 
     @GetMapping(path = "{laboId}")
-    public LaboratoireDTO getById(@PathVariable(name = "laboId") Long id) {
+    public LaboratoireDTO getById(@PathVariable(name = "laboId") Long id) throws EntityNotFoundException, CommunicationException {
         return laboratoireService.getLaboratoiresById(id);
     }
 

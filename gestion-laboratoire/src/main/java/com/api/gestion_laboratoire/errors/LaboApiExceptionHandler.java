@@ -1,5 +1,7 @@
 package com.api.gestion_laboratoire.errors;
 
+import javax.naming.CommunicationException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -20,5 +22,11 @@ public class LaboApiExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<ApiResponse> handleBadLaboBodyRequest(IllegalArgumentException ex) {
         return new ResponseEntity<>(new ApiResponse(ex.getMessage()),
                 HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CommunicationException.class)
+    protected ResponseEntity<ApiResponse> handleBadLaboBodyRequest(CommunicationException ex) {
+        return new ResponseEntity<>(new ApiResponse(ex.getMessage()),
+                HttpStatus.REQUEST_TIMEOUT);
     }
 }
