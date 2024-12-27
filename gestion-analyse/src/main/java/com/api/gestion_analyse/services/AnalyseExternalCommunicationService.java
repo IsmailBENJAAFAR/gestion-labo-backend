@@ -64,9 +64,9 @@ public class AnalyseExternalCommunicationService {
         return 0;
     }
 
-    @RabbitListener(queues = "#{fromLaboratoireAnalyseQueue2.name}")
-    public int checkDependencyWithLabo2(){
-//        rabbitTemplate.convertAndSend(topicExchange.getName(), "should.i.contact.delete.labo",69);
-        return 69;
-    }
+//    @RabbitListener(queues = "#{fromLaboratoireAnalyseQueue2.name}")
+//    public int checkDependencyWithLabo2(){
+////        rabbitTemplate.convertAndSend(topicExchange.getName(), "should.i.contact.delete.labo",69);
+//        return 69;
+//    }
 }
