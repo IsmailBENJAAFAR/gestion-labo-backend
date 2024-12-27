@@ -56,6 +56,6 @@ public class AppConfig {
             Queue fromDeletionEventsQueue) {
         return BindingBuilder.bind(fromDeletionEventsQueue)
                 .to(topicExchange)
-                .with("should.i.contact.delete.labo");
+                .with("delete.labo");
     }
 }

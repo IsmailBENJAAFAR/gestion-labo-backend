@@ -26,14 +26,14 @@ public class LaboratoireService {
 
     private final LaboratoireRepository laboratoireRepository;
     private final StorageService storageService;
-    private final LaboratoireExternalService laboratoireExternalService;
+    private final LaboratoireEventsService laboratoireEventsService;
     private final Validator validator;
 
     public LaboratoireService(LaboratoireRepository laboratoireRepository, StorageService storageService,
-            LaboratoireExternalService laboratoireExternalService) {
+            LaboratoireEventsService laboratoireEventsService) {
         this.laboratoireRepository = laboratoireRepository;
         this.storageService = storageService;
-        this.laboratoireExternalService = laboratoireExternalService;
+        this.laboratoireEventsService = laboratoireEventsService;
         this.validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
@@ -50,8 +50,9 @@ public class LaboratoireService {
         if (optionalLaboratoire.isPresent())
             // {laboratoireExternalService.areThereDependencies(id);
             return new LaboratoireDTO(optionalLaboratoire.get());
-        else
-            {throw new EntityNotFoundException("Laboratory Not found");}
+        else {
+            throw new EntityNotFoundException("Laboratory Not found");
+        }
     }
 
     public ResponseEntity<ApiResponse> createLaboratoire(Laboratoire laboratoire) {
@@ -110,17 +111,23 @@ public class LaboratoireService {
         Optional<Laboratoire> optionalLaboratoire = laboratoireRepository.findById(id);
         if (optionalLaboratoire.isPresent()) {
             Laboratoire laboratoire = optionalLaboratoire.get();
-            String imageDeletionMessage = storageService
-                    .deleteImage(laboratoire.getLogoID());
+            Boolean canDeleteLaboratoire = laboratoireEventsService.canDeleteLaboratoire(id);
+            if (canDeleteLaboratoire) {
+                String imageDeletionMessage = storageService
+                        .deleteImage(laboratoire.getLogoID());
 
-            if (imageDeletionMessage.contains("Failed to delete image")) {
-                return new ResponseEntity<>(
-                        new ApiResponse("Could not delete laboratory, " + imageDeletionMessage),
-                        HttpStatus.FAILED_DEPENDENCY);
+                if (imageDeletionMessage.contains("Failed to delete image")) {
+                    return new ResponseEntity<>(
+                            new ApiResponse("Could not delete laboratory, " + imageDeletionMessage),
+                            HttpStatus.FAILED_DEPENDENCY);
+                }
+                laboratoireRepository.deleteById(id);
+                return new ResponseEntity<>(new ApiResponse("Laboratory deleted"),
+                        HttpStatus.NO_CONTENT);
+            } else {
+                return new ResponseEntity<>(new ApiResponse("Laboratoire has dependencies"),
+                        HttpStatus.BAD_REQUEST);
             }
-            laboratoireRepository.deleteById(id);
-            return new ResponseEntity<>(new ApiResponse("Laboratory deleted"),
-                    HttpStatus.NO_CONTENT);
         } else {
             return new ResponseEntity<>(new ApiResponse("Laboratory not found"),
                     HttpStatus.NOT_FOUND);
