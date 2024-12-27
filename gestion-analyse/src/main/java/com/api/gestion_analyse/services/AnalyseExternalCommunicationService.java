@@ -53,20 +53,19 @@ public class AnalyseExternalCommunicationService {
     }
 
     @RabbitListener(queues = "#{fromLaboratoireAnalyseQueue.name}")
-    public int checkDependencyWithLabo(Long id){
+    public void checkDependencyWithLabo(Long id){
         for (Analyse analyse : analyseRepository.findAll()) {
             if (analyse.getFkIdLaboratoire().equals(id)) {
-//                rabbitTemplate.convertAndSend(topicExchange.getName(), "should.i.analyse.delete.labo",-1);
-                return -1;
+                rabbitTemplate.convertAndSend(topicExchange.getName(), "should.i.analyse.delete.labo",-1);
+                return;
             }
         }
-//        rabbitTemplate.convertAndSend(topicExchange.getName(), "should.i.analyse.delete.labo",0);
-        return 0;
+        rabbitTemplate.convertAndSend(topicExchange.getName(), "should.i.analyse.delete.labo",0);
     }
 
-//    @RabbitListener(queues = "#{fromLaboratoireAnalyseQueue2.name}")
-//    public int checkDependencyWithLabo2(){
-////        rabbitTemplate.convertAndSend(topicExchange.getName(), "should.i.contact.delete.labo",69);
+    @RabbitListener(queues = "#{fromLaboratoireAnalyseQueue2.name}")
+    public void checkDependencyWithLabo2(){
+        rabbitTemplate.convertAndSend(topicExchange.getName(), "should.i.contact.delete.labo",69);
 //        return 69;
-//    }
+    }
 }
