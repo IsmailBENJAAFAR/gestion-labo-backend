@@ -7,17 +7,22 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
+import com.api.gestion_laboratoire.repositories.LaboratoireRepository;
+
 @Service
 public class LaboratoireExternalService {
 
     private final RabbitTemplate rabbitTemplate;
     private final TopicExchange topicExchange;
+    private final LaboratoireRepository laboratoireRepository;
 
-    public LaboratoireExternalService(RabbitTemplate rabbitTemplate, TopicExchange topicExchange) {
+    public LaboratoireExternalService(RabbitTemplate rabbitTemplate, TopicExchange topicExchange,
+            LaboratoireRepository laboratoireRepository) {
         this.rabbitTemplate = rabbitTemplate;
         this.topicExchange = topicExchange;
+        this.laboratoireRepository = laboratoireRepository;
     }
-    
+
     public boolean areThereDependencies(Long id) throws CommunicationException {
         rabbitTemplate.convertAndSend(topicExchange.getName(), "labo.delete.this", id, message -> {
             message.getMessageProperties().setExpiration(String.valueOf(0));
@@ -30,7 +35,7 @@ public class LaboratoireExternalService {
         Boolean isContactDependent = isDependant("fromContactQueue");
         if (isContactDependent == null)
             throw new CommunicationException("couldn't communicate with contact service");
-        System.out.println(isAnalyseDependant +"<||>"+ isContactDependent);
+        System.out.println(isAnalyseDependant + "<||>" + isContactDependent);
 
         return isContactDependent || isAnalyseDependant;
     }
@@ -45,13 +50,9 @@ public class LaboratoireExternalService {
             return false;
     }
 
-    // @RabbitListener(queues = "fromAnalyseQueue")
-    // public void getLaboDeletionResponseFromAnalyse(int response) {
-    // if (response == 0) {
-    // System.out.println("no dependency");
-    // } else if (response == -1) {
-    // System.out.println("THERE IS dependency");
-    // }
-    // }
+    @RabbitListener(queues = "fromAnalyseCreateQueue")
+    public Integer getLaboId(Long id) {
+        return laboratoireRepository.findById(id).isPresent() ? 1 : 0;
+    }
 
 }

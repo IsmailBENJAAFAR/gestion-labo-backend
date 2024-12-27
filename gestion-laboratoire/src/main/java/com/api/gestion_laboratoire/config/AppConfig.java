@@ -39,8 +39,13 @@ public class AppConfig {
     }
 
     @Bean
+    public Queue fromAnalyseCreateQueue() {
+        return new Queue("fromAnalyseCreateQueue");
+    }
+
+    @Bean
     public Binding utilisateurBindingToDeleteLabo(TopicExchange topicExchange,
-                             Queue fromUserQueue) {
+            Queue fromUserQueue) {
         return BindingBuilder.bind(fromUserQueue)
                 .to(topicExchange)
                 .with("should.i.utilisatuer.delete.labo");
@@ -48,7 +53,7 @@ public class AppConfig {
 
     @Bean
     public Binding contactBindingToDeleteLabo(TopicExchange topicExchange,
-                             Queue fromContactQueue) {
+            Queue fromContactQueue) {
         return BindingBuilder.bind(fromContactQueue)
                 .to(topicExchange)
                 .with("should.i.contact.delete.labo");
@@ -56,9 +61,17 @@ public class AppConfig {
 
     @Bean
     public Binding analyseBindingToDeleteLabo(TopicExchange topicExchange,
-                             Queue fromAnalyseQueue) {
+            Queue fromAnalyseQueue) {
         return BindingBuilder.bind(fromAnalyseQueue)
                 .to(topicExchange)
                 .with("should.i.analyse.delete.labo");
+    }
+
+    @Bean
+    public Binding laboBindingToCreateAnalyse(TopicExchange topicExchange,
+            Queue fromAnalyseCreateQueue) {
+        return BindingBuilder.bind(fromAnalyseCreateQueue)
+                .to(topicExchange)
+                .with("check.labo.id.analyse");
     }
 }
