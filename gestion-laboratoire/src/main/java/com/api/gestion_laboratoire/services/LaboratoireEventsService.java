@@ -30,6 +30,9 @@ public class LaboratoireEventsService {
     }
 
     private void attemptDeleteLaboratoire(Long id) {
+        if (entriesToDelete.size() > 0) {
+            entriesToDelete.clear();
+        }
         entriesToDelete.put(id, new ArrayList<Boolean>());
         rabbitTemplate.convertAndSend(topicExchange.getName(), "labo.delete.this", id, message -> {
             message.getMessageProperties().setExpiration(String.valueOf(0));
@@ -42,7 +45,9 @@ public class LaboratoireEventsService {
         Long laboId = dependencyResponse.keySet().iterator().next();
         Boolean isDependent = dependencyResponse.values().iterator().next();
         System.out.println(laboId + "=>" + isDependent);
+        System.out.println(entriesToDelete);
         entriesToDelete.get(laboId).add(isDependent);
+        System.out.println(entriesToDelete);
 
         for (Entry<Long, List<Boolean>> entry : entriesToDelete.entrySet()) {
             if (entry.getValue().size() == numberOfDependencies) {
