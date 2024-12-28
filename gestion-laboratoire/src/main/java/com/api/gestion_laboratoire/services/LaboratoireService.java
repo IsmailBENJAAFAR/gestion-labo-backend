@@ -107,7 +107,7 @@ public class LaboratoireService {
                 HttpStatus.NOT_FOUND);
     }
 
-    public ResponseEntity<ApiResponse> deleteLaboratoire(Long id) {
+    public ResponseEntity<ApiResponse> deleteLaboratoire(Long id) throws CommunicationException {
         Optional<Laboratoire> optionalLaboratoire = laboratoireRepository.findById(id);
         if (optionalLaboratoire.isPresent()) {
             Laboratoire laboratoire = optionalLaboratoire.get();
@@ -124,6 +124,8 @@ public class LaboratoireService {
                 laboratoireRepository.deleteById(id);
                 return new ResponseEntity<>(new ApiResponse("Laboratory deleted"),
                         HttpStatus.NO_CONTENT);
+            } else if (canDeleteLaboratoire == null) {
+                throw new CommunicationException("Couldn't communicate with some services");
             } else {
                 return new ResponseEntity<>(new ApiResponse("Laboratoire has dependencies"),
                         HttpStatus.BAD_REQUEST);

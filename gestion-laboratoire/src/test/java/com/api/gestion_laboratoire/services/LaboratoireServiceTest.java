@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.naming.CommunicationException;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -135,7 +137,7 @@ class LaboratoireServiceTest {
     }
 
     @Test
-    void testDeleteLaboratoire() {
+    void testDeleteLaboratoire() throws CommunicationException {
         // Test delete action under normal conditions
         Optional<Laboratoire> laboratoire = Optional.of(new Laboratoire("labo_x", "123456789", true, LocalDate.now()));
 
@@ -151,7 +153,7 @@ class LaboratoireServiceTest {
     }
 
     @Test
-    void testDeleteLaboratoireWithBadId() {
+    void testDeleteLaboratoireWithBadId() throws CommunicationException {
         // Test delete action with an invalid id
         ResponseEntity<ApiResponse> response = laboratoireService.deleteLaboratoire(1L);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -159,7 +161,7 @@ class LaboratoireServiceTest {
     }
 
     @Test
-    void testDeleteLaboratoireWithBadCloudinaryCall() {
+    void testDeleteLaboratoireWithBadCloudinaryCall() throws CommunicationException {
         // Test delete action if the cloudinary service fails
         Optional<Laboratoire> laboratoire = Optional.of(new Laboratoire("labo_x", "123456789", true, LocalDate.now()));
 

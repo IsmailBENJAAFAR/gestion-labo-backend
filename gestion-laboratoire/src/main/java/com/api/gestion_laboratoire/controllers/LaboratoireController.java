@@ -2,6 +2,7 @@ package com.api.gestion_laboratoire.controllers;
 
 import java.util.List;
 
+import javax.naming.CommunicationException;
 
 import com.api.gestion_laboratoire.errors.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +57,7 @@ public class LaboratoireController {
     }
 
     @DeleteMapping(path = "{laboId}")
-    public ResponseEntity<ApiResponse> delete(@PathVariable(name = "laboId") Long id) {
+    public ResponseEntity<ApiResponse> delete(@PathVariable(name = "laboId") Long id) throws CommunicationException {
         return laboratoireService.deleteLaboratoire(id);
     }
 
