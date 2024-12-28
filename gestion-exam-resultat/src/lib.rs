@@ -21,6 +21,11 @@ mod dao;
 mod exam;
 mod message_queue;
 
+// TODO: Add résultat
+// TODO: Add seed for database
+// TODO: Add dashboard info for exam
+// TODO: Add rabbitmq (instantiate one through docker, and connect to it in this microservice)
+
 #[derive(Clone)]
 pub struct AppState {
     pub exam_service: Arc<exam::service::Service>,
