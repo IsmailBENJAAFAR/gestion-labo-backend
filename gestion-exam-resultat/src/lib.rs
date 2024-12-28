@@ -21,10 +21,11 @@ mod dao;
 mod exam;
 mod message_queue;
 
-// TODO: Add résultat
-// TODO: Add seed for database
-// TODO: Add dashboard info for exam
 // TODO: Add rabbitmq (instantiate one through docker, and connect to it in this microservice)
+// TODO: Add fetch of resultats for an exam (Think about how to separate the internal data here
+// compared to the deserialized version, most likely you're gonna ignore a field)
+// TODO: Add dashboard info for exam
+// TODO: Add seed for database
 
 #[derive(Clone)]
 pub struct AppState {

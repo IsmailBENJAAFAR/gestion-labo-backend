@@ -1,7 +1,7 @@
 -- Add up migration script here
 CREATE TABLE resultat (
 	id SERIAL PRIMARY KEY,
-	fk_id_exam INTEGER,
+	exam_id INTEGER REFERENCES exam(id),
 	observation TEXT,
 	score INTEGER,
 	created_at TIMESTAMPTZ NOT NULL,
