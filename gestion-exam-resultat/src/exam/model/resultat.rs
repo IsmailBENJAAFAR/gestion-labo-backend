@@ -5,9 +5,6 @@ use sqlx::Row;
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Resultat {
     pub id: i32,
-    // TODO: replace id with the exam entity directly
-    // (That or the other way around, exam contains a list of Resultats)
-    // (think about how the data would be sent though)
     #[serde(rename = "examId")]
     pub fk_id_exam: i32,
     pub observation: String,

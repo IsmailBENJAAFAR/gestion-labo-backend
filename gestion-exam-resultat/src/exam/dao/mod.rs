@@ -1,9 +1,10 @@
+use crate::{dao::interface::Dao, exam::model::Exam};
 use anyhow::Result;
 use axum::async_trait;
 use sqlx::Row;
 use sqlx::{Pool, Postgres};
 
-use crate::{dao::interface::Dao, exam::model::Exam};
+pub mod resultat_dao;
 
 #[derive(Clone)]
 pub struct ExamDao {
@@ -15,6 +16,12 @@ impl ExamDao {
         ExamDao { pool }
     }
 }
+
+// TODO: populate the vec of Resultat for a specific exam id
+// NOTE: In order to do the abov TODO, you have to finish dao for resultat alone be3da.
+// So that you can load results with a specific exam id
+// NOTE: Can be done with two types of loading, eager/lazy. In which case depending on how you want
+// to load it, you can have eager load with the vec of results while lazy keeps the vec empty.
 
 #[async_trait]
 impl Dao<Exam> for ExamDao {
