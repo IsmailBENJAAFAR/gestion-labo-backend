@@ -18,7 +18,7 @@ impl ResultatDao {
 #[async_trait]
 impl Dao<Resultat> for ResultatDao {
     async fn insert(&self, data: &Resultat) -> Result<i32> {
-        todo!("Implement insert resultat")
+        todo!("implement insert resultat")
     }
     async fn update(&self, data: &Resultat) -> Result<Resultat> {
         todo!("implement update resultat")
