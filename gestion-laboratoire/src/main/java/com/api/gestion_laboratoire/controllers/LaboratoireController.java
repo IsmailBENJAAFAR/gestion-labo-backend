@@ -2,7 +2,6 @@ package com.api.gestion_laboratoire.controllers;
 
 import java.util.List;
 
-import javax.naming.CommunicationException;
 
 import com.api.gestion_laboratoire.errors.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +40,7 @@ public class LaboratoireController {
     }
 
     @GetMapping(path = "{laboId}")
-    public LaboratoireDTO getById(@PathVariable(name = "laboId") Long id) throws EntityNotFoundException, CommunicationException {
+    public LaboratoireDTO getById(@PathVariable(name = "laboId") Long id) throws EntityNotFoundException {
         return laboratoireService.getLaboratoiresById(id);
     }
 

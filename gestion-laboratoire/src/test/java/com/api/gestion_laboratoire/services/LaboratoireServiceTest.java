@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.naming.CommunicationException;
-
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +43,7 @@ class LaboratoireServiceTest {
     @Mock
     private LaboratoireRepository laboratoireRepository;
     @Mock
-    private LaboratoireExternalService laboratoireExternalService;
+    private LaboratoireEventsService laboratoireEventsService;
 
     @LocalServerPort
     // Configuring the testcontainer
@@ -55,7 +53,7 @@ class LaboratoireServiceTest {
     @BeforeEach
     void setup() {
         this.laboratoireService = new LaboratoireService(laboratoireRepository, storageService,
-                laboratoireExternalService);
+        laboratoireEventsService);
     }
 
     @BeforeAll
@@ -186,7 +184,7 @@ class LaboratoireServiceTest {
     }
 
     @Test
-    void testGetLaboratoiresById() throws EntityNotFoundException, CommunicationException {
+    void testGetLaboratoiresById() throws EntityNotFoundException {
         // Test get by id action under normal conditions
         Optional<Laboratoire> laboratoire = Optional.of(new Laboratoire("labo_x", "123456789", true, LocalDate.now()));
 
