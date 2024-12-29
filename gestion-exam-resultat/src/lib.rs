@@ -93,7 +93,10 @@ pub async fn run_app() -> anyhow::Result<()> {
 
 fn run_message_queue_handler(rx: Receiver<QueueMessage>) {
     tokio::spawn(async move {
-        QueueInstance::new().run(rx).await;
+        match QueueInstance::new().await {
+            Ok(instance) => instance.run(rx).await,
+            Err(e) => tracing::error!("error starting message queue handler: {e}"),
+        };
     });
 }
 

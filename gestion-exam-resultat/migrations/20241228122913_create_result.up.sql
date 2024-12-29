@@ -8,7 +8,7 @@ CREATE TABLE resultat (
 	glucose_level INTEGER, -- (ex: 95 mg/dL or 5 mmol/L).
 	cholesterol_level INTEGER, -- (ex: 200 mg/dL)
 	weight FLOAT, -- (ex: 55.5kg or 75.3kg)
-	test_outcome VARCHAR(50), -- (ex: "positive" | "negative")
+	test_outcome VARCHAR(12), -- (ex: "positive" | "negative") (makes it a classification problem)
 	recommendations TEXT,
 	created_at TIMESTAMPTZ NOT NULL,
 	updated_at TIMESTAMPTZ
