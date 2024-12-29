@@ -17,10 +17,11 @@ use tokio::{
 };
 use tower_http::cors::CorsLayer;
 
+mod api_error;
 mod dao;
 mod exam;
-mod resultat;
 mod message_queue;
+mod resultat;
 
 // TODO: Add another resource for resultat, and exam should contain a list of resultats whenever
 // you fetch exam eagerly
@@ -131,10 +132,10 @@ async fn handler_404(OriginalUri(uri): OriginalUri) -> impl IntoResponse {
 #[cfg(test)]
 mod test {
     use crate::{
+        api_error::ApiError,
         app,
         dao::interface::{Dao, MockDao},
         exam::{
-            api_error::ApiError,
             dao::ExamDao,
             dto::{CreateExamDto, UpdateExamDto},
             model::Exam,

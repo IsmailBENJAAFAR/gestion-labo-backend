@@ -1,16 +1,13 @@
-use std::sync::Arc;
-
+use super::dto::{CreateExamDto, UpdateExamDto};
+use super::model::Exam;
+use crate::api_error::ApiError;
+use crate::dao::interface::Dao;
+use crate::message_queue::{EventType, QueueMessage};
 use anyhow::anyhow;
 use axum::http::StatusCode;
 use axum::Json;
+use std::sync::Arc;
 use tokio::sync::mpsc::Sender;
-
-use crate::dao::interface::Dao;
-use crate::message_queue::{EventType, QueueMessage};
-
-use super::api_error::ApiError;
-use super::dto::{CreateExamDto, UpdateExamDto};
-use super::model::Exam;
 
 pub struct Service {
     pub dao: Arc<dyn Dao<Exam> + Sync + Send + 'static>,
