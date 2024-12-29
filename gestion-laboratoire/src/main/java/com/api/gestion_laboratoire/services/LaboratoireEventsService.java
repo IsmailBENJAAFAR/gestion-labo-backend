@@ -2,6 +2,7 @@ package com.api.gestion_laboratoire.services;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -12,12 +13,10 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.api.gestion_laboratoire.repositories.LaboratoireRepository;
-
 @Service
 public class LaboratoireEventsService {
 
-    private Map<Long, List<Boolean>> entriesToDelete;
+    private Hashtable<Long, List<Boolean>> entriesToDelete;
     private final RabbitTemplate rabbitTemplate;
     private final TopicExchange topicExchange;
     @Value("${dependency.count}")
@@ -26,13 +25,13 @@ public class LaboratoireEventsService {
     public LaboratoireEventsService(RabbitTemplate rabbitTemplate, TopicExchange topicExchange) {
         this.rabbitTemplate = rabbitTemplate;
         this.topicExchange = topicExchange;
-        this.entriesToDelete = new HashMap<>();
+        this.entriesToDelete = new Hashtable<>();
     }
 
     private void attemptDeleteLaboratoire(Long id) {
-        if (entriesToDelete.size() > 0) {
-            entriesToDelete.clear();
-        }
+        // if (entriesToDelete.size() > 0) {
+        // entriesToDelete.clear();
+        // }
         entriesToDelete.put(id, new ArrayList<Boolean>());
         rabbitTemplate.convertAndSend(topicExchange.getName(), "labo.delete.this", id, message -> {
             message.getMessageProperties().setExpiration(String.valueOf(0));
@@ -45,8 +44,11 @@ public class LaboratoireEventsService {
         Long laboId = dependencyResponse.keySet().iterator().next();
         Boolean isDependent = dependencyResponse.values().iterator().next();
         System.out.println(laboId + "=>" + isDependent);
-        System.out.println(entriesToDelete);
-        entriesToDelete.get(laboId).add(isDependent);
+        try {
+            entriesToDelete.get(laboId).add(isDependent);
+        } catch (NullPointerException e) {
+            return;
+        }
         System.out.println(entriesToDelete);
 
         for (Entry<Long, List<Boolean>> entry : entriesToDelete.entrySet()) {
@@ -74,7 +76,7 @@ public class LaboratoireEventsService {
 
     public Boolean canDeleteLaboratoire(Long id) {
         attemptDeleteLaboratoire(id);
-        return (Boolean) rabbitTemplate.receiveAndConvert("fromDeletionEventsQueue", 3000);
+        return (Boolean) rabbitTemplate.receiveAndConvert("fromDeletionEventsQueue", 10000);
     }
 
 }
