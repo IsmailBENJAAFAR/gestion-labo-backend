@@ -14,11 +14,16 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Service
 public class LaboratoireEventsService {
 
     private final RabbitTemplate rabbitTemplate;
     private final TopicExchange topicExchange;
+    private final ObjectMapper objectMapper;
     @Value("${dependency.count}")
     private int numberOfDependencies;
     @Getter
@@ -28,26 +33,30 @@ public class LaboratoireEventsService {
         this.rabbitTemplate = rabbitTemplate;
         this.topicExchange = topicExchange;
         this.entriesToDelete = new Hashtable<>();
+        this.objectMapper = new ObjectMapper();
     }
 
-    public void attemptDeleteLaboratoire(Long id) {
+    public void attemptDeleteLaboratoire(Long id) throws JsonProcessingException {
         this.getEntriesToDelete().put(id, new ArrayList<>());
-        rabbitTemplate.convertAndSend(topicExchange.getName(), "labo.delete.this", id, message -> {
+        String stringJsonPayload = objectMapper.writeValueAsString(Map.of("laboId", id));
+        rabbitTemplate.convertAndSend(topicExchange.getName(), "labo.delete.this", stringJsonPayload, message -> {
             message.getMessageProperties().setExpiration(String.valueOf(0));
             return message;
         });
     }
 
+    @SuppressWarnings("unchecked")
     @RabbitListener(queues = "fromDependenciesQueue")
-    public void canIDeleteUtilFunct(Map<Long, Boolean> dependencyResponse) {
-        Long laboId = dependencyResponse.keySet().iterator().next();
-        Boolean isDependent = dependencyResponse.values().iterator().next();
+    public void canIDeleteUtilFunct(String dependencyResponseJson) throws JsonMappingException, JsonProcessingException {
+        Map<String, Object> dependencyResponse = objectMapper.readValue(dependencyResponseJson, Map.class);
+        Long laboId = (Long) dependencyResponse.get("laboId");
+        Boolean isDependent = (Boolean) dependencyResponse.get("isDependent");
         System.out.println(laboId + "=>" + isDependent);
-        // try {
-        this.getEntriesToDelete().get(laboId).add(isDependent);
-        // } catch (NullPointerException e) {
-        // return;
-        // }
+        try {
+            this.getEntriesToDelete().get(laboId).add(isDependent);
+        } catch (NullPointerException e) {
+            return;
+        }
         System.out.println(this.getEntriesToDelete());
 
         for (Entry<Long, List<Boolean>> entry : this.getEntriesToDelete().entrySet()) {
@@ -73,7 +82,7 @@ public class LaboratoireEventsService {
         }
     }
 
-    public Boolean canDeleteLaboratoire(Long id) {
+    public Boolean canDeleteLaboratoire(Long id) throws JsonProcessingException {
         try {
             attemptDeleteLaboratoire(id);
         } catch (AmqpException e) {

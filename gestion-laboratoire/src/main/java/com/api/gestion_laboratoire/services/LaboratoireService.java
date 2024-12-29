@@ -16,6 +16,7 @@ import com.api.gestion_laboratoire.dto.LaboratoireDTO;
 import com.api.gestion_laboratoire.errors.ApiResponse;
 import com.api.gestion_laboratoire.models.Laboratoire;
 import com.api.gestion_laboratoire.repositories.LaboratoireRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Validation;
@@ -45,7 +46,7 @@ public class LaboratoireService {
         return labos;
     }
 
-    public LaboratoireDTO getLaboratoiresById(Long id) throws EntityNotFoundException {
+    public LaboratoireDTO getLaboratoiresById(Long id) throws EntityNotFoundException, JsonProcessingException {
         Optional<Laboratoire> optionalLaboratoire = laboratoireRepository.findById(id);
         if (optionalLaboratoire.isPresent()) {
             System.out.println(laboratoireEventsService.canDeleteLaboratoire(id));
@@ -107,7 +108,7 @@ public class LaboratoireService {
                 HttpStatus.NOT_FOUND);
     }
 
-    public ResponseEntity<ApiResponse> deleteLaboratoire(Long id) throws CommunicationException {
+    public ResponseEntity<ApiResponse> deleteLaboratoire(Long id) throws CommunicationException, JsonProcessingException {
         Optional<Laboratoire> optionalLaboratoire = laboratoireRepository.findById(id);
         if (optionalLaboratoire.isPresent()) {
             Laboratoire laboratoire = optionalLaboratoire.get();

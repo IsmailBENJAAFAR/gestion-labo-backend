@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.api.gestion_laboratoire.dto.LaboratoireDTO;
 import com.api.gestion_laboratoire.models.Laboratoire;
 import com.api.gestion_laboratoire.services.LaboratoireService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -41,7 +42,8 @@ public class LaboratoireController {
     }
 
     @GetMapping(path = "{laboId}")
-    public LaboratoireDTO getById(@PathVariable(name = "laboId") Long id) throws EntityNotFoundException {
+    public LaboratoireDTO getById(@PathVariable(name = "laboId") Long id)
+            throws EntityNotFoundException, JsonProcessingException {
         return laboratoireService.getLaboratoiresById(id);
     }
 
@@ -57,7 +59,8 @@ public class LaboratoireController {
     }
 
     @DeleteMapping(path = "{laboId}")
-    public ResponseEntity<ApiResponse> delete(@PathVariable(name = "laboId") Long id) throws CommunicationException {
+    public ResponseEntity<ApiResponse> delete(@PathVariable(name = "laboId") Long id)
+            throws CommunicationException, JsonProcessingException {
         return laboratoireService.deleteLaboratoire(id);
     }
 
