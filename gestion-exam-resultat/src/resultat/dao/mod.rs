@@ -2,7 +2,9 @@ use anyhow::Result;
 use axum::async_trait;
 use sqlx::{Pool, Postgres};
 
-use crate::{dao::interface::Dao, exam::model::resultat::Resultat};
+use crate::dao::interface::Dao;
+
+use super::model::Resultat;
 
 #[derive(Clone)]
 pub struct ResultatDao {

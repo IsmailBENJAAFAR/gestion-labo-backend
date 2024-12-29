@@ -4,8 +4,6 @@ use axum::async_trait;
 use sqlx::Row;
 use sqlx::{Pool, Postgres};
 
-pub mod resultat_dao;
-
 #[derive(Clone)]
 pub struct ExamDao {
     pool: Pool<Postgres>,

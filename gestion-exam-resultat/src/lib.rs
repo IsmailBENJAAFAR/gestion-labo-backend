@@ -19,11 +19,11 @@ use tower_http::cors::CorsLayer;
 
 mod dao;
 mod exam;
+mod resultat;
 mod message_queue;
 
-// TODO: Add rabbitmq (instantiate one through docker, and connect to it in this microservice)
-// TODO: Add fetch of resultats for an exam (Think about how to separate the internal data here
-// compared to the deserialized version, most likely you're gonna ignore a field)
+// TODO: Add another resource for resultat, and exam should contain a list of resultats whenever
+// you fetch exam eagerly
 // TODO: Add dashboard info for exam
 // TODO: Add seed for database
 

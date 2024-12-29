@@ -1,9 +1,8 @@
-pub mod resultat;
-
-use resultat::Resultat;
 use serde::{Deserialize, Serialize};
 use sqlx::postgres::PgRow;
 use sqlx::Row;
+
+use crate::resultat::model::Resultat;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Exam {
