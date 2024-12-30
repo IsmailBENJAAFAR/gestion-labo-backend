@@ -1,10 +1,9 @@
 package com.api.gestion_analyse.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
-import kong.unirest.UnirestException;
-import kong.unirest.json.JSONObject;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.api.gestion_analyse.DTO.AnalyseDTO;
-import com.api.gestion_analyse.DTO.AnalyseDTOExtended;
 import com.api.gestion_analyse.errors.ApiResponse;
 import com.api.gestion_analyse.models.Analyse;
 import com.api.gestion_analyse.repositores.AnalyseRepository;
@@ -44,15 +42,10 @@ public class AnalyseService {
         return listAnalyseDTO;
     }
 
-    public AnalyseDTO getAnalyseById(Long id) {
+    public AnalyseDTO getAnalyseById(Long id)  {
         Optional<Analyse> analyse = analyseRepository.findById(id);
         if (analyse.isPresent()) {
             Analyse fetchedAnalyse = analyse.get();
-//            if (laboratoire == null)
-//                throw new UnirestException("Could not communicate with the laboratoire service");
-//            else if (laboratoire.isEmpty())
-//                throw new EntityNotFoundException("Analyse not found");
-
             return new AnalyseDTO(fetchedAnalyse);
 
         } else {
@@ -60,18 +53,18 @@ public class AnalyseService {
         }
     }
 
-    public ResponseEntity<ApiResponse> createAnalyse(Analyse analyse) {
+    public ResponseEntity<ApiResponse> createAnalyse(Analyse analyse) throws JsonProcessingException {
         if (!validator.validate(analyse).isEmpty()) {
             return new ResponseEntity<>(new ApiResponse("Invalid request"), HttpStatus.BAD_REQUEST);
         }
-//        JSONObject laboratoireMap = analyseExternalCommunicationService.getLaboWithId(analyse.getFkIdLaboratoire());
-//        if ((laboratoireMap == null) || (laboratoireMap.isEmpty())) {
-//            return new ResponseEntity<>(new ApiResponse("Invalid laboratoire id in request"),
-//                    HttpStatus.BAD_REQUEST);
-//        }
+        if(!analyseExternalCommunicationService.checkIfLaboratoireExists(analyse.getFkIdLaboratoire())){
+            return new ResponseEntity<>(new ApiResponse("Invalid laboratoire identifier in request"),
+                    HttpStatus.BAD_REQUEST);
+        }
+
         try {
             Analyse createdAnalyse = analyseRepository.save(analyse);
-            return new ResponseEntity<>(new ApiResponse(createdAnalyse),
+            return new ResponseEntity<>(new ApiResponse(new AnalyseDTO(createdAnalyse)),
                     HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(new ApiResponse("There has been an error when creating this analyse"),
@@ -80,14 +73,17 @@ public class AnalyseService {
     }
 
     @Transactional
-    public ResponseEntity<ApiResponse> updateAnalyse(Long id, Analyse analyse) {
+    public ResponseEntity<ApiResponse> updateAnalyse(Long id, Analyse analyse) throws JsonProcessingException {
         Optional<Analyse> analyseOpt = analyseRepository.findById(id);
 
-//        JSONObject laboratoireMap = analyseExternalCommunicationService.getLaboWithId(analyse.getFkIdLaboratoire());
-//        if ((laboratoireMap == null) || (laboratoireMap.isEmpty())) {
-//            return new ResponseEntity<>(new ApiResponse("Invalid laboratoire id in request"),
-//                    HttpStatus.BAD_REQUEST);
-//        }
+        if (analyse.getFkIdLaboratoire() != null)
+        {
+            Boolean doesLaboratoireExist = analyseExternalCommunicationService.checkIfLaboratoireExists(analyse.getFkIdLaboratoire());
+            if (!doesLaboratoireExist) {
+                return new ResponseEntity<>(new ApiResponse("Invalid laboratoire id in request"),
+                        HttpStatus.BAD_REQUEST);
+            }
+        }
 
         return analyseOpt.map(analyseOld -> {
 
@@ -98,8 +94,7 @@ public class AnalyseService {
                     : analyseOld.getDescription());
 
             // needs check here for foreign key
-            analyseOld.setFkIdLaboratoire(analyse.getFkIdLaboratoire() != null ? analyse.getFkIdLaboratoire()
-                    : analyseOld.getFkIdLaboratoire());
+            analyseOld.setFkIdLaboratoire(analyse.getFkIdLaboratoire());
 
             return new ResponseEntity<>(new ApiResponse(new AnalyseDTO(analyseOld)), HttpStatus.OK);
         }).orElseGet(() -> {

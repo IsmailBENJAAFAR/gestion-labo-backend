@@ -56,4 +56,9 @@ public class AnalyseExternalCommunicationService {
         map.put("isDependent", false);
         rabbitTemplate.convertAndSend(topicExchange.getName(), "should.i.delete.labo",objectMapper.writeValueAsString(map));
     }
+
+    public Boolean checkIfLaboratoireExists(Long idLaboratoire) throws JsonProcessingException {
+        String payload = objectMapper.writeValueAsString(Map.of("laboId",idLaboratoire));
+        return (Boolean) rabbitTemplate.convertSendAndReceive(topicExchange.getName(), "labo.exists.analyse",payload);
+    }
 }
