@@ -29,7 +29,7 @@ import com.api.gestion_analyse.repositores.AnalyseRepository;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith(MockitoExtension.class)
-public class TestAnalyseService {
+class TestAnalyseService {
 
     private AnalyseService analyseService;
     @Mock

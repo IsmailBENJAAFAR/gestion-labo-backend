@@ -100,13 +100,10 @@ public class AnalyseService {
             analyseOld.setDescription(analyse.getDescription() != null ? analyse.getDescription()
                     : analyseOld.getDescription());
 
-            // needs check here for foreign key
             analyseOld.setFkIdLaboratoire(analyse.getFkIdLaboratoire());
 
             return new ResponseEntity<>(new ApiResponse(new AnalyseDTO(analyseOld)), HttpStatus.OK);
-        }).orElseGet(() -> {
-            return new ResponseEntity<>(new ApiResponse("Analyse not found"), HttpStatus.NOT_FOUND);
-        });
+        }).orElseGet(() -> new ResponseEntity<>(new ApiResponse("Analyse not found"), HttpStatus.NOT_FOUND));
 
     }
 
@@ -114,19 +111,7 @@ public class AnalyseService {
         Optional<Analyse> analyse = analyseRepository.findById(id);
         if (analyse.isPresent()) {
             // TODO : Needs to add a check into the testAnalyse MS and the epreuve MS
-            /*
-             * NOTE: this is just a placeholder
-             * map<String,String> hasDependencies =
-             * analyseExternalCommunicationService.checkDependencies(analyse.getId());
-             * if (!hasDependencies.isEmpty()) {
-             * return new ResponseEntity<>(new ApiResponse("laboratoire had dependencies on"
-             * + hasDependencies.keys()),
-             * HttpStatus.BAD_REQUEST);
-             * }
-             * else{
-             * delete
-             * }
-             */
+
             analyseRepository.delete(analyse.get());
             return new ResponseEntity<>(new ApiResponse("Analyse deleted successfully"), HttpStatus.NO_CONTENT);
         } else {

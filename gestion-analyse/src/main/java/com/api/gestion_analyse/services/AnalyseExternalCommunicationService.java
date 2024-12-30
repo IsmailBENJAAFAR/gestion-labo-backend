@@ -20,6 +20,7 @@ public class AnalyseExternalCommunicationService {
     private final AnalyseRepository analyseRepository;
     private final TopicExchange topicExchange;
     private final ObjectMapper objectMapper;
+    private static final String MAIN_FIELD_NAME = "laboId";
 
     public AnalyseExternalCommunicationService(RabbitTemplate rabbitTemplate, TopicExchange topicExchange,
             AnalyseRepository analyseRepository) {
@@ -37,10 +38,10 @@ public class AnalyseExternalCommunicationService {
         };
         Map<String, Object> payloadFromLaboratoire = this.objectMapper.readValue(jsonPayloadFromLaboratoire, typeRef);
         Map<String, Object> map = new HashMap<>();
-        Long id = Long.valueOf((Integer) payloadFromLaboratoire.get("laboId"));
-        map.put("laboId", id);
+        Long id = Long.valueOf((Integer) payloadFromLaboratoire.get(MAIN_FIELD_NAME));
+        map.put(MAIN_FIELD_NAME, id);
         map.put("operation", (String) payloadFromLaboratoire.get("operation"));
-        System.out.println(map);
+
         for (Analyse analyse : analyseRepository.findAll()) {
             if (analyse.getFkIdLaboratoire().equals(id)) {
                 map.put("isDependent", true);
@@ -55,7 +56,7 @@ public class AnalyseExternalCommunicationService {
     }
 
     public Boolean checkIfLaboratoireExists(Long idLaboratoire) throws JsonProcessingException {
-        String payload = objectMapper.writeValueAsString(Map.of("laboId", idLaboratoire));
+        String payload = objectMapper.writeValueAsString(Map.of(MAIN_FIELD_NAME, idLaboratoire));
         return (Boolean) rabbitTemplate.convertSendAndReceive(topicExchange.getName(), "labo.exists.analyse", payload);
     }
 }

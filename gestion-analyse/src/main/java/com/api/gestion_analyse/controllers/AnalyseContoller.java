@@ -36,7 +36,7 @@ public class AnalyseContoller {
     }
 
     @GetMapping(path = "{analyseId}")
-    public AnalyseDTO getById(@PathVariable(name = "analyseId") Long analyseId) throws JsonProcessingException {
+    public AnalyseDTO getById(@PathVariable(name = "analyseId") Long analyseId) {
         return analyseService.getAnalyseById(analyseId);
     }
 
