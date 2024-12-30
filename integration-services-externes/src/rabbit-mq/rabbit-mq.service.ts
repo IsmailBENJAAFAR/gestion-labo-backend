@@ -5,7 +5,6 @@ import {
 } from '@golevelup/nestjs-rabbitmq';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
-import { Channel, ConsumeMessage } from 'amqplib';
 
 @Injectable()
 export class RabbitMqService {
@@ -17,19 +16,18 @@ export class RabbitMqService {
   ) {}
 
   @RabbitSubscribe({
-    exchange: 'main_exchange',
-    routingKey: 'user.*',
+    exchange: 'mainExchange',
+    routingKey: 'user.mail.*',
     queue: 'user_info',
     allowNonJsonMessages: true,
     batchOptions: {
       size: 1000,
       timeout: 5000,
-      errorHandler: batchErrorHandler,
     },
   })
-  public async pubSubHandler(msg: any) {
+  public async pubSubHandler(msg: any): Promise<Nack> {
     try {
-      this.mailSenderService.sendMail({
+      await this.mailSenderService.sendMail({
         from: 'labo.sai.engineer@gmail.com',
         to: 'moghitmi2@gmail.com',
         subject: 'testing the mail',
@@ -48,13 +46,4 @@ export class RabbitMqService {
       }
     }
   }
-}
-function batchErrorHandler(
-  channel: Channel,
-  msg: ConsumeMessage[],
-  error: any,
-): void | Promise<void> {
-  console.log(
-    `Could not send email with message ${msg.map((m) => m.content)}: error<${error}>`,
-  );
 }
