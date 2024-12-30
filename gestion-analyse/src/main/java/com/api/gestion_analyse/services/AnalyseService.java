@@ -48,7 +48,6 @@ public class AnalyseService {
         Optional<Analyse> analyse = analyseRepository.findById(id);
         if (analyse.isPresent()) {
             Analyse fetchedAnalyse = analyse.get();
-            analyseExternalCommunicationService.checkDependencyWithLabo(id);
 //            if (laboratoire == null)
 //                throw new UnirestException("Could not communicate with the laboratoire service");
 //            else if (laboratoire.isEmpty())
