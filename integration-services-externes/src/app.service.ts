@@ -9,10 +9,6 @@ export class AppService {
     private wb: WbsocketGateway,
   ) {}
 
-  getHello(): string {
-    return 'Hello World!';
-  }
-
   emitToUser(room: string, message: any) {
     this.wb.handleMessage(room, message);
   }

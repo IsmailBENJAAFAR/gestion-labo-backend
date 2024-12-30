@@ -18,7 +18,6 @@ export class WbsocketGateway {
     @ConnectedSocket() client: Socket,
   ) {
     client.join(message);
-    console.log(client.rooms);
     return 'allowed';
   }
 
