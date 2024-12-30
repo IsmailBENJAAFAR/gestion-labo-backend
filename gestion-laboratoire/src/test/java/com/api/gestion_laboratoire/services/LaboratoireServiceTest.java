@@ -123,7 +123,7 @@ class LaboratoireServiceTest {
 
         ResponseEntity<ApiResponse> response = laboratoireService.createLaboratoire(laboratoire);
         assertEquals(HttpStatus.FAILED_DEPENDENCY, response.getStatusCode());
-        assertEquals("Could not create laboratory : " + map.get("error"),
+        assertEquals("Could not create laboratoire : " + map.get("error"),
                 response.getBody().getMessage());
     }
 
@@ -137,7 +137,7 @@ class LaboratoireServiceTest {
 
         ResponseEntity<ApiResponse> response = laboratoireService.createLaboratoire(laboratoire);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Unknown error has occured during the creation of the Laboratory",
+        assertEquals("Unknown error has occured during the creation of the Laboratoire",
                 response.getBody().getMessage());
     }
 
@@ -147,7 +147,7 @@ class LaboratoireServiceTest {
         Optional<Laboratoire> laboratoire = Optional.of(new Laboratoire("labo_x",
                 "123456789", true, LocalDate.now()));
 
-        BDDMockito.given(laboratoireRepository.findById(1L)).willReturn(laboratoire);
+        BDDMockito.when(laboratoireRepository.findById(1L)).thenReturn(laboratoire);
         BDDMockito.when(laboratoireEventsService.canDeleteLaboratoire(1L)).thenReturn(true);
         BDDMockito.when(storageService.deleteImage(laboratoire.get().getLogoID()))
                 .thenReturn("Image deleted successfully");
@@ -156,7 +156,32 @@ class LaboratoireServiceTest {
         verify(laboratoireRepository).deleteById(1L);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        assertEquals("Laboratory deleted", response.getBody().getMessage());
+        assertEquals("Laboratoire deleted", response.getBody().getMessage());
+    }
+
+    @Test
+    void testDeleteLaboratoireButHasDependencies() throws CommunicationException, JsonProcessingException {
+        Optional<Laboratoire> laboratoire = Optional.of(new Laboratoire("labo_x",
+                "123456789", true, LocalDate.now()));
+
+        BDDMockito.when(laboratoireRepository.findById(1L)).thenReturn(laboratoire);
+        BDDMockito.when(laboratoireEventsService.canDeleteLaboratoire(1L)).thenReturn(false);
+
+        ResponseEntity<ApiResponse> response = laboratoireService.deleteLaboratoire(1L);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Laboratoire has dependencies", response.getBody().getMessage());
+    }
+
+    @Test
+    void testDeleteLaboratoireWhenNull() throws JsonProcessingException {
+        Optional<Laboratoire> laboratoire = Optional.of(new Laboratoire("labo_x",
+                "123456789", true, LocalDate.now()));
+
+        BDDMockito.when(laboratoireRepository.findById(1L)).thenReturn(laboratoire);
+        BDDMockito.when(laboratoireEventsService.canDeleteLaboratoire(1L)).thenReturn(null);
+
+        assertThrows(CommunicationException.class, () -> laboratoireService.deleteLaboratoire(1L));
     }
 
     @Test
@@ -164,7 +189,7 @@ class LaboratoireServiceTest {
         // Test delete action with an invalid id
         ResponseEntity<ApiResponse> response = laboratoireService.deleteLaboratoire(1L);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals("Laboratory not found", response.getBody().getMessage());
+        assertEquals("Laboratoire not found", response.getBody().getMessage());
     }
 
     @Test
@@ -173,7 +198,7 @@ class LaboratoireServiceTest {
         Optional<Laboratoire> laboratoire = Optional.of(new Laboratoire("labo_x",
                 "123456789", true, LocalDate.now()));
 
-        BDDMockito.given(laboratoireRepository.findById(1L)).willReturn(laboratoire);
+        BDDMockito.when(laboratoireRepository.findById(1L)).thenReturn(laboratoire);
         BDDMockito.when(laboratoireEventsService.canDeleteLaboratoire(1L)).thenReturn(true);
 
         BDDMockito.when(storageService.deleteImage(laboratoire.get().getLogoID()))
@@ -197,12 +222,12 @@ class LaboratoireServiceTest {
     }
 
     @Test
-    void testGetLaboratoiresById() throws EntityNotFoundException, JsonProcessingException {
+    void testGetLaboratoiresById() throws EntityNotFoundException {
         // Test get by id action under normal conditions
         Optional<Laboratoire> laboratoire = Optional.of(new Laboratoire("labo_x",
                 "123456789", true, LocalDate.now()));
 
-        BDDMockito.given(laboratoireRepository.findById(1L)).willReturn(laboratoire);
+        BDDMockito.when(laboratoireRepository.findById(1L)).thenReturn(laboratoire);
 
         LaboratoireDTO response = laboratoireService.getLaboratoiresById(1L);
         assertNotNull(response);
@@ -218,7 +243,7 @@ class LaboratoireServiceTest {
     void testUpdateLaboratoire() {
         Laboratoire laboratoire = new Laboratoire("labo_x", "123456789", true,
                 LocalDate.now());
-        BDDMockito.given(laboratoireRepository.findById(1L)).willReturn(Optional.of(laboratoire));
+        BDDMockito.when(laboratoireRepository.findById(1L)).thenReturn(Optional.of(laboratoire));
 
         // Update with a valid request
         Laboratoire newLaboratoire = new Laboratoire("labo_x69", "999999999", false,
@@ -251,7 +276,7 @@ class LaboratoireServiceTest {
         laboUpdate.setImageFile(b);
         laboUpdate.setLogoID("imageID");
 
-        BDDMockito.given(laboratoireRepository.findById(1L)).willReturn(Optional.of(laboratoire));
+        BDDMockito.when(laboratoireRepository.findById(1L)).thenReturn(Optional.of(laboratoire));
         BDDMockito.when(storageService.uploadImage(laboUpdate.getLogoID(),
                 laboUpdate.getImageFile()))
                 .thenReturn("url/to/image");
@@ -270,6 +295,6 @@ class LaboratoireServiceTest {
                 new Laboratoire("labo_x69", "123456789", true, LocalDate.now()));
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals("Laboratory not found", response.getBody().getMessage());
+        assertEquals("Laboratoire not found", response.getBody().getMessage());
     }
 }

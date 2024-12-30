@@ -43,7 +43,7 @@ public class LaboratoireController {
 
     @GetMapping(path = "{laboId}")
     public LaboratoireDTO getById(@PathVariable(name = "laboId") Long id)
-            throws EntityNotFoundException, JsonProcessingException {
+            throws EntityNotFoundException {
         return laboratoireService.getLaboratoiresById(id);
     }
 

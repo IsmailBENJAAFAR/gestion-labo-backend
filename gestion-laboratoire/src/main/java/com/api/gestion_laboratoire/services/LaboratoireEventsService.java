@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import lombok.Getter;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -15,12 +14,12 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.api.gestion_laboratoire.models.Laboratoire;
 import com.api.gestion_laboratoire.repositories.LaboratoireRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.annotation.Nullable;
 
 @Service
 public class LaboratoireEventsService {
@@ -32,6 +31,7 @@ public class LaboratoireEventsService {
     @Value("${dependency.count}")
     private int numberOfDependencies;
     private Hashtable<Long, List<Boolean>> entriesToDelete;
+    private static final String MAIN_FIELD_NAME = "laboId";
 
     public LaboratoireEventsService(RabbitTemplate rabbitTemplate, TopicExchange topicExchange,
             LaboratoireRepository laboratoireRepository) {
@@ -44,7 +44,7 @@ public class LaboratoireEventsService {
 
     public void attemptDeleteLaboratoire(Long id) throws JsonProcessingException {
         this.entriesToDelete.put(id, new ArrayList<>());
-        String stringJsonPayload = objectMapper.writeValueAsString(Map.of("laboId", id, "operation", "delete"));
+        String stringJsonPayload = objectMapper.writeValueAsString(Map.of(MAIN_FIELD_NAME, id, "operation", "delete"));
         rabbitTemplate.convertAndSend(topicExchange.getName(), "labo.delete.this", stringJsonPayload, message -> {
             message.getMessageProperties().setExpiration(String.valueOf(0));
             return message;
@@ -53,50 +53,45 @@ public class LaboratoireEventsService {
 
     @RabbitListener(queues = "fromDependenciesQueue")
     public void canIDeleteUtilFunct(String dependencyResponseJson)
-            throws JsonMappingException, JsonProcessingException {
+            throws JsonProcessingException {
         TypeReference<HashMap<String, Object>> typeRef = new TypeReference<HashMap<String, Object>>() {
         };
         Map<String, Object> dependencyResponse = objectMapper.readValue(dependencyResponseJson, typeRef);
         String operation = (String) dependencyResponse.get("operation");
 
         if (operation.equals("delete")) {
-            Long laboId = Long.valueOf((Integer) dependencyResponse.get("laboId"));
+            Long laboId = Long.valueOf((Integer) dependencyResponse.get(MAIN_FIELD_NAME));
             Boolean isDependent = (Boolean) dependencyResponse.get("isDependent");
-            System.out.println(laboId + "=>" + isDependent);
-            try {
-                this.entriesToDelete.get(laboId).add(isDependent);
-            } catch (NullPointerException e) {
-                return;
-            }
+            this.entriesToDelete.get(laboId).add(isDependent);
 
             for (Entry<Long, List<Boolean>> entry : this.entriesToDelete.entrySet()) {
                 Boolean canDelete = true;
                 if (entry.getValue().size() == numberOfDependencies) {
                     for (Boolean flag : entry.getValue()) {
-                        if (flag) {
+                        if (Boolean.TRUE.equals(flag)) {
                             canDelete = false;
                             this.entriesToDelete.remove(entry.getKey());
-                            rabbitTemplate.convertAndSend(topicExchange.getName(), "delete.labo",
-                                    canDelete, message -> {
-                                        message.getMessageProperties().setExpiration(String.valueOf(3000));
-                                        return message;
-                                    });
+                            sendMessage(canDelete);
                             break;
                         }
                     }
-                    if (canDelete) {
-                        this.entriesToDelete.remove(entry.getKey());
-                        rabbitTemplate.convertAndSend(topicExchange.getName(), "delete.labo",
-                                canDelete, message -> {
-                                    message.getMessageProperties().setExpiration(String.valueOf(3000));
-                                    return message;
-                                });
+                    if (Boolean.TRUE.equals(canDelete)) {
+                        sendMessage(canDelete);
                     }
                 }
             }
         }
     }
 
+    private void sendMessage(Boolean canDelete) {
+        rabbitTemplate.convertAndSend(topicExchange.getName(), "delete.labo",
+                canDelete, message -> {
+                    message.getMessageProperties().setExpiration(String.valueOf(3000));
+                    return message;
+                });
+    }
+
+    @Nullable
     public Boolean canDeleteLaboratoire(Long id) throws JsonProcessingException {
         try {
             attemptDeleteLaboratoire(id);
@@ -111,7 +106,7 @@ public class LaboratoireEventsService {
         TypeReference<HashMap<String, Object>> typeRef = new TypeReference<HashMap<String, Object>>() {
         };
         Map<String, Object> dependencyRequest = objectMapper.readValue(dependencyRequestJson, typeRef);
-        Long id = Long.valueOf((Integer) dependencyRequest.get("laboId"));
+        Long id = Long.valueOf((Integer) dependencyRequest.get(MAIN_FIELD_NAME));
         return laboratoireRepository.findById(id).isPresent();
     }
 }

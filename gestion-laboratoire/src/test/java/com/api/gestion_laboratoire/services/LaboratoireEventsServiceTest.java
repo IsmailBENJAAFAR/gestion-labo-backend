@@ -26,11 +26,10 @@ import org.springframework.test.util.ReflectionTestUtils;
 import com.api.gestion_laboratoire.models.Laboratoire;
 import com.api.gestion_laboratoire.repositories.LaboratoireRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @ExtendWith(MockitoExtension.class)
-public class LaboratoireEventsServiceTest {
+class LaboratoireEventsServiceTest {
 
     private LaboratoireEventsService laboratoireEventsService;
 
@@ -67,7 +66,7 @@ public class LaboratoireEventsServiceTest {
         MessagePostProcessor messagePostProcessor = messagePostProcessorArgumentCaptor.getValue();
         Message message = new Message(new byte[0]);
         message = messagePostProcessor.postProcessMessage(message);
-        assertTrue(message.getMessageProperties().getExpiration().equals("0"));
+        assertEquals("0", message.getMessageProperties().getExpiration());
     }
 
     @Test
@@ -103,7 +102,7 @@ public class LaboratoireEventsServiceTest {
 
     @Test
     void testCanIDeleteUtilFunctShouldSendATrueMessageIfThereAreNoDependencies()
-            throws JsonMappingException, JsonProcessingException {
+            throws JsonProcessingException {
 
         ReflectionTestUtils.setField(laboratoireEventsService, "numberOfDependencies", 2);
         Long id = 1L;
