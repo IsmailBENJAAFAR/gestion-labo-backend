@@ -33,6 +33,8 @@ import com.api.gestion_laboratoire.dto.LaboratoireDTO;
 import com.api.gestion_laboratoire.errors.ApiResponse;
 import com.api.gestion_laboratoire.models.Laboratoire;
 import com.api.gestion_laboratoire.repositories.LaboratoireRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import jakarta.persistence.EntityNotFoundException;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -107,7 +109,6 @@ class LaboratoireServiceTest {
     }
 
     @Test
-    // @Disabled
     void testCreateLaboratoireWithBadImage() {
         // Test create action but with a bad image
         Map<String, Object> map = new HashMap<>() {
@@ -141,7 +142,7 @@ class LaboratoireServiceTest {
     }
 
     @Test
-    void testDeleteLaboratoire() throws CommunicationException {
+    void testDeleteLaboratoire() throws CommunicationException, JsonProcessingException {
         // Test delete action under normal conditions
         Optional<Laboratoire> laboratoire = Optional.of(new Laboratoire("labo_x",
                 "123456789", true, LocalDate.now()));
@@ -159,7 +160,7 @@ class LaboratoireServiceTest {
     }
 
     @Test
-    void testDeleteLaboratoireWithBadId() throws CommunicationException {
+    void testDeleteLaboratoireWithBadId() throws CommunicationException, JsonProcessingException {
         // Test delete action with an invalid id
         ResponseEntity<ApiResponse> response = laboratoireService.deleteLaboratoire(1L);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -167,7 +168,7 @@ class LaboratoireServiceTest {
     }
 
     @Test
-    void testDeleteLaboratoireWithBadCloudinaryCall() throws CommunicationException {
+    void testDeleteLaboratoireWithBadCloudinaryCall() throws CommunicationException, JsonProcessingException {
         // Test delete action if the cloudinary service fails
         Optional<Laboratoire> laboratoire = Optional.of(new Laboratoire("labo_x",
                 "123456789", true, LocalDate.now()));
@@ -196,7 +197,7 @@ class LaboratoireServiceTest {
     }
 
     @Test
-    void testGetLaboratoiresById() throws EntityNotFoundException {
+    void testGetLaboratoiresById() throws EntityNotFoundException, JsonProcessingException {
         // Test get by id action under normal conditions
         Optional<Laboratoire> laboratoire = Optional.of(new Laboratoire("labo_x",
                 "123456789", true, LocalDate.now()));

@@ -49,7 +49,7 @@ public class LaboratoireService {
     public LaboratoireDTO getLaboratoiresById(Long id) throws EntityNotFoundException, JsonProcessingException {
         Optional<Laboratoire> optionalLaboratoire = laboratoireRepository.findById(id);
         if (optionalLaboratoire.isPresent()) {
-            System.out.println(laboratoireEventsService.canDeleteLaboratoire(id));
+            System.out.println("=======>" + laboratoireEventsService.canDeleteLaboratoire(id));
             return new LaboratoireDTO(optionalLaboratoire.get());
         } else {
             throw new EntityNotFoundException("Laboratory Not found");
@@ -108,7 +108,8 @@ public class LaboratoireService {
                 HttpStatus.NOT_FOUND);
     }
 
-    public ResponseEntity<ApiResponse> deleteLaboratoire(Long id) throws CommunicationException, JsonProcessingException {
+    public ResponseEntity<ApiResponse> deleteLaboratoire(Long id)
+            throws CommunicationException, JsonProcessingException {
         Optional<Laboratoire> optionalLaboratoire = laboratoireRepository.findById(id);
         if (optionalLaboratoire.isPresent()) {
             Laboratoire laboratoire = optionalLaboratoire.get();

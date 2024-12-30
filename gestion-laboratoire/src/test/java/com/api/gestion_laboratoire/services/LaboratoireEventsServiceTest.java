@@ -22,6 +22,10 @@ import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @ExtendWith(MockitoExtension.class)
 public class LaboratoireEventsServiceTest {
 
@@ -33,21 +37,25 @@ public class LaboratoireEventsServiceTest {
     @Mock
     private TopicExchange mockTopicExchange;
 
+    ObjectMapper mapper;
+
     @BeforeEach
     void setup() {
         this.laboratoireEventsService = new LaboratoireEventsService(mockRabbitTemplate, mockTopicExchange);
+        this.mapper = new ObjectMapper();
     }
 
     @Test
-    void testAttemptDeleteLaboratoire() {
+    void testAttemptDeleteLaboratoire() throws JsonProcessingException {
         Long id = 1L;
         when(mockTopicExchange.getName()).thenReturn("topic");
         laboratoireEventsService.attemptDeleteLaboratoire(id);
 
+        String payload = mapper.writeValueAsString(Map.of("laboId", id, "operation", "delete"));
         ArgumentCaptor<MessagePostProcessor> messagePostProcessorArgumentCaptor = ArgumentCaptor
                 .forClass(MessagePostProcessor.class);
         verify(mockRabbitTemplate, times(1)).convertAndSend(eq(mockTopicExchange.getName()), eq("labo.delete.this"),
-                eq(id), messagePostProcessorArgumentCaptor.capture());
+                eq(payload), messagePostProcessorArgumentCaptor.capture());
 
         MessagePostProcessor messagePostProcessor = messagePostProcessorArgumentCaptor.getValue();
         Message message = new Message(new byte[0]);
@@ -56,17 +64,24 @@ public class LaboratoireEventsServiceTest {
     }
 
     @Test
-    void testCanIDeleteUtilFunctShouldSendAFalseMessageIfThereIsAtLeastOneDependency() {
+    void testCanIDeleteUtilFunctShouldSendAFalseMessageIfThereIsAtLeastOneDependency() throws JsonProcessingException {
 
         ReflectionTestUtils.setField(laboratoireEventsService, "numberOfDependencies", 2);
         Long id = 1L;
         laboratoireEventsService.attemptDeleteLaboratoire(id);
 
         when(mockTopicExchange.getName()).thenReturn("topic");
+        Map<String, Object> map = new HashMap<>();
+        map.put("laboId", id);
+        map.put("operation", "delete");
+        map.put("isDependent", true);
+
         // first message from one of the dependencies
-        laboratoireEventsService.canIDeleteUtilFunct(Map.of(1L, true));
+        laboratoireEventsService.canIDeleteUtilFunct(mapper.writeValueAsString(map));
+
         // second message from one of the dependencies
-        laboratoireEventsService.canIDeleteUtilFunct(Map.of(1L, false));
+        map.computeIfPresent("isDependent", (k, v) -> v = false);
+        laboratoireEventsService.canIDeleteUtilFunct(mapper.writeValueAsString(map));
 
         ArgumentCaptor<MessagePostProcessor> messagePostProcessorArgumentCaptor = ArgumentCaptor
                 .forClass(MessagePostProcessor.class);
@@ -80,17 +95,24 @@ public class LaboratoireEventsServiceTest {
     }
 
     @Test
-    void testCanIDeleteUtilFunctShouldSendATrueMessageIfThereAreNoDependencies() {
+    void testCanIDeleteUtilFunctShouldSendATrueMessageIfThereAreNoDependencies()
+            throws JsonMappingException, JsonProcessingException {
 
         ReflectionTestUtils.setField(laboratoireEventsService, "numberOfDependencies", 2);
         Long id = 1L;
         laboratoireEventsService.attemptDeleteLaboratoire(id);
 
+        Map<String, Object> map = new HashMap<>();
+        map.put("laboId", id);
+        map.put("operation", "delete");
+
         when(mockTopicExchange.getName()).thenReturn("topic");
-        // first message from one of the dependencies (false => not dependent)
-        laboratoireEventsService.canIDeleteUtilFunct(Map.of(1L, false));
-        // second message from one of the dependencies (false => not dependent)
-        laboratoireEventsService.canIDeleteUtilFunct(Map.of(1L, false));
+        // first message from one of the dependencies
+        map.put("isDependent", false);
+        laboratoireEventsService.canIDeleteUtilFunct(mapper.writeValueAsString(map));
+
+        // second message from one of the dependencies
+        laboratoireEventsService.canIDeleteUtilFunct(mapper.writeValueAsString(map));
 
         ArgumentCaptor<MessagePostProcessor> messagePostProcessorArgumentCaptor = ArgumentCaptor
                 .forClass(MessagePostProcessor.class);
@@ -105,7 +127,7 @@ public class LaboratoireEventsServiceTest {
     }
 
     @Test
-    void testCanDeleteLaboratoireWhenAllGood() {
+    void testCanDeleteLaboratoireWhenAllGood() throws JsonProcessingException {
         when(mockRabbitTemplate.receiveAndConvert("fromDeletionEventsQueue", 5000)).thenReturn(true);
         assertTrue(laboratoireEventsService.canDeleteLaboratoire(1L));
 
@@ -114,13 +136,13 @@ public class LaboratoireEventsServiceTest {
     }
 
     @Test
-    void testCanDeleteLaboratoireWhenError() {
+    void testCanDeleteLaboratoireWhenError() throws JsonProcessingException {
         when(mockRabbitTemplate.receiveAndConvert("fromDeletionEventsQueue", 5000)).thenReturn(null);
         assertNull(laboratoireEventsService.canDeleteLaboratoire(1L));
     }
 
     @Test
-    void testCanDeleteLaboratoireWhenAmqpException() {
+    void testCanDeleteLaboratoireWhenAmqpException() throws JsonProcessingException {
         Long id = 1L;
         LaboratoireEventsService laboratoireEventsServiceSpy = spy(this.laboratoireEventsService);
         doThrow(new AmqpException("Some error")).when(laboratoireEventsServiceSpy).attemptDeleteLaboratoire(id);
