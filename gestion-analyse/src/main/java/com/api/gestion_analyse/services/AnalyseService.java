@@ -57,10 +57,14 @@ public class AnalyseService {
         if (!validator.validate(analyse).isEmpty()) {
             return new ResponseEntity<>(new ApiResponse("Invalid request"), HttpStatus.BAD_REQUEST);
         }
-        if(!analyseExternalCommunicationService.checkIfLaboratoireExists(analyse.getFkIdLaboratoire())){
+        Boolean doesLaboratoireExist = analyseExternalCommunicationService.checkIfLaboratoireExists(analyse.getFkIdLaboratoire());
+
+        if (doesLaboratoireExist == null)
+            return new ResponseEntity<>(new ApiResponse("Could not communicate with the laboratoire service"),
+                    HttpStatus.REQUEST_TIMEOUT);
+        else if(!doesLaboratoireExist)
             return new ResponseEntity<>(new ApiResponse("Invalid laboratoire identifier in request"),
                     HttpStatus.BAD_REQUEST);
-        }
 
         try {
             Analyse createdAnalyse = analyseRepository.save(analyse);
@@ -79,10 +83,12 @@ public class AnalyseService {
         if (analyse.getFkIdLaboratoire() != null)
         {
             Boolean doesLaboratoireExist = analyseExternalCommunicationService.checkIfLaboratoireExists(analyse.getFkIdLaboratoire());
-            if (!doesLaboratoireExist) {
+            if (doesLaboratoireExist == null)
+                return new ResponseEntity<>(new ApiResponse("Could not communicate with the laboratoire service"),
+                        HttpStatus.REQUEST_TIMEOUT);
+            else if (!doesLaboratoireExist)
                 return new ResponseEntity<>(new ApiResponse("Invalid laboratoire id in request"),
                         HttpStatus.BAD_REQUEST);
-            }
         }
 
         return analyseOpt.map(analyseOld -> {
