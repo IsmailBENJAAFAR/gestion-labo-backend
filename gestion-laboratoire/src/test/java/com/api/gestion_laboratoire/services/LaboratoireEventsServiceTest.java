@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+import java.time.LocalDate;
 import java.util.*;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +23,7 @@ import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.api.gestion_laboratoire.models.Laboratoire;
 import com.api.gestion_laboratoire.repositories.LaboratoireRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -152,5 +154,21 @@ public class LaboratoireEventsServiceTest {
         LaboratoireEventsService laboratoireEventsServiceSpy = spy(this.laboratoireEventsService);
         doThrow(new AmqpException("Some error")).when(laboratoireEventsServiceSpy).attemptDeleteLaboratoire(id);
         assertNull(laboratoireEventsServiceSpy.canDeleteLaboratoire(id));
+    }
+
+    @Test
+    void testWhenLaboratoireExists() throws JsonProcessingException {
+        Long laboId = 1L;
+        Laboratoire laboDummy = new Laboratoire("help", "me", false, LocalDate.of(2024, 1, 1));
+        when(laboratoireRepository.findById(laboId)).thenReturn(Optional.of(laboDummy));
+
+        assertTrue(laboratoireEventsService.doesLaboExist(mapper.writeValueAsString(Map.of("laboId", laboId))));
+    }
+
+    @Test
+    void testWhenLaboratoireDoesNotExist() throws JsonProcessingException {
+        Long laboId = 1L;
+        when(laboratoireRepository.findById(laboId)).thenReturn(Optional.empty());
+        assertFalse(laboratoireEventsService.doesLaboExist(mapper.writeValueAsString(Map.of("laboId", laboId))));
     }
 }
