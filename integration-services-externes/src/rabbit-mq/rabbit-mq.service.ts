@@ -25,15 +25,20 @@ export class RabbitMqService {
       timeout: 5000,
     },
   })
-  public async pubSubHandler(msg: any): Promise<Nack> {
+  public async pubSubHandler(msg: string): Promise<Nack> {
+    const jsonResp = JSON.parse(msg);
+
+    const email: string = jsonResp.email;
+    const subject: string = jsonResp.subject;
+    const text: string = jsonResp.text;
+
     try {
       await this.mailSenderService.sendMail({
         from: 'labo.sai.engineer@gmail.com',
-        to: 'moghitmi2@gmail.com',
-        subject: 'testing the mail',
-        text: `Hello world? with OAuth2, ${msg}`,
+        to: email,
+        subject: subject,
+        text: `Hello user, ${text}`,
       });
-      console.log(`send email: ${msg} ${this.counter}`);
       this.counter = 0;
     } catch {
       if (this.counter < 100) {
