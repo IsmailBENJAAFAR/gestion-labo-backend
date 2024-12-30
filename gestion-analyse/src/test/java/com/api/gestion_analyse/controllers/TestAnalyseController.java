@@ -1,7 +1,6 @@
 package com.api.gestion_analyse.controllers;
 
 import com.api.gestion_analyse.DTO.AnalyseDTO;
-import com.api.gestion_analyse.DTO.AnalyseDTOExtended;
 import com.api.gestion_analyse.errors.ApiResponse;
 import com.api.gestion_analyse.models.Analyse;
 import com.api.gestion_analyse.services.AnalyseExternalCommunicationService;
@@ -75,15 +74,14 @@ class TestAnalyseController {
         void shouldFindAnalyseWhenGivenValidId() throws Exception {
 
                 
-                when(analyseService.getAnalyseById(1L)).thenReturn(new AnalyseDTOExtended(analyse, "labo"));
+                when(analyseService.getAnalyseById(1L)).thenReturn(new AnalyseDTO(analyse));
 
                 String json = """
                                 {
                                         "id": 1,
                                         "nom": "MRI",
                                         "description": "MRI something something",
-                                        "fkIdLaboratoire": 3,
-                                        "laboratoireName": "labo"
+                                        "fkIdLaboratoire": 3
                                 }
                                 """;
 

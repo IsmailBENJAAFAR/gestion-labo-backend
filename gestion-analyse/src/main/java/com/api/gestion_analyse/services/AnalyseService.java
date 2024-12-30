@@ -42,7 +42,7 @@ public class AnalyseService {
         return listAnalyseDTO;
     }
 
-    public AnalyseDTO getAnalyseById(Long id)  {
+    public AnalyseDTO getAnalyseById(Long id) {
         Optional<Analyse> analyse = analyseRepository.findById(id);
         if (analyse.isPresent()) {
             Analyse fetchedAnalyse = analyse.get();
@@ -57,12 +57,13 @@ public class AnalyseService {
         if (!validator.validate(analyse).isEmpty()) {
             return new ResponseEntity<>(new ApiResponse("Invalid request"), HttpStatus.BAD_REQUEST);
         }
-        Boolean doesLaboratoireExist = analyseExternalCommunicationService.checkIfLaboratoireExists(analyse.getFkIdLaboratoire());
+        Boolean doesLaboratoireExist = analyseExternalCommunicationService
+                .checkIfLaboratoireExists(analyse.getFkIdLaboratoire());
 
         if (doesLaboratoireExist == null)
             return new ResponseEntity<>(new ApiResponse("Could not communicate with the laboratoire service"),
                     HttpStatus.REQUEST_TIMEOUT);
-        else if(!doesLaboratoireExist)
+        else if (!doesLaboratoireExist)
             return new ResponseEntity<>(new ApiResponse("Invalid laboratoire identifier in request"),
                     HttpStatus.BAD_REQUEST);
 
@@ -80,9 +81,9 @@ public class AnalyseService {
     public ResponseEntity<ApiResponse> updateAnalyse(Long id, Analyse analyse) throws JsonProcessingException {
         Optional<Analyse> analyseOpt = analyseRepository.findById(id);
 
-        if (analyse.getFkIdLaboratoire() != null)
-        {
-            Boolean doesLaboratoireExist = analyseExternalCommunicationService.checkIfLaboratoireExists(analyse.getFkIdLaboratoire());
+        if (analyse.getFkIdLaboratoire() != null) {
+            Boolean doesLaboratoireExist = analyseExternalCommunicationService
+                    .checkIfLaboratoireExists(analyse.getFkIdLaboratoire());
             if (doesLaboratoireExist == null)
                 return new ResponseEntity<>(new ApiResponse("Could not communicate with the laboratoire service"),
                         HttpStatus.REQUEST_TIMEOUT);
@@ -113,14 +114,17 @@ public class AnalyseService {
         Optional<Analyse> analyse = analyseRepository.findById(id);
         if (analyse.isPresent()) {
             // TODO : Needs to add a check into the testAnalyse MS and the epreuve MS
-            /* NOTE: this is just a placeholder
-             * map<String,String> hasDependencies = analyseExternalCommunicationService.checkDependencies(analyse.getId());
-             *   if (!hasDependencies.isEmpty()) {
-             *       return new ResponseEntity<>(new ApiResponse("laboratoire had dependencies on" + hasDependencies.keys()),
-             *               HttpStatus.BAD_REQUEST);
+            /*
+             * NOTE: this is just a placeholder
+             * map<String,String> hasDependencies =
+             * analyseExternalCommunicationService.checkDependencies(analyse.getId());
+             * if (!hasDependencies.isEmpty()) {
+             * return new ResponseEntity<>(new ApiResponse("laboratoire had dependencies on"
+             * + hasDependencies.keys()),
+             * HttpStatus.BAD_REQUEST);
              * }
              * else{
-             *      delete
+             * delete
              * }
              */
             analyseRepository.delete(analyse.get());

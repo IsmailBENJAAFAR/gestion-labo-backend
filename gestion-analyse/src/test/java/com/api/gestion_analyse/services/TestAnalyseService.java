@@ -4,14 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import com.api.gestion_analyse.errors.ApiResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.persistence.EntityNotFoundException;
-import kong.unirest.json.JSONObject;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -96,7 +93,8 @@ public class TestAnalyseService {
     @Test
     void testCreateValidAnalyse() throws JsonProcessingException {
         Analyse analyse = new Analyse(null, "MRI", new String(new byte[1000]), 2L);
-        BDDMockito.when(analyseExternalCommunicationService.checkIfLaboratoireExists(analyse.getFkIdLaboratoire())).thenReturn(true);
+        BDDMockito.when(analyseExternalCommunicationService.checkIfLaboratoireExists(analyse.getFkIdLaboratoire()))
+                .thenReturn(true);
         BDDMockito.when(analyseRepository.save(analyse)).thenReturn(analyse);
         ResponseEntity<ApiResponse> response = analyseService.createAnalyse(analyse);
         assertEquals(new AnalyseDTO(analyse), (AnalyseDTO) response.getBody().getMessage());
@@ -114,7 +112,8 @@ public class TestAnalyseService {
     @Test
     void testCreateWithNonValidLaboratoireFkId() throws JsonProcessingException {
         Analyse analyse = new Analyse(1L, "xxxx", new String(new byte[1000]), 999L);
-        BDDMockito.when(analyseExternalCommunicationService.checkIfLaboratoireExists(analyse.getFkIdLaboratoire())).thenReturn(false);
+        BDDMockito.when(analyseExternalCommunicationService.checkIfLaboratoireExists(analyse.getFkIdLaboratoire()))
+                .thenReturn(false);
         ResponseEntity<ApiResponse> response = analyseService.createAnalyse(analyse);
         assertEquals("Invalid laboratoire identifier in request", response.getBody().getMessage());
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -123,7 +122,8 @@ public class TestAnalyseService {
     @Test
     void testCreateWithTimedOutLaboratoireFkIdMessage() throws JsonProcessingException {
         Analyse analyse = new Analyse(1L, "xxxx", new String(new byte[1000]), 999L);
-        BDDMockito.when(analyseExternalCommunicationService.checkIfLaboratoireExists(analyse.getFkIdLaboratoire())).thenReturn(null);
+        BDDMockito.when(analyseExternalCommunicationService.checkIfLaboratoireExists(analyse.getFkIdLaboratoire()))
+                .thenReturn(null);
         ResponseEntity<ApiResponse> response = analyseService.createAnalyse(analyse);
         assertEquals("Could not communicate with the laboratoire service", response.getBody().getMessage());
         assertEquals(HttpStatus.REQUEST_TIMEOUT, response.getStatusCode());
@@ -132,7 +132,8 @@ public class TestAnalyseService {
     @Test
     void testCreateValidAnalyseWithJPAError() throws JsonProcessingException {
         Analyse analyse = new Analyse(null, "MRI", new String(new byte[1000]), 2L);
-        BDDMockito.when(analyseExternalCommunicationService.checkIfLaboratoireExists(analyse.getFkIdLaboratoire())).thenReturn(true);
+        BDDMockito.when(analyseExternalCommunicationService.checkIfLaboratoireExists(analyse.getFkIdLaboratoire()))
+                .thenReturn(true);
         BDDMockito.when(analyseRepository.save(analyse)).thenThrow(new EntityNotFoundException("rip me"));
         ResponseEntity<ApiResponse> response = analyseService.createAnalyse(analyse);
         assertEquals("There has been an error when creating this analyse", response.getBody().getMessage());
@@ -143,8 +144,8 @@ public class TestAnalyseService {
     void testUpdateAnalyseWithValidId() throws JsonProcessingException {
         Analyse analyseNew = new Analyse(null, "xxMRIxx", new String(new byte[100]), 3L);
         Analyse analyseOld = new Analyse(1L, "MRI", new String(new byte[1000]), 2L);
-        JSONObject laboObjectMap = new JSONObject(Map.of("nom", "labo"));
-        BDDMockito.when(analyseExternalCommunicationService.checkIfLaboratoireExists(analyseNew.getFkIdLaboratoire())).thenReturn(true);
+        BDDMockito.when(analyseExternalCommunicationService.checkIfLaboratoireExists(analyseNew.getFkIdLaboratoire()))
+                .thenReturn(true);
         BDDMockito.when(analyseRepository.findById(analyseOld.getId())).thenReturn(Optional.of(analyseOld));
         ResponseEntity<ApiResponse> response = analyseService.updateAnalyse(analyseOld.getId(), analyseNew);
         // analyseOld should be updated
@@ -156,8 +157,8 @@ public class TestAnalyseService {
     void testUpdateAnalyseWithNonValidId() throws JsonProcessingException {
         Analyse analyseNew = new Analyse(null, "xxMRIxx", new String(new byte[100]), 3L);
         Long id = 1L;
-        JSONObject laboObjectMap = new JSONObject(Map.of("nom", "labo"));
-        BDDMockito.when(analyseExternalCommunicationService.checkIfLaboratoireExists(analyseNew.getFkIdLaboratoire())).thenReturn(true);
+        BDDMockito.when(analyseExternalCommunicationService.checkIfLaboratoireExists(analyseNew.getFkIdLaboratoire()))
+                .thenReturn(true);
         BDDMockito.when(analyseRepository.findById(id)).thenReturn(Optional.empty());
         ResponseEntity<ApiResponse> response = analyseService.updateAnalyse(id, analyseNew);
         assertEquals("Analyse not found", response.getBody().getMessage());
@@ -168,7 +169,8 @@ public class TestAnalyseService {
     void testUpdateAnalyseWithNonValidLaboratoireFkId() throws JsonProcessingException {
         Analyse analyseNew = new Analyse(null, "xxMRIxx", new String(new byte[100]), 3L);
         Long id = 1L;
-        BDDMockito.when(analyseExternalCommunicationService.checkIfLaboratoireExists(analyseNew.getFkIdLaboratoire())).thenReturn(false);
+        BDDMockito.when(analyseExternalCommunicationService.checkIfLaboratoireExists(analyseNew.getFkIdLaboratoire()))
+                .thenReturn(false);
         ResponseEntity<ApiResponse> response = analyseService.updateAnalyse(id, analyseNew);
         assertEquals("Invalid laboratoire id in request", response.getBody().getMessage());
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -178,7 +180,8 @@ public class TestAnalyseService {
     void testUpdateAnalyseWithTimedOutLaboratoireFkIdMessage() throws JsonProcessingException {
         Analyse analyseNew = new Analyse(null, "xxMRIxx", new String(new byte[100]), 3L);
         Long id = 1L;
-        BDDMockito.when(analyseExternalCommunicationService.checkIfLaboratoireExists(analyseNew.getFkIdLaboratoire())).thenReturn(null);
+        BDDMockito.when(analyseExternalCommunicationService.checkIfLaboratoireExists(analyseNew.getFkIdLaboratoire()))
+                .thenReturn(null);
         ResponseEntity<ApiResponse> response = analyseService.updateAnalyse(id, analyseNew);
         assertEquals("Could not communicate with the laboratoire service", response.getBody().getMessage());
         assertEquals(HttpStatus.REQUEST_TIMEOUT, response.getStatusCode());
