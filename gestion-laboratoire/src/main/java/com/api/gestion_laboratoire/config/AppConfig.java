@@ -58,4 +58,18 @@ public class AppConfig {
                 .to(topicExchange)
                 .with("delete.labo");
     }
+
+    @Bean
+    public Queue doesLaboratoireExistQueue() {
+        return new Queue("doesLaboratoireExistQueue");
+    }
+
+    @Bean
+    public Binding bindingToDoesLaboratoireExist(TopicExchange topicExchange,
+            Queue doesLaboratoireExistQueue) {
+        return BindingBuilder.bind(doesLaboratoireExistQueue)
+                .to(topicExchange)
+                .with("labo.exists.*");
+
+    }
 }

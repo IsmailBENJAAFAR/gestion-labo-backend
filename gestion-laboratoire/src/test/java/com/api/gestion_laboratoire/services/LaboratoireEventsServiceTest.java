@@ -22,6 +22,7 @@ import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.api.gestion_laboratoire.repositories.LaboratoireRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,11 +38,15 @@ public class LaboratoireEventsServiceTest {
     @Mock
     private TopicExchange mockTopicExchange;
 
+    @Mock
+    private LaboratoireRepository laboratoireRepository;
+
     ObjectMapper mapper;
 
     @BeforeEach
     void setup() {
-        this.laboratoireEventsService = new LaboratoireEventsService(mockRabbitTemplate, mockTopicExchange);
+        this.laboratoireEventsService = new LaboratoireEventsService(mockRabbitTemplate, mockTopicExchange,
+                laboratoireRepository);
         this.mapper = new ObjectMapper();
     }
 

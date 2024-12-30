@@ -15,6 +15,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.api.gestion_laboratoire.models.Laboratoire;
+import com.api.gestion_laboratoire.repositories.LaboratoireRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -26,13 +28,16 @@ public class LaboratoireEventsService {
     private final RabbitTemplate rabbitTemplate;
     private final TopicExchange topicExchange;
     private final ObjectMapper objectMapper;
+    private final LaboratoireRepository laboratoireRepository;
     @Value("${dependency.count}")
     private int numberOfDependencies;
     private Hashtable<Long, List<Boolean>> entriesToDelete;
 
-    public LaboratoireEventsService(RabbitTemplate rabbitTemplate, TopicExchange topicExchange) {
+    public LaboratoireEventsService(RabbitTemplate rabbitTemplate, TopicExchange topicExchange,
+            LaboratoireRepository laboratoireRepository) {
         this.rabbitTemplate = rabbitTemplate;
         this.topicExchange = topicExchange;
+        this.laboratoireRepository = laboratoireRepository;
         this.entriesToDelete = new Hashtable<>();
         this.objectMapper = new ObjectMapper();
     }
@@ -54,8 +59,6 @@ public class LaboratoireEventsService {
         Map<String, Object> dependencyResponse = objectMapper.readValue(dependencyResponseJson, typeRef);
         String operation = (String) dependencyResponse.get("operation");
 
-        System.out.println(dependencyResponse);
-
         if (operation.equals("delete")) {
             Long laboId = Long.valueOf((Integer) dependencyResponse.get("laboId"));
             Boolean isDependent = (Boolean) dependencyResponse.get("isDependent");
@@ -65,7 +68,6 @@ public class LaboratoireEventsService {
             } catch (NullPointerException e) {
                 return;
             }
-            System.out.println(this.entriesToDelete);
 
             for (Entry<Long, List<Boolean>> entry : this.entriesToDelete.entrySet()) {
                 Boolean canDelete = true;
@@ -104,4 +106,12 @@ public class LaboratoireEventsService {
         return (Boolean) rabbitTemplate.receiveAndConvert("fromDeletionEventsQueue", 5000);
     }
 
+    @RabbitListener(queues = "doesLaboratoireExistQueue")
+    public Boolean doesLaboExist(String dependencyRequestJson) throws JsonProcessingException {
+        TypeReference<HashMap<String, Object>> typeRef = new TypeReference<HashMap<String, Object>>() {
+        };
+        Map<String, Object> dependencyRequest = objectMapper.readValue(dependencyRequestJson, typeRef);
+        Long id = Long.valueOf((Integer) dependencyRequest.get("laboId"));
+        return laboratoireRepository.findById(id).isPresent();
+    }
 }
