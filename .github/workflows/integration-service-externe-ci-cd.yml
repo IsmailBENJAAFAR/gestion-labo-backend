@@ -33,9 +33,9 @@ jobs:
         id: npm-cache
         with:
           path: |
-            **/node_modules
+            **/integration-services-externes/node_modules
             ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/integration-services-externes/package-lock.json') }}
           restore-keys: ${{ runner.os }}-npm
 
       - name: Install dependencies
@@ -48,10 +48,12 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
-          cache-dependency-path: ./package-lock.json
+          cache-dependency-path: ./integration-services-externes/package-lock.json
 
       - name: Test and coverage
-        run: test:ci
+        run: |
+          cd integration-services-externes
+          npm run test:ci
 
   sonarqube:
     name: sonarqube-quality-gate
@@ -61,9 +63,9 @@ jobs:
         id: npm-cache
         with:
           path: |
-            **/node_modules
+            **/integration-services-externes/node_modules
              ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/integration-services-externes/package-lock.json') }}
           restore-keys: ${{ runner.os }}-npm
 
       - name: checkout to latest commit
@@ -120,7 +122,7 @@ jobs:
         with:
           node-version: 20.x
           cache: "npm"
-          cache-dependency-path: ./package-lock.json
+          cache-dependency-path: ./integration-services-externes/package-lock.json
 
       - name: Setup environement
         run: |
