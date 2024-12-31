@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gestion-epreuve-deployment
+  labels:
+    app: gestion-epreuve
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gestion-epreuve
+  template:
+    metadata:
+      labels:
+        app: gestion-epreuve
+    spec:
+      containers:
+        - name: gestion-epreuve
+          image: registry.gitlab.com/webs2435142/new-proj/gestion-epreuve-resultat:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          envFrom:
+            - secretRef:
+                name: db-secrets
+      imagePullSecrets:
+        - name: regcred
+
