@@ -1,10 +1,20 @@
 plugins {
     java
-    id("org.springframework.boot") version "3.3.5"
+    id("org.springframework.boot") version "3.4.0"
     id("io.spring.dependency-management") version "1.1.6"
+    id("org.sonarqube") version "5.1.0.4882"
+    id("jacoco")
+}
+sonar {
+    properties {
+        property("sonar.projectKey", "gestion-contact")
+    }
+    properties {
+        property("sonar.jacoco.reportPaths", "${layout.buildDirectory}/jacoco/test.exec")
+    }
 }
 
-group = "com.api"
+group = "com.gestiondossier"
 version = "0.0.1-SNAPSHOT"
 
 java {
@@ -38,8 +48,6 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
-    testImplementation("io.projectreactor:reactor-test")
-    testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
     testImplementation("io.mockk:mockk:1.13.10")
@@ -49,4 +57,20 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        html.required = true
+        xml.required = true
+    }
 }

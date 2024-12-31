@@ -2,10 +2,21 @@ plugins {
 	java
 	id("org.springframework.boot") version "3.3.5"
 	id("io.spring.dependency-management") version "1.1.6"
+	id("org.sonarqube") version "5.1.0.4882"
+	id("jacoco")
+}
+
+sonar {
+	properties{
+		property("sonar.projectKey","gestion-laboratoire")
+	}
+	properties {
+        property("sonar.jacoco.reportPaths", "${layout.buildDirectory}/jacoco/test.exec")
+    }
 }
 
 group = "com.api"
-version = "0.0.1"
+version = System.getenv("VERSION") ?: "latest"
 
 java {
 	toolchain {
@@ -29,7 +40,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-rest")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-web")
-	implementation("org.springframework.kafka:spring-kafka")
+	implementation("com.cloudinary:cloudinary-http5:2.0.0")
 	compileOnly("org.projectlombok:lombok")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	runtimeOnly("org.postgresql:postgresql")
@@ -39,10 +50,24 @@ dependencies {
 	testImplementation("org.testcontainers:junit-jupiter")
 	testImplementation("org.testcontainers:postgresql")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-	implementation("com.cloudinary:cloudinary-http5:2.0.0")
-	implementation("io.github.cdimascio:dotenv-java:3.0.0")
 }
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        html.required = true
+        xml.required = true
+    }
 }
