@@ -7,7 +7,7 @@ plugins {
 }
 sonar {
     properties {
-        property("sonar.projectKey", "geastion-utilisateur")
+        property("sonar.projectKey", "gestion-utilisateur")
     }
     properties {
         property("sonar.jacoco.reportPaths", "${layout.buildDirectory}/jacoco/test.exec")
