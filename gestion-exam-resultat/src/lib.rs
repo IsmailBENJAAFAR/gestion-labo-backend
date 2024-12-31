@@ -9,6 +9,7 @@ use axum::{
 use dotenvy::dotenv;
 use exam::dao::ExamDao;
 use message_queue::{QueueInstance, QueueMessage};
+use resultat::dao::ResultatDao;
 use sqlx::{migrate::MigrateDatabase, postgres::PgPoolOptions};
 use std::sync::Arc;
 use tokio::{
@@ -31,12 +32,19 @@ mod resultat;
 #[derive(Clone)]
 pub struct AppState {
     pub exam_service: Arc<exam::service::Service>,
+    pub resultat_service: Arc<resultat::service::Service>,
     pub mess_queue_channel: Arc<Sender<QueueMessage>>,
 }
 
 impl FromRef<AppState> for Arc<exam::service::Service> {
     fn from_ref(input: &AppState) -> Self {
         Arc::clone(&input.exam_service)
+    }
+}
+
+impl FromRef<AppState> for Arc<resultat::service::Service> {
+    fn from_ref(input: &AppState) -> Self {
+        Arc::clone(&input.resultat_service)
     }
 }
 
@@ -71,12 +79,15 @@ pub async fn run_app() -> anyhow::Result<()> {
         tracing::error!("error migrating: {e}");
     }
 
-    let exam_dao = ExamDao::new(pool);
+    let exam_dao = ExamDao::new(pool.clone());
+    let resultat_dao = ResultatDao::new(pool);
     let exam_service = Arc::new(exam::service::Service::new(Arc::new(exam_dao)));
+    let resultat_service = Arc::new(resultat::service::Service::new(Arc::new(resultat_dao)));
     let (tx, rx) = tokio::sync::mpsc::channel::<QueueMessage>(1024);
     run_message_queue_handler(rx);
     let state = AppState {
         exam_service,
+        resultat_service,
         mess_queue_channel: Arc::new(tx),
     };
 
@@ -116,6 +127,17 @@ fn app(state: AppState) -> Router {
                     get(exam::controller::get_exam)
                         .patch(exam::controller::update_exam)
                         .delete(exam::controller::delete_exam),
+                )
+                .route(
+                    "/resultats",
+                    get(resultat::controller::get_resultats)
+                        .post(resultat::controller::create_resultat),
+                )
+                .route(
+                    "/resultats/:id",
+                    get(resultat::controller::get_resultat)
+                        .patch(resultat::controller::update_resultat)
+                        .delete(resultat::controller::delete_resultat),
                 ),
         )
         .layer(CorsLayer::permissive())
