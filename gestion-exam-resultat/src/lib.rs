@@ -25,7 +25,7 @@ mod message_queue;
 mod resultat;
 
 // TODO: Add another resource for resultat, and exam should contain a list of resultats whenever
-// you fetch exam eagerly
+// you fetch exams
 // TODO: Add dashboard info for exam
 // TODO: Add seed for database
 
