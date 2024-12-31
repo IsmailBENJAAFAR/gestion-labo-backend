@@ -23,10 +23,14 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue
     private Integer id;
-    private String firstname;
-    private String lastname;
     private String email;
     private String password;
+    private int fkIdLaboratoire;
+    private String nomComplet;
+    @Enumerated(EnumType.STRING)
+    private Profession profession;
+    private String numTel;
+    private String signature;
 
     @Enumerated(EnumType.STRING)
     private Role role;
