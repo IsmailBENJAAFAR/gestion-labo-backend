@@ -39,7 +39,9 @@ jobs:
           restore-keys: ${{ runner.os }}-npm
 
       - name: Install dependencies
-        run: npm i
+        run: |
+          cd integration-services-externes 
+          npm i
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -70,16 +72,22 @@ jobs:
           fetch-depth: 0
 
       - name: Install dependencies
-        run: npm i
+        run: |
+          cd integration-services-externes
+          npm i
 
       - name: Test and coverage
-        run: test:ci
+        run: |
+          cd integration-services-externes
+          npm run test:ci
 
       - name: SonarQube Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: npm exec sonar-scanner
+        run: |
+          cd integration-services-externes
+          npm exec sonar-scanner
 
   integration-test:
     runs-on: ubuntu-22.04
@@ -124,6 +132,7 @@ jobs:
 
       - name: build project
         run: |
+          cd integration-services-externes
           npm run build
           echo "Build completed"
 
