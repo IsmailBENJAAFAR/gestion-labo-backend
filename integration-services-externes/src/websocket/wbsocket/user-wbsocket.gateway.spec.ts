@@ -1,32 +1,32 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { WbsocketGateway } from './wbsocket.gateway';
+import { StandardWbsocketGateway } from './user-wbsocket.gateway';
 import { Server, Socket } from 'socket.io';
 
-describe('WbsocketGateway', () => {
-  let gateway: WbsocketGateway;
+describe('StandardWbsocketGateway', () => {
+  let gateway: StandardWbsocketGateway;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [WbsocketGateway],
+      providers: [StandardWbsocketGateway],
     }).compile();
 
-    gateway = module.get<WbsocketGateway>(WbsocketGateway);
+    gateway = module.get<StandardWbsocketGateway>(StandardWbsocketGateway);
   });
 
   it('should be defined', () => {
     expect(gateway).toBeDefined();
   });
 
-  describe('WbsocketGatewayTest', () => {
-    let gateway: WbsocketGateway;
+  describe('StandardWbsocketGatewayTest', () => {
+    let gateway: StandardWbsocketGateway;
     let server: Server;
 
     beforeEach(async () => {
       const module: TestingModule = await Test.createTestingModule({
-        providers: [WbsocketGateway],
+        providers: [StandardWbsocketGateway],
       }).compile();
 
-      gateway = module.get<WbsocketGateway>(WbsocketGateway);
+      gateway = module.get<StandardWbsocketGateway>(StandardWbsocketGateway);
       server = gateway['server'] = new Server();
     });
 
@@ -36,26 +36,29 @@ describe('WbsocketGateway', () => {
 
     it('should allow user to join room and return "allowed"', () => {
       const client = { join: jest.fn() } as unknown as Socket;
-      const message = 'test-room';
+      const message = 'bozo';
 
       const result = gateway.userToJoinRoom(message, client);
+      const actualMessage = Buffer.from(message).toString('base64');
 
-      expect(client.join).toHaveBeenCalledWith(message);
+      expect(client.join).toHaveBeenCalledWith(actualMessage);
       expect(result).toBe('allowed');
     });
 
     it('should handle message and emit notification', () => {
-      const room = 'test-room';
-      const data = { message: 'test' };
+      const data = { patientId: '1', msg: 'I feel sick' };
       const toSpy = jest.spyOn(server, 'to').mockReturnValue({
         emit: jest.fn(),
       } as any);
 
-      gateway.handleMessage(room, data);
+      gateway.handleMessage(JSON.stringify(data));
+
+      const room = Buffer.from(data.patientId).toString('base64');
+      const notification = Buffer.from(data.msg).toString('base64');
 
       expect(toSpy).toHaveBeenCalledWith(room);
       const emitSpy = toSpy.mock.results[0].value.emit;
-      expect(emitSpy).toHaveBeenCalledWith('notification', data);
+      expect(emitSpy).toHaveBeenCalledWith('notification', notification);
     });
   });
 });

@@ -3,9 +3,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { MailSenderSetupService } from './mail-sender/mail-sender-setup.service';
-import { WbsocketGateway } from './websocket/wbsocket/wbsocket.gateway';
 import { RabbitMqService } from './rabbit-mq/rabbit-mq.service';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
+import { AdminWbsocketGateway } from './websocket/admin-wbsocket/admin-wbsocket.gateway';
+import { StandardWbsocketGateway } from './websocket/wbsocket/user-wbsocket.gateway';
 
 @Module({
   imports: [
@@ -50,7 +51,13 @@ import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService, WbsocketGateway, RabbitMqService],
+  providers: [
+    AppService,
+    AdminWbsocketGateway,
+    StandardWbsocketGateway,
+    RabbitMqService,
+    AdminWbsocketGateway,
+  ],
   exports: [RabbitMQModule],
 })
 export class AppModule {
