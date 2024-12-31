@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AppService {
-  constructor(private mailSenderService: MailerService) {}
+  constructor(private readonly mailSenderService: MailerService) {}
 
   // emitToUser(room: string, message: any) {
   //   this.wb.handleMessage(room, message);

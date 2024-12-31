@@ -6,6 +6,7 @@
 env.sh
 needed_rabbitmq_conf.md
 temp-front
+sonar-project.properties
 
 # Logs
 logs
