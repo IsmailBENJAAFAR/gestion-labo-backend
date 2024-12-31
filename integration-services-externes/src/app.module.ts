@@ -26,25 +26,43 @@ import { StandardWbsocketGateway } from './websocket/wbsocket/user-wbsocket.gate
     }),
     RabbitMQModule.forRoot(RabbitMQModule, {
       uri: 'amqp://user:password@localhost:5672',
-      exchanges: [{ name: 'main_exchange', type: 'topic' }],
+      exchanges: [{ name: 'mainExchange', type: 'topic' }],
       queues: [
         {
-          name: 'user_info',
+          name: 'userInfo',
           createQueueIfNotExists: true,
           options: {
             durable: true,
           },
-          exchange: 'main_exchange',
-          routingKey: 'user.*',
+          exchange: 'mainExchange',
+          routingKey: 'user.mail.*',
         },
         {
-          name: 'test',
+          name: 'adminNotify',
           createQueueIfNotExists: true,
           options: {
             durable: true,
           },
-          exchange: 'main_exchange',
-          routingKey: 'test.*',
+          exchange: 'mainExchange',
+          routingKey: 'admin.notify.*',
+        },
+        {
+          name: 'adminNotify',
+          createQueueIfNotExists: true,
+          options: {
+            durable: true,
+          },
+          exchange: 'mainExchange',
+          routingKey: 'admin.notify.*',
+        },
+        {
+          name: 'userNotify',
+          createQueueIfNotExists: true,
+          options: {
+            durable: true,
+          },
+          exchange: 'mainExchange',
+          routingKey: 'user.notify.*',
         },
         RabbitMQModule,
       ],

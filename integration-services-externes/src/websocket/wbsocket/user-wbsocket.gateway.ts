@@ -29,7 +29,7 @@ export class StandardWbsocketGateway {
   @RabbitSubscribe({
     exchange: 'mainExchange',
     routingKey: 'user.notify.*',
-    queue: 'user_info',
+    queue: 'userNotify',
     allowNonJsonMessages: true,
     batchOptions: {
       size: 1000,

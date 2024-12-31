@@ -29,7 +29,7 @@ export class AdminWbsocketGateway {
   @RabbitSubscribe({
     exchange: 'mainExchange',
     routingKey: 'admin.notify.*',
-    queue: 'adminInfo',
+    queue: 'adminNotify',
     allowNonJsonMessages: true,
     batchOptions: {
       size: 1000,

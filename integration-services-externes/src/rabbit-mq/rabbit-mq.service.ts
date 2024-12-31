@@ -18,7 +18,7 @@ export class RabbitMqService {
   @RabbitSubscribe({
     exchange: 'mainExchange',
     routingKey: 'user.mail.*',
-    queue: 'user_info',
+    queue: 'userInfo',
     allowNonJsonMessages: true,
     batchOptions: {
       size: 1000,
