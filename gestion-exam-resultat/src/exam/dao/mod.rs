@@ -23,7 +23,22 @@ impl Dao<Exam> for ExamDao {
             .bind(id)
             .fetch_one(&self.pool)
             .await?;
-        let exam = Exam::try_from(res)?;
+
+        // TODO: use join instead for better performance
+        let res_resultats = sqlx::query("SELECT * FROM resultat")
+            .fetch_all(&self.pool)
+            .await?;
+        let mut resultats: Vec<Resultat> = Vec::new();
+        for entry in res_resultats {
+            resultats.push(Resultat::try_from(entry)?);
+        }
+
+        let mut exam = Exam::try_from(res)?;
+        exam.resultat = resultats
+            .iter()
+            .cloned()
+            .filter(|r| r.fk_id_exam == exam.id)
+            .collect();
 
         Ok(exam)
     }
