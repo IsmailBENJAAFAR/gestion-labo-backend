@@ -1,3 +1,4 @@
+use crate::resultat::model::Resultat;
 use crate::{dao::interface::Dao, exam::model::Exam};
 use anyhow::Result;
 use axum::async_trait;
@@ -14,12 +15,6 @@ impl ExamDao {
         ExamDao { pool }
     }
 }
-
-// TODO: populate the vec of Resultat for a specific exam id
-// NOTE: In order to do the abov TODO, you have to finish dao for resultat alone be3da.
-// So that you can load results with a specific exam id
-// NOTE: Can be done with two types of loading, eager/lazy. In which case depending on how you want
-// to load it, you can have eager load with the vec of results while lazy keeps the vec empty.
 
 #[async_trait]
 impl Dao<Exam> for ExamDao {
@@ -75,9 +70,23 @@ impl Dao<Exam> for ExamDao {
         let res = sqlx::query("SELECT * FROM exam")
             .fetch_all(&self.pool)
             .await?;
+        // TODO: use join instead for better performance
+        let res_resultats = sqlx::query("SELECT * FROM resultat")
+            .fetch_all(&self.pool)
+            .await?;
+        let mut resultats: Vec<Resultat> = Vec::new();
+        for entry in res_resultats {
+            resultats.push(Resultat::try_from(entry)?);
+        }
         let mut exams: Vec<Exam> = Vec::new();
         for entry in res {
-            exams.push(Exam::try_from(entry)?);
+            let mut exam = Exam::try_from(entry)?;
+            exam.resultat = resultats
+                .iter()
+                .cloned()
+                .filter(|r| r.fk_id_exam == exam.id)
+                .collect();
+            exams.push(exam);
         }
 
         Ok(exams)

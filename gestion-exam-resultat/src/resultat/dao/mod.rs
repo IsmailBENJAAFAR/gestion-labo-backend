@@ -30,6 +30,7 @@ impl Dao<Resultat> for ResultatDao {
 
         Ok(resultat)
     }
+
     async fn insert(&self, data: &Resultat) -> Result<i32> {
         let res = sqlx::query("INSERT INTO resultat (fk_id_exam, observation, score, created_at) VALUES ($1, $2, $3, $4) RETURNING id")
             .bind(data.fk_id_exam)
@@ -41,6 +42,7 @@ impl Dao<Resultat> for ResultatDao {
         let id: i32 = res.try_get("id")?;
         Ok(id)
     }
+
     async fn update(&self, data: &Resultat) -> Result<Resultat> {
         let updated_at = chrono::Utc::now();
         let res = sqlx::query("UPDATE resultat SET observation = $1, score = $2, updated_at = $3 WHERE id = $4 RETURNING *")
@@ -63,6 +65,7 @@ impl Dao<Resultat> for ResultatDao {
 
         Ok(res.rows_affected() == 1)
     }
+
     async fn find_all(&self) -> Result<Vec<Resultat>> {
         let res = sqlx::query("SELECT * FROM resultat")
             .fetch_all(&self.pool)
