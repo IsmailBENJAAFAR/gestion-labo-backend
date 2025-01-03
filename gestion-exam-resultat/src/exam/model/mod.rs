@@ -17,7 +17,6 @@ pub struct Exam {
     pub created_at: chrono::DateTime<chrono::Utc>,
     #[serde(rename = "updatedAt")]
     pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
-    #[serde(skip)]
     pub resultat: Vec<Resultat>,
 }
 

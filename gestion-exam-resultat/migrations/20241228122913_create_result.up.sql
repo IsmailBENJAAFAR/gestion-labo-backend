@@ -1,8 +1,9 @@
 -- Add up migration script here
 CREATE TABLE resultat (
 	id SERIAL PRIMARY KEY,
-	exam_id INTEGER REFERENCES exam(id),
+	fk_id_exam INTEGER REFERENCES exam(id),
 	observation TEXT,
+	score INTEGER,
 	blood_pressure_systolic INTEGER, -- (ex: 120/80 mmHg).
 	blood_pressure_diastolic INTEGER,
 	glucose_level INTEGER, -- (ex: 95 mg/dL or 5 mmol/L).
