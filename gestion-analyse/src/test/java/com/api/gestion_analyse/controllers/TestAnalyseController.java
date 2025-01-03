@@ -3,8 +3,10 @@ package com.api.gestion_analyse.controllers;
 import com.api.gestion_analyse.DTO.AnalyseDTO;
 import com.api.gestion_analyse.errors.ApiResponse;
 import com.api.gestion_analyse.models.Analyse;
+import com.api.gestion_analyse.services.AnalyseExternalCommunicationService;
 import com.api.gestion_analyse.services.AnalyseService;
 import jakarta.persistence.EntityNotFoundException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -33,6 +35,9 @@ class TestAnalyseController {
 
         @MockBean
         AnalyseService analyseService;
+
+        @MockBean
+        AnalyseExternalCommunicationService analyseExternalCommunicationService;
 
         Analyse analyse;
         String baseUrl = "/api/v1/analyses";
@@ -67,7 +72,10 @@ class TestAnalyseController {
 
         @Test
         void shouldFindAnalyseWhenGivenValidId() throws Exception {
+
+                
                 when(analyseService.getAnalyseById(1L)).thenReturn(new AnalyseDTO(analyse));
+
                 String json = """
                                 {
                                         "id": 1,
@@ -87,12 +95,12 @@ class TestAnalyseController {
                 when(analyseService.getAnalyseById(1L)).thenThrow(new EntityNotFoundException("Analyse Not found"));
 
                 String errRespJson = """
-                    {"message": "Analyse Not found"}
-                """;
+                                    {"message": "Analyse Not found"}
+                                """;
 
                 mockMvc.perform(get(baseUrl + "/1"))
-                        .andExpect(status().isNotFound())
-                        .andExpect(content().json(errRespJson));
+                                .andExpect(status().isNotFound())
+                                .andExpect(content().json(errRespJson));
         }
 
         @Test

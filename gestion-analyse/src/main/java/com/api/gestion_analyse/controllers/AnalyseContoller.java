@@ -2,6 +2,7 @@ package com.api.gestion_analyse.controllers;
 
 import java.util.List;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -40,12 +41,12 @@ public class AnalyseContoller {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse> create(@RequestBody Analyse analyse) {
+    public ResponseEntity<ApiResponse> create(@RequestBody Analyse analyse) throws JsonProcessingException {
         return analyseService.createAnalyse(analyse);
     }
 
     @PutMapping(path = "{analyseId}")
-    public ResponseEntity<ApiResponse> update(@PathVariable(name = "analyseId") Long id, @RequestBody Analyse analyse) {
+    public ResponseEntity<ApiResponse> update(@PathVariable(name = "analyseId") Long id, @RequestBody Analyse analyse) throws JsonProcessingException {
         return analyseService.updateAnalyse(id, analyse);
     }
 
