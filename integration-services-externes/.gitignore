@@ -3,7 +3,10 @@
 /node_modules
 /build
 .env
+env.sh
 needed_rabbitmq_conf.md
+temp-front
+main.spec.ts
 
 # Logs
 logs

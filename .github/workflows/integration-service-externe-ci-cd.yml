@@ -1,0 +1,195 @@
+name: ise-v0
+
+on:
+  push:
+    branches:
+      - master
+
+  pull_request:
+    branches:
+      - master
+
+env:
+  CLIENT_ID: ${{ secrets.CLIENT_ID }}
+  CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+  REDIRECT_URL: ${{ secrets.REDIRECT_URL }}
+  REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: checkout to latest commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/cache@v3
+        id: npm-cache
+        with:
+          path: |
+            **/integration-services-externes/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/integration-services-externes/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-npm
+
+      - name: Install dependencies
+        run: |
+          cd integration-services-externes 
+          npm i
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+          cache-dependency-path: ./integration-services-externes/package-lock.json
+
+      - name: Test and coverage
+        run: |
+          cd integration-services-externes
+          npm run test:ci
+
+  sonarqube:
+    name: sonarqube-quality-gate
+    runs-on: self-hosted
+    steps:
+      - uses: actions/cache@v3
+        id: npm-cache
+        with:
+          path: |
+            **/integration-services-externes/node_modules
+             ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/integration-services-externes/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-npm
+
+      - name: checkout to latest commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: |
+          cd integration-services-externes
+          npm i
+
+      - name: Test and coverage
+        run: |
+          cd integration-services-externes
+          npm run test:ci
+
+      - name: SonarQube Scan
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          cd integration-services-externes
+          npm exec sonar-scanner
+
+  integration-test:
+    runs-on: ubuntu-22.04
+    needs: sonarqube
+    steps:
+      - name: integration-testing
+        run: |
+          # Add E2E test steps here
+          echo "E2E tests for integration-services-externes"
+
+  containerize:
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+
+    runs-on: ubuntu-22.04
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: "npm"
+          cache-dependency-path: ./integration-services-externes/package-lock.json
+
+      - name: Setup environement
+        run: |
+          echo '#!/bin/sh' > env.sh
+          echo echo export CLIENT_ID=${{ secrets.CLIENT_ID }} >> env.sh
+          echo echo export CLIENT_SECRET=${{ secrets.CLIENT_SECRET }} >> env.sh
+          echo echo export REDIRECT_URL=${{ secrets.REDIRECT_URL }} >> env.sh 
+          echo echo export REFRESH_TOKEN=${{ secrets.REFRESH_TOKEN }} >> env.sh
+
+      - name: build project
+        run: |
+          cd integration-services-externes
+          npm run build
+          echo "Build completed"
+
+      - name: Install cosign
+        if: github.event_name != 'pull_request'
+        uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20
+        with:
+          cosign-release: v2.2.4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226
+
+      - name: Log into registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d
+        with:
+          registry: "${{secrets.CONTAINER_REGISTRY}}"
+          username: "${{secrets.CONTAINER_REGISTRY_USER}}"
+          password: "${{secrets.CONTAINER_REGISTRY_TOKEN}}"
+
+      - name: Setup version
+        run: |
+          cd integration-services-externes
+          echo "VERSION=$(cat version.txt)" >> "$GITHUB_ENV"
+
+      # Build and push Docker image with Buildx
+      - name: Build and push Docker image
+        id: build-and-push
+        uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09
+        with:
+          context: ./integration-services-externes
+          push: "${{ github.event_name != 'pull_request' }}"
+          tags: |
+            ${{secrets.CONTAINER_REGISTRY}}/integration-services-externes:latest
+            ${{secrets.CONTAINER_REGISTRY}}/integration-services-externes:${{ env.VERSION }}
+          cache-from: type=gha
+          cache-to: "type=gha,mode=max"
+
+  e2e-tests:
+    needs: containerize
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: E2E Tests
+        run: |
+          # Add E2E test steps here
+          echo "E2E tests for integration-services-externes"
+
+  deploy:
+    needs: e2e-tests
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Deploy to production
+        run: |
+          # Add deployment steps here
+          echo "Deploying integration-services-externes to production"
