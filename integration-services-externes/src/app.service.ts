@@ -3,11 +3,11 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AppService {
-  constructor(private mailSenderService: MailerService) {}
+  constructor(private readonly mailSenderService: MailerService) {}
 
-  getHello(): string {
-    return 'Hello World!';
-  }
+  // emitToUser(room: string, message: any) {
+  //   this.wb.handleMessage(room, message);
+  // }
 
   sendEmail(to: string, subject: string, text: string) {
     this.mailSenderService.sendMail({

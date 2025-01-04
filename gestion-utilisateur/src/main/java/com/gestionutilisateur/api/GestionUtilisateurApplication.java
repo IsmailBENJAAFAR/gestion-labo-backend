@@ -1,4 +1,4 @@
-package com.api.gestionutilisateur;
+package com.gestionutilisateur.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

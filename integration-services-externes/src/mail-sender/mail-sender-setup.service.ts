@@ -26,7 +26,7 @@ export class MailSenderSetupService {
 
     const accessToken = oauth2client.getAccessToken();
 
-    accessToken.then((value) => {
+    accessToken.then(async (value) => {
       this.accessTokenO2 = value.token;
     });
   }
