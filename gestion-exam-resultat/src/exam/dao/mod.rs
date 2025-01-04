@@ -1,9 +1,9 @@
+use crate::resultat::model::Resultat;
+use crate::{dao::interface::Dao, exam::model::Exam};
 use anyhow::Result;
 use axum::async_trait;
 use sqlx::Row;
 use sqlx::{Pool, Postgres};
-
-use crate::{dao::interface::Dao, exam::model::Exam};
 
 #[derive(Clone)]
 pub struct ExamDao {
@@ -23,7 +23,22 @@ impl Dao<Exam> for ExamDao {
             .bind(id)
             .fetch_one(&self.pool)
             .await?;
-        let exam = Exam::try_from(res)?;
+
+        // TODO: use join instead for better performance
+        let res_resultats = sqlx::query("SELECT * FROM resultat")
+            .fetch_all(&self.pool)
+            .await?;
+        let mut resultats: Vec<Resultat> = Vec::new();
+        for entry in res_resultats {
+            resultats.push(Resultat::try_from(entry)?);
+        }
+
+        let mut exam = Exam::try_from(res)?;
+        exam.resultat = resultats
+            .iter()
+            .cloned()
+            .filter(|r| r.fk_id_exam == exam.id)
+            .collect();
 
         Ok(exam)
     }
@@ -70,9 +85,23 @@ impl Dao<Exam> for ExamDao {
         let res = sqlx::query("SELECT * FROM exam")
             .fetch_all(&self.pool)
             .await?;
+        // TODO: use join instead for better performance
+        let res_resultats = sqlx::query("SELECT * FROM resultat")
+            .fetch_all(&self.pool)
+            .await?;
+        let mut resultats: Vec<Resultat> = Vec::new();
+        for entry in res_resultats {
+            resultats.push(Resultat::try_from(entry)?);
+        }
         let mut exams: Vec<Exam> = Vec::new();
         for entry in res {
-            exams.push(Exam::try_from(entry)?);
+            let mut exam = Exam::try_from(entry)?;
+            exam.resultat = resultats
+                .iter()
+                .cloned()
+                .filter(|r| r.fk_id_exam == exam.id)
+                .collect();
+            exams.push(exam);
         }
 
         Ok(exams)

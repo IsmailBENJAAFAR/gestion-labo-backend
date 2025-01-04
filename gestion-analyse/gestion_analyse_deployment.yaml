@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gestion-exam-deployment
+  name: gestion-analyse-deployment
   labels:
-    app: gestion-exam
+    app: gestion-analyse
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: gestion-exam
+      app: gestion-analyse
   template:
     metadata:
       labels:
-        app: gestion-exam
+        app: gestion-analyse
     spec:
       containers:
-        - name: gestion-exam
-          image: registry.gitlab.com/webs2435142/new-proj/gestion-exam-resultat:0.1.1
+        - name: gestion-analyse
+          image: registry.gitlab.com/webs2435142/new-proj/gestion-analyse:0.0.1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
