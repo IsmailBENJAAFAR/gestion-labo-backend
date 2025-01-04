@@ -9,6 +9,7 @@ use axum::{
 use dotenvy::dotenv;
 use exam::dao::ExamDao;
 use message_queue::{QueueInstance, QueueMessage};
+use resultat::dao::ResultatDao;
 use sqlx::{migrate::MigrateDatabase, postgres::PgPoolOptions};
 use std::sync::Arc;
 use tokio::{
@@ -17,19 +18,33 @@ use tokio::{
 };
 use tower_http::cors::CorsLayer;
 
+mod api_error;
 mod dao;
 mod exam;
 mod message_queue;
+mod resultat;
+
+// TODO: Add another resource for resultat, and exam should contain a list of resultats whenever
+// you fetch exams
+// TODO: Add dashboard info for exam
+// TODO: Add seed for database
 
 #[derive(Clone)]
 pub struct AppState {
     pub exam_service: Arc<exam::service::Service>,
+    pub resultat_service: Arc<resultat::service::Service>,
     pub mess_queue_channel: Arc<Sender<QueueMessage>>,
 }
 
 impl FromRef<AppState> for Arc<exam::service::Service> {
     fn from_ref(input: &AppState) -> Self {
         Arc::clone(&input.exam_service)
+    }
+}
+
+impl FromRef<AppState> for Arc<resultat::service::Service> {
+    fn from_ref(input: &AppState) -> Self {
+        Arc::clone(&input.resultat_service)
     }
 }
 
@@ -64,12 +79,15 @@ pub async fn run_app() -> anyhow::Result<()> {
         tracing::error!("error migrating: {e}");
     }
 
-    let exam_dao = ExamDao::new(pool);
+    let exam_dao = ExamDao::new(pool.clone());
+    let resultat_dao = ResultatDao::new(pool);
     let exam_service = Arc::new(exam::service::Service::new(Arc::new(exam_dao)));
+    let resultat_service = Arc::new(resultat::service::Service::new(Arc::new(resultat_dao)));
     let (tx, rx) = tokio::sync::mpsc::channel::<QueueMessage>(1024);
     run_message_queue_handler(rx);
     let state = AppState {
         exam_service,
+        resultat_service,
         mess_queue_channel: Arc::new(tx),
     };
 
@@ -87,7 +105,10 @@ pub async fn run_app() -> anyhow::Result<()> {
 
 fn run_message_queue_handler(rx: Receiver<QueueMessage>) {
     tokio::spawn(async move {
-        QueueInstance::new().run(rx).await;
+        match QueueInstance::new().await {
+            Ok(instance) => instance.run(rx).await,
+            Err(e) => tracing::error!("error starting message queue handler: {e}"),
+        };
     });
 }
 
@@ -106,6 +127,17 @@ fn app(state: AppState) -> Router {
                     get(exam::controller::get_exam)
                         .patch(exam::controller::update_exam)
                         .delete(exam::controller::delete_exam),
+                )
+                .route(
+                    "/resultats",
+                    get(resultat::controller::get_resultats)
+                        .post(resultat::controller::create_resultat),
+                )
+                .route(
+                    "/resultats/:id",
+                    get(resultat::controller::get_resultat)
+                        .patch(resultat::controller::update_resultat)
+                        .delete(resultat::controller::delete_resultat),
                 ),
         )
         .layer(CorsLayer::permissive())
@@ -122,15 +154,16 @@ async fn handler_404(OriginalUri(uri): OriginalUri) -> impl IntoResponse {
 #[cfg(test)]
 mod test {
     use crate::{
+        api_error::ApiError,
         app,
         dao::interface::{Dao, MockDao},
         exam::{
-            api_error::ApiError,
             dao::ExamDao,
             dto::{CreateExamDto, UpdateExamDto},
             model::Exam,
             service,
         },
+        resultat::{self, model::Resultat},
         AppState,
     };
     use anyhow::{anyhow, Context, Result};
@@ -154,29 +187,32 @@ mod test {
 
     #[tokio::test]
     async fn test_exam_controller() -> Result<()> {
-        let mut mock_dao: MockDao<Exam> = MockDao::new();
+        let mut mock_exam_dao: MockDao<Exam> = MockDao::new();
+        let mock_res_dao: MockDao<Resultat> = MockDao::new();
         let exam = Exam::new(1, 1, 1);
         {
             let exam = exam.clone();
-            mock_dao
+            mock_exam_dao
                 .expect_find_all()
                 .times(1)
                 .returning(move || Ok(vec![exam.clone()]));
         }
-        mock_dao.expect_insert().return_once(move |_| Ok(1));
+        mock_exam_dao.expect_insert().return_once(move |_| Ok(1));
         {
             let exam = exam.clone();
-            mock_dao
+            mock_exam_dao
                 .expect_find()
                 .with(eq(1))
                 .return_once(move |_| Ok(exam.clone()));
         }
-        mock_dao.expect_remove().return_once(|_| Ok(true));
+        mock_exam_dao.expect_remove().return_once(|_| Ok(true));
 
-        let service = service::Service::new(Arc::new(mock_dao));
+        let service_exam = service::Service::new(Arc::new(mock_exam_dao));
+        let service_res = resultat::service::Service::new(Arc::new(mock_res_dao));
         let (tx, _) = tokio::sync::mpsc::channel(1);
         let app = app(AppState {
-            exam_service: service.into(),
+            exam_service: service_exam.into(),
+            resultat_service: service_res.into(),
             mess_queue_channel: Arc::new(tx),
         });
 

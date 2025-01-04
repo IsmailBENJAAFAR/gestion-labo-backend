@@ -1,16 +1,13 @@
-use std::sync::Arc;
-
+use super::dto::{CreateExamDto, UpdateExamDto};
+use super::model::Exam;
+use crate::api_error::ApiError;
+use crate::dao::interface::Dao;
+use crate::message_queue::{EventType, QueueMessage};
 use anyhow::anyhow;
 use axum::http::StatusCode;
 use axum::Json;
+use std::sync::Arc;
 use tokio::sync::mpsc::Sender;
-
-use crate::dao::interface::Dao;
-use crate::message_queue::{QueueMessage, EventType::Point};
-
-use super::api_error::ApiError;
-use super::dto::{CreateExamDto, UpdateExamDto};
-use super::model::Exam;
 
 pub struct Service {
     pub dao: Arc<dyn Dao<Exam> + Sync + Send + 'static>,
@@ -99,8 +96,8 @@ impl Service {
         match self.dao.remove(id).await {
             Ok(true) => {
                 let queue_message = QueueMessage {
-                    msg_type: Point,
-                    message: "delete exam".into(),
+                    destination: EventType::Topic("examen.deleted".to_string()),
+                    message: format!("exam with id: {id} has been deleted"),
                 };
                 if let Err(e) = queue.send(queue_message).await {
                     tracing::error!("{e}")

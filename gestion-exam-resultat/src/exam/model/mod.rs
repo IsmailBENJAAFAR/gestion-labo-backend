@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 use sqlx::postgres::PgRow;
 use sqlx::Row;
 
+use crate::resultat::model::Resultat;
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Exam {
     pub id: i32,
@@ -15,6 +17,7 @@ pub struct Exam {
     pub created_at: chrono::DateTime<chrono::Utc>,
     #[serde(rename = "updatedAt")]
     pub updated_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub resultat: Vec<Resultat>,
 }
 
 impl Exam {
@@ -26,10 +29,16 @@ impl Exam {
             fk_id_test_analyse,
             created_at: chrono::Utc::now(),
             updated_at: None,
+            resultat: vec![],
         }
     }
 
-    pub fn with_id(id: i32, fk_num_dossier: i32, fk_id_epreuve: i32, fk_id_test_analyse: i32) -> Exam {
+    pub fn with_id(
+        id: i32,
+        fk_num_dossier: i32,
+        fk_id_epreuve: i32,
+        fk_id_test_analyse: i32,
+    ) -> Exam {
         Exam {
             id,
             fk_num_dossier,
@@ -37,6 +46,7 @@ impl Exam {
             fk_id_test_analyse,
             created_at: chrono::Utc::now(),
             updated_at: None,
+            resultat: vec![],
         }
     }
 }
@@ -51,6 +61,7 @@ impl TryFrom<PgRow> for Exam {
             fk_id_test_analyse: row.try_get("fk_id_test_analyse")?,
             created_at: row.try_get("created_at")?,
             updated_at: row.try_get("updated_at")?,
+            resultat: vec![],
         })
     }
 }
