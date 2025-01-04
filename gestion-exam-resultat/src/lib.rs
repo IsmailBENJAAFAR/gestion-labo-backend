@@ -163,6 +163,7 @@ mod test {
             model::Exam,
             service,
         },
+        resultat::{self, model::Resultat},
         AppState,
     };
     use anyhow::{anyhow, Context, Result};
@@ -186,29 +187,32 @@ mod test {
 
     #[tokio::test]
     async fn test_exam_controller() -> Result<()> {
-        let mut mock_dao: MockDao<Exam> = MockDao::new();
+        let mut mock_exam_dao: MockDao<Exam> = MockDao::new();
+        let mock_res_dao: MockDao<Resultat> = MockDao::new();
         let exam = Exam::new(1, 1, 1);
         {
             let exam = exam.clone();
-            mock_dao
+            mock_exam_dao
                 .expect_find_all()
                 .times(1)
                 .returning(move || Ok(vec![exam.clone()]));
         }
-        mock_dao.expect_insert().return_once(move |_| Ok(1));
+        mock_exam_dao.expect_insert().return_once(move |_| Ok(1));
         {
             let exam = exam.clone();
-            mock_dao
+            mock_exam_dao
                 .expect_find()
                 .with(eq(1))
                 .return_once(move |_| Ok(exam.clone()));
         }
-        mock_dao.expect_remove().return_once(|_| Ok(true));
+        mock_exam_dao.expect_remove().return_once(|_| Ok(true));
 
-        let service = service::Service::new(Arc::new(mock_dao));
+        let service_exam = service::Service::new(Arc::new(mock_exam_dao));
+        let service_res = resultat::service::Service::new(Arc::new(mock_res_dao));
         let (tx, _) = tokio::sync::mpsc::channel(1);
         let app = app(AppState {
-            exam_service: service.into(),
+            exam_service: service_exam.into(),
+            resultat_service: service_res.into(),
             mess_queue_channel: Arc::new(tx),
         });
 
