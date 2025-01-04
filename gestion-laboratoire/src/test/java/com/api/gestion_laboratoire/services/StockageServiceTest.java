@@ -61,7 +61,7 @@ class StockageServiceTest {
         Map<String, Object> response = storageService.uploadImage(imageEx);
 
         assertEquals(
-                "Failed to upload image : Image should be less than " + ((maxImageSize) / 1000) + "kb",
+                "Echec du téléchargement de l'image : l'image doit être inférieure à " + ((maxImageSize) / 1000) + "kb",
                 response.get("error"));
     }
 
@@ -78,7 +78,7 @@ class StockageServiceTest {
 
         Map<String, Object> response = storageService.uploadImage(imageEx);
         assertEquals(
-                "Failed to upload image",
+                "Echec du téléchargement de l'image",
                 response.get("error"));
     }
 
@@ -109,7 +109,7 @@ class StockageServiceTest {
         String response = storageService.uploadImage(imageExName, imageEx);
 
         assertEquals(
-                "Failed to upload image : Image should be less than " + ((maxImageSize) / 1000) + "kb",
+                "Echec du téléchargement de l'image : l'image doit être inférieure à " + ((maxImageSize) / 1000) + "kb",
                 response);
     }
 
@@ -128,7 +128,7 @@ class StockageServiceTest {
 
         String response = storageService.uploadImage(imageExName, imageEx);
         assertEquals(
-                "Failed to upload image",
+                "Echec du téléchargement de l'image",
                 response);
     }
 
@@ -145,7 +145,7 @@ class StockageServiceTest {
         when(mockCloudinaryApiResp.get("deleted")).thenReturn(resp);
 
         String response = storageService.deleteImage(imageExName);
-        assertEquals("Image deleted successfully", response);
+        assertEquals("Image supprimée avec succèsy", response);
     }
 
     @Test
@@ -161,7 +161,7 @@ class StockageServiceTest {
         when(mockCloudinaryApiResp.get("deleted")).thenReturn(resp);
 
         String response = storageService.deleteImage(imageExName);
-        assertEquals("Unable to delete image : Image not found", response);
+        assertEquals("Impossible de supprimer l'image : Image introuvable", response);
 
         Map<String, Object> resp2 = new HashMap<>();
         resp2.put(folder + "/" + imageExName, "(눈_눈)");
@@ -169,7 +169,7 @@ class StockageServiceTest {
         when(mockCloudinaryApiResp.get("deleted")).thenReturn(resp2);
 
         String response2 = storageService.deleteImage(imageExName);
-        assertEquals("Failed to delete image", response2);
+        assertEquals("Echec de la suppression de l'image", response2);
     }
 
     @Test
@@ -181,7 +181,7 @@ class StockageServiceTest {
                 ObjectUtils.asMap("type", "upload", "resource_type", "image")))
                 .thenThrow(ex);
         String response = storageService.deleteImage(imageExName);
-        assertEquals("Failed to delete image : " + ex.getMessage(), response);
+        assertEquals("Echec de la suppression de l'image : " + ex.getMessage(), response);
     }
 
 }

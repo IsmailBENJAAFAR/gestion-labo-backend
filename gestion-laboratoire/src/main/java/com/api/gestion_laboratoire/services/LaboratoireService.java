@@ -51,21 +51,21 @@ public class LaboratoireService {
         if (optionalLaboratoire.isPresent()) {
             return new LaboratoireDTO(optionalLaboratoire.get());
         } else {
-            throw new EntityNotFoundException("Laboratoire Not found");
+            throw new EntityNotFoundException("Laboratoire introuvable");
         }
     }
 
     public ResponseEntity<ApiResponse> createLaboratoire(Laboratoire laboratoire) {
 
         if (!validator.validate(laboratoire).isEmpty())
-            return new ResponseEntity<>(new ApiResponse("Invalid request"),
+            return new ResponseEntity<>(new ApiResponse("Requête invalide"),
                     HttpStatus.BAD_REQUEST);
 
         try {
             Map<String, Object> imageURLInfo = storageService.uploadImage(laboratoire.getImageFile());
             if (imageURLInfo.get("url") == null) {
                 return new ResponseEntity<>(
-                        new ApiResponse("Could not create laboratoire : " + imageURLInfo.get("error")),
+                        new ApiResponse("La creation du laboratoire a échoué : " + imageURLInfo.get("error")),
                         HttpStatus.FAILED_DEPENDENCY);
             }
             laboratoire.setLogo(String.valueOf(imageURLInfo.get("url")));
@@ -75,7 +75,7 @@ public class LaboratoireService {
                     HttpStatus.CREATED);
         } catch (Exception ie) {
             return new ResponseEntity<>(
-                    new ApiResponse("Unknown error has occured during the creation of the Laboratoire"),
+                    new ApiResponse("Une erreur s'est produite lors de la création du laboratoire"),
                     HttpStatus.BAD_REQUEST);
         }
     }
@@ -83,7 +83,7 @@ public class LaboratoireService {
     @Transactional
     public ResponseEntity<ApiResponse> updateLaboratoire(Long id, Laboratoire laboratoire) {
         if (!validator.validate(laboratoire).isEmpty())
-            return new ResponseEntity<>(new ApiResponse("Invalid request"),
+            return new ResponseEntity<>(new ApiResponse("Requête invalide"),
                     HttpStatus.BAD_REQUEST);
 
         Optional<Laboratoire> optionalLaboratoire = laboratoireRepository.findById(id);
@@ -103,7 +103,7 @@ public class LaboratoireService {
 
             return new ResponseEntity<>(new ApiResponse(new LaboratoireDTO(labo)), HttpStatus.OK);
         }
-        return new ResponseEntity<>(new ApiResponse("Laboratoire not found"),
+        return new ResponseEntity<>(new ApiResponse("Laboratoire introuvable"),
                 HttpStatus.NOT_FOUND);
     }
 
@@ -117,22 +117,22 @@ public class LaboratoireService {
                 String imageDeletionMessage = storageService
                         .deleteImage(laboratoire.getLogoID());
 
-                if (imageDeletionMessage.contains("Failed to delete image")) {
+                if (imageDeletionMessage.contains("Echec de la suppression de l'image")) {
                     return new ResponseEntity<>(
-                            new ApiResponse("Could not delete laboratoire, " + imageDeletionMessage),
+                            new ApiResponse("La supression du laboratoire a échoué: , " + imageDeletionMessage),
                             HttpStatus.FAILED_DEPENDENCY);
                 }
                 laboratoireRepository.deleteById(id);
-                return new ResponseEntity<>(new ApiResponse("Laboratoire deleted"),
+                return new ResponseEntity<>(new ApiResponse("Laboratoire supprimé avec succès"),
                         HttpStatus.NO_CONTENT);
             } else if (canDeleteLaboratoire == null) {
-                throw new CommunicationException("Couldn't communicate with some services");
+                throw new CommunicationException("la communication avec l'un des services a échoué");
             } else {
-                return new ResponseEntity<>(new ApiResponse("Laboratoire has dependencies"),
+                return new ResponseEntity<>(new ApiResponse("Le laboratoire a des dépendances"),
                         HttpStatus.BAD_REQUEST);
             }
         } else {
-            return new ResponseEntity<>(new ApiResponse("Laboratoire not found"),
+            return new ResponseEntity<>(new ApiResponse("Laboratoire introuvable"),
                     HttpStatus.NOT_FOUND);
         }
     }
