@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gestion-exam-deployment
+  name: gestion-dossier-deployment
   labels:
-    app: gestion-exam
+    app: gestion-dossier
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: gestion-exam
+      app: gestion-dossier
   template:
     metadata:
       labels:
-        app: gestion-exam
+        app: gestion-dossier
     spec:
       containers:
-        - name: gestion-exam
-          image: registry.gitlab.com/webs2435142/new-proj/gestion-exam-resultat:0.1.1
+        - name: gestion-dossier
+          image: registry.gitlab.com/webs2435142/new-proj/gestion-dossier:0.1.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80

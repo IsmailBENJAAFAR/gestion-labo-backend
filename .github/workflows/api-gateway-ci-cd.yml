@@ -4,11 +4,11 @@ on:
   push:
     branches: [ "master" ]
     paths:
-      - 'api_gateway/**'
+      - 'api-gateway/**'
   pull_request:
     branches: [ "master" ]
     paths:
-      - 'api_gateway/**'
+      - 'api-gateway/**'
 
 jobs:
   build:
@@ -24,13 +24,13 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get install -y nodejs npm
-        cd api_gateway
+        cd api-gateway
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
     - name: Test
       run: |
-          cd api_gateway/test
+          cd api-gateway/test
           python test.py
 
     - name: Build and push docker image
@@ -42,7 +42,7 @@ jobs:
         CONTAINER_REGISTRY_TOKEN: ${{secrets.CONTAINER_REGISTRY_TOKEN}}
       if: github.ref == 'refs/heads/master' && github.event_name == 'push'
       run: |
-          cd api_gateway
+          cd api-gateway
           python action.py  --token "$FRONTEND_ACCESS_TOKEN" --user "$FRONTEND_ACCESS_USER" --registry "$CONTAINER_REGISTRY" \
           --registry-user "$CONTAINER_REGISTRY_USER" --registry-token "$CONTAINER_REGISTRY_TOKEN"
 
