@@ -26,13 +26,17 @@ deploy_gestion_examen_service() {
 	kubectl apply -f ./gestion-exam-resultat/gestion_exam_service.yaml || service_fail "examen"
 }
 
-deploy_api_gateway() {
-	kubectl apply -f ./api_gateway/gateway_deployment.yaml || deploy_fail "api gateway"
-	kubectl apply -f ./api_gateway/gateway_service.yaml || service_fail "api gateway"
+build_gestion_examen_image() {
+	cd ./gestion-exam-resultat/ || return
+	cargo build --release
+	python3 -m venv .venv
+	source .venv/bin/activate
+	pip install -r ./requirements.txt
+	python3 deploy-image.py --registry "$CONTAINER_REGISTRY" --registry-user "$CONTAINER_REGISTRY_USER" --registry-token "$CONTAINER_REGISTRY_TOKEN"
 }
 
 build_api_gateway_image() {
-	cd ./api_gateway/ || return
+	cd ./api-gateway/ || return
 	rm -rf frontend
 	python3 -m venv .venv
 	source .venv/bin/activate
@@ -40,9 +44,15 @@ build_api_gateway_image() {
 	python3 action.py --token "$FRONTEND_ACCESS_TOKEN" --user "$FRONTEND_ACCESS_USER" --registry "$CONTAINER_REGISTRY" --registry-user "$CONTAINER_REGISTRY_USER" --registry-token "$CONTAINER_REGISTRY_TOKEN"
 }
 
+deploy_api_gateway() {
+	kubectl apply -f ./api-gateway/gateway_deployment.yaml || deploy_fail "api gateway"
+	kubectl apply -f ./api-gateway/gateway_service.yaml || service_fail "api gateway"
+}
+
 if [ -v LOCAL ]; then
 	setup_credentials
 	(build_api_gateway_image) || log_fatal "couldn't build api gateway image"
+	(build_gestion_examen_image) || log_fatal "couldn't build examen service image"
 fi
 
 (deploy_api_gateway)
