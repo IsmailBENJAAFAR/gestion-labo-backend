@@ -17,9 +17,6 @@ labo-sai.engineer {
 				root * /var/www/html
         # Enable the static file server.
         file_server
-}
-
-labo-sai.engineer/api {
 				# forward_auth http://gestion-utilisateur-service:8080 {
 				# 	uri /api/v1/auth/authenticate
 				# 	copy_headers Authorization
