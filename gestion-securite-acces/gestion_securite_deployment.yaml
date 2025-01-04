@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gestion-securite-deployment
+  labels:
+    app: gestion-securite
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gestion-securite
+  template:
+    metadata:
+      labels:
+        app: gestion-securite
+    spec:
+      containers:
+        - name: gestion-securite
+          image: registry.gitlab.com/webs2435142/new-proj/gestion-securite:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+      imagePullSecrets:
+        - name: regcred
+

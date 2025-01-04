@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gestion-utilisateur-deployment
+  labels:
+    app: gestion-utilisateur
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gestion-utilisateur
+  template:
+    metadata:
+      labels:
+        app: gestion-utilisateur
+    spec:
+      containers:
+        - name: gestion-utilisateur
+          image: registry.gitlab.com/webs2435142/new-proj/gestion-utilisateur:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          envFrom:
+            - secretRef:
+                name: db-secrets
+      imagePullSecrets:
+        - name: regcred
+

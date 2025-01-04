@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gestion-integration-deployment
+  labels:
+    app: gestion-integration
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gestion-integration
+  template:
+    metadata:
+      labels:
+        app: gestion-integration
+    spec:
+      containers:
+        - name: gestion-integration
+          image: registry.gitlab.com/webs2435142/new-proj/gestion-integration:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+      imagePullSecrets:
+        - name: regcred
+

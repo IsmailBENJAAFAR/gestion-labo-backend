@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gestion-contact-deployment
+  labels:
+    app: gestion-contact
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gestion-contact
+  template:
+    metadata:
+      labels:
+        app: gestion-contact
+    spec:
+      containers:
+        - name: gestion-contact
+          image: registry.gitlab.com/webs2435142/new-proj/gestion-contact:0.0.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          envFrom:
+            - secretRef:
+                name: db-secrets
+      imagePullSecrets:
+        - name: regcred
+
