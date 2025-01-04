@@ -15,9 +15,16 @@
 labo-sai.engineer {
         # Set this path to your site's directory.
 				root * /var/www/html
-
         # Enable the static file server.
         file_server
+}
+
+labo-sai.engineer/api {
+				# forward_auth http://gestion-utilisateur-service:8080 {
+				# 	uri /api/v1/auth/authenticate
+				# 	copy_headers Authorization
+				# }
+				# TODO: activate this once authentication is properly set up
 
         # Another common task is to set up a reverse proxy:
         reverse_proxy /api/v1/analyses http://gestion-analyse-service:8080
