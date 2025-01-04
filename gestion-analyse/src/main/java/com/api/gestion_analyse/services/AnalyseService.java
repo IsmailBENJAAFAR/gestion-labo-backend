@@ -49,22 +49,22 @@ public class AnalyseService {
             return new AnalyseDTO(fetchedAnalyse);
 
         } else {
-            throw new EntityNotFoundException("Analyse not found");
+            throw new EntityNotFoundException("Analyse introuvable");
         }
     }
 
     public ResponseEntity<ApiResponse> createAnalyse(Analyse analyse) throws JsonProcessingException {
         if (!validator.validate(analyse).isEmpty()) {
-            return new ResponseEntity<>(new ApiResponse("Invalid request"), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ApiResponse("Requete invalide"), HttpStatus.BAD_REQUEST);
         }
         Boolean doesLaboratoireExist = analyseExternalCommunicationService
                 .checkIfLaboratoireExists(analyse.getFkIdLaboratoire());
 
         if (doesLaboratoireExist == null)
-            return new ResponseEntity<>(new ApiResponse("Could not communicate with the laboratoire service"),
+            return new ResponseEntity<>(new ApiResponse("Communication échouée avec l'un des services"),
                     HttpStatus.REQUEST_TIMEOUT);
         else if (!doesLaboratoireExist)
-            return new ResponseEntity<>(new ApiResponse("Invalid laboratoire identifier in request"),
+            return new ResponseEntity<>(new ApiResponse("Identifiant de laboratoire invalide"),
                     HttpStatus.BAD_REQUEST);
 
         try {
@@ -72,7 +72,7 @@ public class AnalyseService {
             return new ResponseEntity<>(new ApiResponse(new AnalyseDTO(createdAnalyse)),
                     HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>(new ApiResponse("There has been an error when creating this analyse"),
+            return new ResponseEntity<>(new ApiResponse("Une erreur s'est produite lors de la création de l'analyse"),
                     HttpStatus.BAD_REQUEST);
         }
     }
@@ -85,10 +85,10 @@ public class AnalyseService {
             Boolean doesLaboratoireExist = analyseExternalCommunicationService
                     .checkIfLaboratoireExists(analyse.getFkIdLaboratoire());
             if (doesLaboratoireExist == null)
-                return new ResponseEntity<>(new ApiResponse("Could not communicate with the laboratoire service"),
+                return new ResponseEntity<>(new ApiResponse("Communication échouée avec l'un des services"),
                         HttpStatus.REQUEST_TIMEOUT);
             else if (!doesLaboratoireExist)
-                return new ResponseEntity<>(new ApiResponse("Invalid laboratoire id in request"),
+                return new ResponseEntity<>(new ApiResponse("Identifiant de laboratoire invalide"),
                         HttpStatus.BAD_REQUEST);
         }
 
@@ -103,7 +103,7 @@ public class AnalyseService {
             analyseOld.setFkIdLaboratoire(analyse.getFkIdLaboratoire());
 
             return new ResponseEntity<>(new ApiResponse(new AnalyseDTO(analyseOld)), HttpStatus.OK);
-        }).orElseGet(() -> new ResponseEntity<>(new ApiResponse("Analyse not found"), HttpStatus.NOT_FOUND));
+        }).orElseGet(() -> new ResponseEntity<>(new ApiResponse("Analyse introuvable"), HttpStatus.NOT_FOUND));
 
     }
 
@@ -113,9 +113,9 @@ public class AnalyseService {
             // TODO : Needs to add a check into the testAnalyse MS and the epreuve MS
 
             analyseRepository.delete(analyse.get());
-            return new ResponseEntity<>(new ApiResponse("Analyse deleted successfully"), HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(new ApiResponse("Analyse supprimée avec succès"), HttpStatus.NO_CONTENT);
         } else {
-            return new ResponseEntity<>(new ApiResponse("Analyse not found"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new ApiResponse("Analyse introuvable"), HttpStatus.NOT_FOUND);
         }
     }
 }

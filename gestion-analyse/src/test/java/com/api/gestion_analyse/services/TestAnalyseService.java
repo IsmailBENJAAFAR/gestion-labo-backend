@@ -87,7 +87,7 @@ class TestAnalyseService {
         Long id = 1L;
         BDDMockito.when(analyseRepository.findById(id)).thenReturn(Optional.empty());
         Throwable t = assertThrows(EntityNotFoundException.class, () -> analyseService.getAnalyseById(id));
-        Assertions.assertEquals("Analyse not found", t.getMessage());
+        Assertions.assertEquals("Analyse introuvable", t.getMessage());
     }
 
     @Test
@@ -105,7 +105,7 @@ class TestAnalyseService {
     void testCreateWithNonValidAnalyseRequest() throws JsonProcessingException {
         Analyse analyse = new Analyse(null, null, new String(new byte[1000]), null);
         ResponseEntity<ApiResponse> response = analyseService.createAnalyse(analyse);
-        assertEquals("Invalid request", response.getBody().getMessage());
+        assertEquals("Requete invalide", response.getBody().getMessage());
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -115,7 +115,7 @@ class TestAnalyseService {
         BDDMockito.when(analyseExternalCommunicationService.checkIfLaboratoireExists(analyse.getFkIdLaboratoire()))
                 .thenReturn(false);
         ResponseEntity<ApiResponse> response = analyseService.createAnalyse(analyse);
-        assertEquals("Invalid laboratoire identifier in request", response.getBody().getMessage());
+        assertEquals("Identifiant de laboratoire invalide", response.getBody().getMessage());
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -125,7 +125,7 @@ class TestAnalyseService {
         BDDMockito.when(analyseExternalCommunicationService.checkIfLaboratoireExists(analyse.getFkIdLaboratoire()))
                 .thenReturn(null);
         ResponseEntity<ApiResponse> response = analyseService.createAnalyse(analyse);
-        assertEquals("Could not communicate with the laboratoire service", response.getBody().getMessage());
+        assertEquals("Communication échouée avec l'un des services", response.getBody().getMessage());
         assertEquals(HttpStatus.REQUEST_TIMEOUT, response.getStatusCode());
     }
 
@@ -136,7 +136,7 @@ class TestAnalyseService {
                 .thenReturn(true);
         BDDMockito.when(analyseRepository.save(analyse)).thenThrow(new EntityNotFoundException("rip me"));
         ResponseEntity<ApiResponse> response = analyseService.createAnalyse(analyse);
-        assertEquals("There has been an error when creating this analyse", response.getBody().getMessage());
+        assertEquals("Une erreur s'est produite lors de la création de l'analyse", response.getBody().getMessage());
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -161,7 +161,7 @@ class TestAnalyseService {
                 .thenReturn(true);
         BDDMockito.when(analyseRepository.findById(id)).thenReturn(Optional.empty());
         ResponseEntity<ApiResponse> response = analyseService.updateAnalyse(id, analyseNew);
-        assertEquals("Analyse not found", response.getBody().getMessage());
+        assertEquals("Analyse introuvable", response.getBody().getMessage());
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
@@ -172,7 +172,7 @@ class TestAnalyseService {
         BDDMockito.when(analyseExternalCommunicationService.checkIfLaboratoireExists(analyseNew.getFkIdLaboratoire()))
                 .thenReturn(false);
         ResponseEntity<ApiResponse> response = analyseService.updateAnalyse(id, analyseNew);
-        assertEquals("Invalid laboratoire id in request", response.getBody().getMessage());
+        assertEquals("Identifiant de laboratoire invalide", response.getBody().getMessage());
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -183,7 +183,7 @@ class TestAnalyseService {
         BDDMockito.when(analyseExternalCommunicationService.checkIfLaboratoireExists(analyseNew.getFkIdLaboratoire()))
                 .thenReturn(null);
         ResponseEntity<ApiResponse> response = analyseService.updateAnalyse(id, analyseNew);
-        assertEquals("Could not communicate with the laboratoire service", response.getBody().getMessage());
+        assertEquals("Communication échouée avec l'un des services", response.getBody().getMessage());
         assertEquals(HttpStatus.REQUEST_TIMEOUT, response.getStatusCode());
     }
 
@@ -192,7 +192,7 @@ class TestAnalyseService {
         Optional<Analyse> analyse = Optional.of(new Analyse(1L, "MRI", new String(new byte[1000]), 2L));
         BDDMockito.when(analyseRepository.findById(analyse.get().getId())).thenReturn(analyse);
         ResponseEntity<ApiResponse> response = analyseService.deleteAnalyse(1L);
-        assertEquals("Analyse deleted successfully", response.getBody().getMessage());
+        assertEquals("Analyse supprimée avec succès", response.getBody().getMessage());
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
 
@@ -201,7 +201,7 @@ class TestAnalyseService {
         Optional<Analyse> analyse = Optional.of(new Analyse(1L, "MRI", new String(new byte[1000]), 2L));
         BDDMockito.when(analyseRepository.findById(analyse.get().getId())).thenReturn(Optional.empty());
         ResponseEntity<ApiResponse> response = analyseService.deleteAnalyse(analyse.get().getId());
-        assertEquals("Analyse not found", response.getBody().getMessage());
+        assertEquals("Analyse introuvable", response.getBody().getMessage());
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 }
