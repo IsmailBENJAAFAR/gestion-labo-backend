@@ -20,7 +20,15 @@ labo-sai.engineer {
         file_server
 
         # Another common task is to set up a reverse proxy:
-        reverse_proxy /api/* http://gestion-exam-service:80
+        reverse_proxy /api/v1/analyses http://gestion-analyse-service:8080
+        reverse_proxy /api/v1/contacts http://gestion-contact-service:8080
+        reverse_proxy /api/v1/dossiers http://gestion-dossier-service:8080
+        reverse_proxy /api/v1/epreuves http://gestion-epreuve-service:80
+        reverse_proxy /api/v1/examens http://gestion-exam-service:80
+        reverse_proxy /api/v1/laboratoires http://gestion-laboratoire-service:8080
+        reverse_proxy /api/v1/utilisateurs http://gestion-utilisateur-service:80
+        reverse_proxy /api/v1/examens http://gestion-exam-service:80
+				# TODO: Add ws route for integration services externes
 }
 
 
