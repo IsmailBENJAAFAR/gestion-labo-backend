@@ -14,6 +14,7 @@ setup_credentials() {
 	docker login --username "$CONTAINER_REGISTRY_USER" --password "$CONTAINER_REGISTRY_TOKEN" "$CONTAINER_REGISTRY" || log_fatal "error docker login"
 	kubectl create secret generic db-secrets --from-env-file=./gestion-exam-resultat/.env || echo "warning: db credentials may have been set already. Proceeding.."
 	kubectl create secret generic user-db-secrets --from-env-file=./gestion-utilisateur/.env || echo "warning: user-db credentials may have been set already. Proceeding.."
+	kubectl create secret generic labo-db-secrets --from-env-file=./gestion-laboratoire/.env || echo "warning: labo-db credentials may have been set already. Proceeding.."
 	kubectl create secret generic regcred --from-file=.dockerconfigjson="$HOME"/.docker/config.json --type=kubernetes.io/dockerconfigjson || echo "warning: registry credentials may have been set already. Proceeding.."
 }
 
@@ -90,7 +91,7 @@ deploy_gestion_utilisateur() {
 
 deploy_message_queue() {
 	kubectl apply -f ./rabbitmq/rabbitmq_deployment.yaml || deploy_fail "rabbitmq"
-	kubectl apply -f ./rabbitmq/rabbitmq_service.yaml|| service_fail "rabbitmq"
+	kubectl apply -f ./rabbitmq/rabbitmq_service.yaml || service_fail "rabbitmq"
 }
 
 if [ "$LOCAL" == true ]; then
@@ -104,5 +105,5 @@ fi
 (deploy_api_gateway)
 (deploy_gestion_utilisateur)
 # (deploy_gestion_analyse)
-# (deploy_gestion_laboratoire)
+(deploy_gestion_laboratoire)
 (deploy_gestion_examen_service)
