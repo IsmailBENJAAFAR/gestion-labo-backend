@@ -15,6 +15,7 @@ setup_credentials() {
 	kubectl create secret generic db-secrets --from-env-file=./gestion-exam-resultat/.env || echo "warning: db credentials may have been set already. Proceeding.."
 	kubectl create secret generic user-db-secrets --from-env-file=./gestion-utilisateur/.env || echo "warning: user-db credentials may have been set already. Proceeding.."
 	kubectl create secret generic labo-db-secrets --from-env-file=./gestion-laboratoire/.env || echo "warning: labo-db credentials may have been set already. Proceeding.."
+	kubectl create secret generic analyse-db-secrets --from-env-file=./gestion-analyse/.env || echo "warning: analyse-db credentials may have been set already. Proceeding.."
 	kubectl create secret generic regcred --from-file=.dockerconfigjson="$HOME"/.docker/config.json --type=kubernetes.io/dockerconfigjson || echo "warning: registry credentials may have been set already. Proceeding.."
 }
 
@@ -104,6 +105,6 @@ fi
 (deploy_message_queue)
 (deploy_api_gateway)
 (deploy_gestion_utilisateur)
-# (deploy_gestion_analyse)
+(deploy_gestion_analyse)
 (deploy_gestion_laboratoire)
 (deploy_gestion_examen_service)

@@ -19,10 +19,10 @@ spec:
           image: registry.gitlab.com/webs2435142/new-proj/gestion-analyse:0.0.4
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           envFrom:
             - secretRef:
-                name: db-secrets
+                name: analyse-db-secrets
       imagePullSecrets:
         - name: regcred
 
