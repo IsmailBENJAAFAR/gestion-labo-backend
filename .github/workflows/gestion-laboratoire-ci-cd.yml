@@ -54,7 +54,13 @@ jobs:
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('./*.gradle*', './gradle-wrapper.properties') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-
+            ${{ runner.os }}-gradle
+
+      - name: Upload jar build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gestion-labo-jar
+          path: gestion-laboratoire/build/libs/*.jar
 
   code-quality-analyse:
     runs-on: self-hosted
@@ -94,12 +100,6 @@ jobs:
           ./gradlew build -x jar
           ./gradlew sonar
 
-      - name: Upload jar build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: gestion-labo-jar
-          path: gestion-laboratoire/build/libs/*.jar
-
   containerize:
     runs-on: ubuntu-22.04
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
@@ -116,7 +116,7 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: laboratoire--jar
+          name: gestion-labo-jar
           path: gestion-laboratoire/build/libs/
 
         # This is to test the image integrity
