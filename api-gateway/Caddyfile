@@ -12,7 +12,7 @@
 # labo-sai.engineer
 
 :80 {
-# http://labo-sai.engineer {
+	# http://labo-sai.engineer {
 	# Set this path to your site's directory.
 	# forward_auth http://gestion-utilisateur-service:8080 {
 	# 	uri /api/v1/auth/authenticate
