@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: gestion-laboratoire
-          image: registry.gitlab.com/webs2435142/new-proj/gestion-laboratoire:0.1.0
+          image: registry.gitlab.com/webs2435142/new-proj/gestion-laboratoire:0.0.4
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: gestion-analyse
-          image: registry.gitlab.com/webs2435142/new-proj/gestion-analyse:0.0.1
+          image: registry.gitlab.com/webs2435142/new-proj/gestion-analyse:0.0.4
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
