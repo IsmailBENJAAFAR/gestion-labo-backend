@@ -123,7 +123,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: gestion-analyse-jar
-          path: gestion-analyse/build/libs/
 
       - name: Install cosign
         if: github.event_name != 'pull_request'
