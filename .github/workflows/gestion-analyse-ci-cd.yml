@@ -37,7 +37,7 @@ jobs:
       - name: Build with Gradle Wrapper
         run: |
           export VERSION="$(cat version.txt)"
-          ./gradlew build -x test
+          ./gradlew build -x test -x jar
 
       - name: Perform testing
         run: |
@@ -51,7 +51,13 @@ jobs:
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('./*.gradle*', './gradle-wrapper.properties') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-
+            ${{ runner.os }}-gradle
+
+      - name: Upload jar build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gestion-analyse-jar
+          path: gestion-analyse/build/libs/*.jar
 
   code-quality-analyse:
     runs-on: self-hosted
@@ -90,12 +96,6 @@ jobs:
           cd gestion-analyse
           ./gradlew build -x jar
           ./gradlew sonar
-
-      - name: Upload jar build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: gestion-analyse-jar
-          path: gestion-analyse/build/libs/*.jar
 
   integration-test:
     runs-on: ubuntu-22.04

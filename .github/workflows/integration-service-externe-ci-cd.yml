@@ -4,10 +4,14 @@ on:
   push:
     branches:
       - master
+    paths:
+      - "integration-services-externes/**"
 
   pull_request:
     branches:
       - master
+    paths:
+      - "integration-services-externes/**"
 
 env:
   CLIENT_ID: ${{ secrets.CLIENT_ID }}
