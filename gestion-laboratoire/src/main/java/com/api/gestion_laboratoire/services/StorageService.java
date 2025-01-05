@@ -39,7 +39,8 @@ public class StorageService {
 
         if (isTooBig(imageBytes)) {
             imageInfo.put("error",
-                    "Failed to upload image : Image should be less than " + ((MAX_IMAGE_SIZE - TOLERANCE) / 1000)
+                    "Echec du téléchargement de l'image : l'image doit être inférieure à "
+                            + ((MAX_IMAGE_SIZE - TOLERANCE) / 1000)
                             + "kb");
             return imageInfo;
         }
@@ -59,7 +60,7 @@ public class StorageService {
             return imageInfo;
         } catch (IOException e) {
             logger.severe(e.getMessage());
-            imageInfo.put("error", "Failed to upload image");
+            imageInfo.put("error", "Echec du téléchargement de l'image");
             return imageInfo;
         }
     }
@@ -67,7 +68,8 @@ public class StorageService {
     public String uploadImage(String imageName, byte[] imageBytes) {
 
         if (isTooBig(imageBytes)) {
-            return "Failed to upload image : Image should be less than " + ((MAX_IMAGE_SIZE - TOLERANCE) / 1000) + "kb";
+            return "Echec du téléchargement de l'image : l'image doit être inférieure à "
+                    + ((MAX_IMAGE_SIZE - TOLERANCE) / 1000) + "kb";
         }
 
         try {
@@ -84,7 +86,7 @@ public class StorageService {
             return String.valueOf(response.get("url"));
         } catch (IOException e) {
             logger.severe(e.getMessage());
-            return "Failed to upload image";
+            return "Echec du téléchargement de l'image";
         }
     }
 
@@ -96,15 +98,15 @@ public class StorageService {
             String deleteState = String.valueOf(mapper
                     .convertValue(apiResponse.get("deleted"), Map.class).get(folder + "/" + imageName));
             if (deleteState.equals("deleted"))
-                return "Image deleted successfully";
+                return "Image supprimée avec succèsy";
             else if (deleteState.equals("not_found"))
-                return "Unable to delete image : Image not found";
+                return "Impossible de supprimer l'image : Image introuvable";
             else
-                return "Failed to delete image";
+                return "Echec de la suppression de l'image";
 
         } catch (Exception exception) {
             logger.severe(exception.getMessage());
-            return "Failed to delete image : " + exception.getMessage();
+            return "Echec de la suppression de l'image : " + exception.getMessage();
         }
     }
 

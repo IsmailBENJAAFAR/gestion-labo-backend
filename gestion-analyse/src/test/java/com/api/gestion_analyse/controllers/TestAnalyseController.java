@@ -73,7 +73,6 @@ class TestAnalyseController {
         @Test
         void shouldFindAnalyseWhenGivenValidId() throws Exception {
 
-                
                 when(analyseService.getAnalyseById(1L)).thenReturn(new AnalyseDTO(analyse));
 
                 String json = """
@@ -160,7 +159,7 @@ class TestAnalyseController {
                                 """;
                 Analyse updatedAnayse = new Analyse("MRI", "MRI something something", 3L);
                 when(analyseService.updateAnalyse(1L, updatedAnayse))
-                                .thenReturn(new ResponseEntity<>(new ApiResponse("Analyse not found"),
+                                .thenReturn(new ResponseEntity<>(new ApiResponse("Analyse introuvable"),
                                                 HttpStatus.NOT_FOUND));
 
                 mockMvc.perform(put(baseUrl + "/1")
@@ -172,7 +171,7 @@ class TestAnalyseController {
         @Test
         void shouldDeleteAnalyseWhenGivenValidID() throws Exception {
                 when(analyseService.deleteAnalyse(1L))
-                                .thenReturn(new ResponseEntity<>(new ApiResponse("Analyse deleted successfully"),
+                                .thenReturn(new ResponseEntity<>(new ApiResponse("Analyse supprimée avec succès"),
                                                 HttpStatus.NO_CONTENT));
 
                 mockMvc.perform(delete(baseUrl + "/1"))

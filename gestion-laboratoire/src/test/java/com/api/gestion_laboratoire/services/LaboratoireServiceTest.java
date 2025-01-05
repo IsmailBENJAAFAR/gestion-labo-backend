@@ -123,7 +123,7 @@ class LaboratoireServiceTest {
 
         ResponseEntity<ApiResponse> response = laboratoireService.createLaboratoire(laboratoire);
         assertEquals(HttpStatus.FAILED_DEPENDENCY, response.getStatusCode());
-        assertEquals("Could not create laboratoire : " + map.get("error"),
+        assertEquals("La creation du laboratoire a échoué : " + map.get("error"),
                 response.getBody().getMessage());
     }
 
@@ -137,7 +137,7 @@ class LaboratoireServiceTest {
 
         ResponseEntity<ApiResponse> response = laboratoireService.createLaboratoire(laboratoire);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Unknown error has occured during the creation of the Laboratoire",
+        assertEquals("Une erreur s'est produite lors de la création du laboratoire",
                 response.getBody().getMessage());
     }
 
@@ -150,13 +150,13 @@ class LaboratoireServiceTest {
         BDDMockito.when(laboratoireRepository.findById(1L)).thenReturn(laboratoire);
         BDDMockito.when(laboratoireEventsService.canDeleteLaboratoire(1L)).thenReturn(true);
         BDDMockito.when(storageService.deleteImage(laboratoire.get().getLogoID()))
-                .thenReturn("Image deleted successfully");
+                .thenReturn("Image supprimée avec succèsy");
 
         ResponseEntity<ApiResponse> response = laboratoireService.deleteLaboratoire(1L);
         verify(laboratoireRepository).deleteById(1L);
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        assertEquals("Laboratoire deleted", response.getBody().getMessage());
+        assertEquals("Laboratoire supprimé avec succès", response.getBody().getMessage());
     }
 
     @Test
@@ -170,7 +170,7 @@ class LaboratoireServiceTest {
         ResponseEntity<ApiResponse> response = laboratoireService.deleteLaboratoire(1L);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Laboratoire has dependencies", response.getBody().getMessage());
+        assertEquals("Le laboratoire a des dépendances", response.getBody().getMessage());
     }
 
     @Test
@@ -189,7 +189,7 @@ class LaboratoireServiceTest {
         // Test delete action with an invalid id
         ResponseEntity<ApiResponse> response = laboratoireService.deleteLaboratoire(1L);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals("Laboratoire not found", response.getBody().getMessage());
+        assertEquals("Laboratoire introuvable", response.getBody().getMessage());
     }
 
     @Test
@@ -202,12 +202,12 @@ class LaboratoireServiceTest {
         BDDMockito.when(laboratoireEventsService.canDeleteLaboratoire(1L)).thenReturn(true);
 
         BDDMockito.when(storageService.deleteImage(laboratoire.get().getLogoID()))
-                .thenReturn("Failed to delete image");
+                .thenReturn("Echec de la suppression de l'image");
         ResponseEntity<ApiResponse> response = laboratoireService.deleteLaboratoire(1L);
         assertEquals(HttpStatus.FAILED_DEPENDENCY, response.getStatusCode());
 
         BDDMockito.when(storageService.deleteImage(laboratoire.get().getLogoID()))
-                .thenReturn("Unable to delete image : Image not found");
+                .thenReturn("Impossible de supprimer l'image : Image introuvable");
         ResponseEntity<ApiResponse> response2 = laboratoireService.deleteLaboratoire(1L);
         assertEquals(HttpStatus.NO_CONTENT, response2.getStatusCode());
     }
@@ -295,6 +295,6 @@ class LaboratoireServiceTest {
                 new Laboratoire("labo_x69", "123456789", true, LocalDate.now()));
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals("Laboratoire not found", response.getBody().getMessage());
+        assertEquals("Laboratoire introuvable", response.getBody().getMessage());
     }
 }

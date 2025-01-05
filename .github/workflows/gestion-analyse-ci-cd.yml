@@ -108,7 +108,7 @@ jobs:
 
   containerize:
     runs-on: ubuntu-22.04
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
 
     permissions:
       contents: read
@@ -164,7 +164,7 @@ jobs:
   deploy:
     needs: containerize
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
 
     steps:
       - name: Deploy to production

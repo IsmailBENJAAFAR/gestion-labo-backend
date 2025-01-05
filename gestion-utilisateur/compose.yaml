@@ -1,9 +1,0 @@
-services:
-  postgres:
-    image: 'postgres:latest'
-    environment:
-      - 'POSTGRES_DB=user_management'
-      - 'POSTGRES_PASSWORD=ismail'
-      - 'POSTGRES_USER=ismail'
-    ports:
-      - '5432'
