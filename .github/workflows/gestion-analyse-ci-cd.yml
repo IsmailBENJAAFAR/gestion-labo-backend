@@ -37,7 +37,7 @@ jobs:
       - name: Build with Gradle Wrapper
         run: |
           export VERSION="$(cat version.txt)"
-          ./gradlew build -x test
+          ./gradlew build -x test -x jar
 
       - name: Perform testing
         run: |
