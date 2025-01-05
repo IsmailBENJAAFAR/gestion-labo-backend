@@ -22,7 +22,7 @@ spec:
             - containerPort: 8080
           envFrom:
             - secretRef:
-                name: db-secrets
+                name: labo-db-secrets
       imagePullSecrets:
         - name: regcred
 
