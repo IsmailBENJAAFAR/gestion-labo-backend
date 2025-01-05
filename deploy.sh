@@ -13,6 +13,7 @@ fi
 setup_credentials() {
 	docker login --username "$CONTAINER_REGISTRY_USER" --password "$CONTAINER_REGISTRY_TOKEN" "$CONTAINER_REGISTRY" || log_fatal "error docker login"
 	kubectl create secret generic db-secrets --from-env-file=./gestion-exam-resultat/.env || echo "warning: db credentials may have been set already. Proceeding.."
+	kubectl create secret generic user-db-secrets --from-env-file=./gestion-utilisateur/.env || echo "warning: user-db credentials may have been set already. Proceeding.."
 	kubectl create secret generic regcred --from-file=.dockerconfigjson="$HOME"/.docker/config.json --type=kubernetes.io/dockerconfigjson || echo "warning: registry credentials may have been set already. Proceeding.."
 }
 
@@ -60,6 +61,7 @@ build_api_gateway_image() {
 
 build_gestion_utilisateur_image() {
 	cd ./gestion-utilisateur/ || return
+	./gradlew bootJar
 	python3 -m venv .venv
 	source .venv/bin/activate
 	pip install -r ./requirements.txt
@@ -90,9 +92,10 @@ if [ "$LOCAL" == true ]; then
 	setup_credentials
 	(build_api_gateway_image) || log_fatal "couldn't build api gateway image"
 	(build_gestion_examen_image) || log_fatal "couldn't build examen service image"
+	(build_gestion_utilisateur_image) || log_fatal "couldn't build utilisateur service image"
 fi
 
-# (deploy_message_queue)
+(deploy_message_queue)
 (deploy_api_gateway)
 (deploy_gestion_utilisateur)
 # (deploy_gestion_analyse)

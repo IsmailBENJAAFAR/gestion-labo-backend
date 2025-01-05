@@ -22,7 +22,7 @@ spec:
             - containerPort: 80
           envFrom:
             - secretRef:
-                name: db-secrets
+                name: user-db-secrets
       imagePullSecrets:
         - name: regcred
 

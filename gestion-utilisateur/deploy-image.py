@@ -31,7 +31,7 @@ def get_args() -> tuple[str, str, str]:
 if __name__ == "__main__":
     registry, registry_user, registry_token = get_args()
     # TODO: Create a version file that can be updated here
-    version = "0.0.1"
+    version = "0.1.0"
     print(f"Building gestion-utilisateur version: {version}")
     build_docker_image(registry, version)
     push_image_to_registry(version, registry, registry_user, registry_token)
