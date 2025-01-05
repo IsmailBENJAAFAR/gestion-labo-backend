@@ -1,0 +1,20 @@
+services:
+  gestionlabo:
+    build: .
+    image: amidrissi/gestion_user:dev-0.0.1
+    networks:
+      - app-demo
+    stdin_open: true
+    tty: true
+    ports:
+      - "9997:8080"
+    environment:
+      POSTGRES_URL: jdbc:postgresql://psqldb:5432/ami
+      POSTGRES_DB_USERNAME: ami
+      POSTGRES_DB_PASSWORD: pwd
+
+networks:
+  app-demo:
+    name: app-demo-net
+    driver: bridge
+    external: true
