@@ -78,6 +78,11 @@ deploy_gestion_analyse() {
 	kubectl apply -f ./gestion-analyse/gestion_analyse_service.yaml || service_fail "gestion analyse"
 }
 
+deploy_gestion_laboratoire() {
+	kubectl apply -f ./gestion-laboratoire/gestion_laboratoire_deployment.yaml|| deploy_fail "gestion laboratoire"
+	kubectl apply -f ./gestion-laboratoire/gestion_laboratoire_service.yaml || service_fail "gestion laboratoire"
+}
+
 deploy_gestion_utilisateur() {
 	kubectl apply -f ./gestion-utilisateur/gestion_utilisateur_deployment.yaml || deploy_fail "gestion utilisateur"
 	kubectl apply -f ./gestion-utilisateur/gestion_utilisateur_service.yaml || service_fail "gestion utilisateur"
@@ -99,4 +104,5 @@ fi
 (deploy_api_gateway)
 (deploy_gestion_utilisateur)
 (deploy_gestion_analyse)
+(deploy_gestion_laboratoire)
 (deploy_gestion_examen_service)
