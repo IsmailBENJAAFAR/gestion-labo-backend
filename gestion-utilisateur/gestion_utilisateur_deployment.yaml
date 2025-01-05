@@ -19,7 +19,7 @@ spec:
           image: registry.gitlab.com/webs2435142/new-proj/gestion-utilisateur:0.1.0
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           envFrom:
             - secretRef:
                 name: user-db-secrets
