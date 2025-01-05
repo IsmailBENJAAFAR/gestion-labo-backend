@@ -4,10 +4,14 @@ on:
   push:
     branches:
       - master
+    paths:
+      - "integration-services-externes/**"
 
   pull_request:
     branches:
       - master
+    paths:
+      - "integration-services-externes/**"
 
 env:
   CLIENT_ID: ${{ secrets.CLIENT_ID }}
@@ -22,10 +26,6 @@ jobs:
         node-version: [20.x]
 
     runs-on: ubuntu-22.04
-
-    defaults:
-      run:
-        working-directory: ./integration-services-externes
 
     steps:
       - name: checkout to latest commit

@@ -21,7 +21,7 @@ import java.util.Optional;
 
 @Service
 public class AnalyseService {
-    // just to trigger the pipeline
+
     private final AnalyseRepository analyseRepository;
     private final AnalyseExternalCommunicationService analyseExternalCommunicationService;
     private final Validator validator;
