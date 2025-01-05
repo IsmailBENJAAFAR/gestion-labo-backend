@@ -52,7 +52,7 @@ build_gestion_examen_image() {
 
 build_api_gateway_image() {
 	cd ./api-gateway/ || return
-	rm -rf frontend
+	rm -rf frontend dist
 	python3 -m venv .venv
 	source .venv/bin/activate
 	pip install -r ./requirements.txt
