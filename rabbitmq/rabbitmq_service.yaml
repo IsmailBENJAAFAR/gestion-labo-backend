@@ -7,9 +7,9 @@ metadata:
 spec:
   ports:
   - name: amqp
-    port: 56721
+    port: 5672
     protocol: TCP
-    targetPort: 56721
+    targetPort: 5672
   - name: management
     port: 15672
     protocol: TCP
