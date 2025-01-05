@@ -35,9 +35,7 @@ impl Dao<Exam> for ExamDao {
 
         let mut exam = Exam::try_from(res)?;
         exam.resultat = resultats
-            .iter()
-            .cloned()
-            .filter(|r| r.fk_id_exam == exam.id)
+            .iter().filter(|&r| r.fk_id_exam == exam.id).cloned()
             .collect();
 
         Ok(exam)
@@ -97,9 +95,7 @@ impl Dao<Exam> for ExamDao {
         for entry in res {
             let mut exam = Exam::try_from(entry)?;
             exam.resultat = resultats
-                .iter()
-                .cloned()
-                .filter(|r| r.fk_id_exam == exam.id)
+                .iter().filter(|&r| r.fk_id_exam == exam.id).cloned()
                 .collect();
             exams.push(exam);
         }

@@ -29,7 +29,7 @@ impl QueueInstance {
         } else {
             "amqp://rabbitmq-service:5672/%2f"
         };
-        let connection = Connection::connect(&addr, ConnectionProperties::default()).await?;
+        let connection = Connection::connect(addr, ConnectionProperties::default()).await?;
         tracing::info!("connected to the queue through addr: {addr}");
         Ok(QueueInstance { connection })
     }
