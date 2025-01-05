@@ -23,6 +23,10 @@ jobs:
 
     runs-on: ubuntu-22.04
 
+    defaults:
+      run:
+        working-directory: ./integration-services-externes
+
     steps:
       - name: checkout to latest commit
         uses: actions/checkout@v4
