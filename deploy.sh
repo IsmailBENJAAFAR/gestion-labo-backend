@@ -103,6 +103,6 @@ fi
 (deploy_message_queue)
 (deploy_api_gateway)
 (deploy_gestion_utilisateur)
-(deploy_gestion_analyse)
-(deploy_gestion_laboratoire)
+# (deploy_gestion_analyse)
+# (deploy_gestion_laboratoire)
 (deploy_gestion_examen_service)

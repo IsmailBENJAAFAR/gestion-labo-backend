@@ -42,8 +42,8 @@
 
 		reverse_proxy /api/v1/auth/* http://gestion-utilisateur-service:8080
 
-		reverse_proxy /api/v1/utilisateurs http://gestion-utilisateur-service:8080
 		reverse_proxy /api/v1/utilisateurs/* http://gestion-utilisateur-service:8080
+		reverse_proxy /api/v1/utilisateurs http://gestion-utilisateur-service:8080
 	}
 
 	route /* {
