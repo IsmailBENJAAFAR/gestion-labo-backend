@@ -62,4 +62,5 @@ def run_selenium():
     submit_exam_creation()
 
 run_selenium()
-driver.quit()
+# TODO: will leave this commented for demonstration purposes
+# driver.quit()
