@@ -2,13 +2,13 @@ name: Gestion Contact CI/CD
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
     paths:
-      - 'gestion-contact/**'
+      - "gestion-contact/**"
   pull_request:
-    branches: [ master ]
+    branches: [master]
     paths:
-      - 'gestion-contact/**'
+      - "gestion-contact/**"
 
 jobs:
   compile:
@@ -23,8 +23,8 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'corretto'
+          java-version: "17"
+          distribution: "corretto"
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582
@@ -49,8 +49,8 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'corretto'
+          java-version: "17"
+          distribution: "corretto"
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582
@@ -80,8 +80,8 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'corretto'
+          java-version: "17"
+          distribution: "corretto"
 
       - name: Cache SonarQube packages
         uses: actions/cache@v3
@@ -168,7 +168,7 @@ jobs:
   deploy:
     needs: containerize
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
 
     steps:
       - name: Deploy to production

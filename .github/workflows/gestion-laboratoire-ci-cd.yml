@@ -100,10 +100,9 @@ jobs:
           name: gestion-labo-jar
           path: gestion-laboratoire/build/libs/*.jar
 
-
   containerize:
     runs-on: ubuntu-22.04
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
 
     permissions:
       contents: read
@@ -156,11 +155,11 @@ jobs:
             ${{secrets.CONTAINER_REGISTRY}}/gestion-laboratoire:${{ env.VERSION }}
           cache-from: type=gha
           cache-to: "type=gha,mode=max"
-    
+
   deploy:
     needs: containerize
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
 
     steps:
       - name: Deploy to production
