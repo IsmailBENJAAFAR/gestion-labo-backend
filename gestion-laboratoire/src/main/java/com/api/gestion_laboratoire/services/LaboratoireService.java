@@ -22,6 +22,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 
+// just to trigger the pipeline
 @Service
 public class LaboratoireService {
 
