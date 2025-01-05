@@ -110,21 +110,31 @@ jobs:
     runs-on: ubuntu-22.04
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
 
+    defaults:
+      run:
+        working-directory: ./gestion-analyse
+
     permissions:
       contents: read
       packages: write
       id-token: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          name: gestion-analyse-jar
-          path: gestion-analyse
+          java-version: "17"
+          distribution: "corretto"
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+
+      - name: Build with Gradle Wrapper
+        run: |
+          export VERSION="$(cat version.txt)"
+          ./gradlew bootJar
+      # fuck them artifacts
       - name: Install cosign
         if: github.event_name != 'pull_request'
         uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20
@@ -145,7 +155,6 @@ jobs:
 
       - name: Setup version
         run: |
-          cd gestion-analyse
           echo "VERSION=$(cat version.txt)" >> "$GITHUB_ENV"
 
       # Build and push Docker image with Buildx
@@ -153,7 +162,7 @@ jobs:
         id: build-and-push
         uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09
         with:
-          context: ./gestion-analyse
+          context: ./
           push: "${{ github.event_name != 'pull_request' }}"
           tags: |
             ${{secrets.CONTAINER_REGISTRY}}/gestion-analyse:latest
