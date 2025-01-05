@@ -19,10 +19,10 @@ spec:
           image: registry.gitlab.com/webs2435142/new-proj/gestion-laboratoire:0.0.4
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           envFrom:
             - secretRef:
-                name: db-secrets
+                name: labo-db-secrets
       imagePullSecrets:
         - name: regcred
 
